@@ -46,13 +46,13 @@ L'application se divise en trois composants principaux :
    - **Gestion des Utilisateurs** : Inscription, authentification et modération des utilisateurs, différents rôles et permissions.
    - **Gestion des messageries** : Envoie/réception des messages entre utilisateurs.
 
-**Critères de Réussite**  -- on est rendu làaaaaaaaaaaaa
+**Critères de Réussite**
 
-- **Fonctionnalité** : 
-- **Utilisabilité** : 
-- **Fiabilité** : 
-- **Performance** : 
-- **Maintenabilité** : 
+- **Fonctionnalité** : Le projet doit intégrer l'ensemble des fonctionnalités attendues, autant pour les utilisateurs que pour les organisateurs.
+- **Utilisabilité** :  Le UI doit être simple, clair et agréable à prendre en main.
+- **Fiabilité** : L'application doit offrir un haut niveau de sécurité et fonctionner de manière stable.
+- **Performance** : L'application doit supporter un volume d'utilisation important tout en garantissant des réponses rapides.
+- **Maintenabilité** : Le code doit être propre, organisé, bien commenté et conçu pour faciliter les corrections et les évolutions futures.
 
 **Livraisons**
 
