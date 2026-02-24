@@ -5,7 +5,7 @@
 Notre projet se veut d'offrir un moyen de communication et d'entraide numérique simplifié entre les étudiants de l'ÉTS (et de d'autres milieux étudiants). Les applications web et mobiles seront assez semblables permettant un meilleur accès multiplateforme selon les préférences des utilisateurs. La page principale de l'application est un flux des idées et commentaires de la communauté étudiante en continu, permettant de discuter sur divers sujets et de créer de nouvelles connexions. Nous utiliserons un API Rest pour gérer l'interaction des utilisateurs entre l'application et le serveur.
 
 **Objectifs Pédagogiques**
--Mettre à profit nos apprentissages en utiisant les outils qui nous ont été fournit lors de notre cheminement en développement web, Android, base de données et serveur.
+-Mettre à profit nos apprentissages en utilisant les outils qui nous ont été fournit lors de notre cheminement en développement web, Android, base de données et serveur.
 -Concevoir et comprendre une architecture API REST pour l'échange de données entre les différents utilisateurs et le serveur.
 -Apprendre à concevoir un projet logiciel avec une équipe et respecter un échéancier concis.
 -Diviser notre projet en déléguant les diverses tâches selon les compétences de chaque programmeur. 
