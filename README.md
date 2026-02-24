@@ -24,10 +24,11 @@ L'application se divise en trois composants principaux :
 2. **Application web d'administration** :
    - Tableaux de bord pour la gestion des utilisateurs.
    - Outils de filtres des publications
+   - NextJS pour simplifier le développement
 
-3. **API REST en PHP** :
+3. **API REST en C#** :
    - Gestion des différentes publications et clavardages publiques/privés
-   - Gestion de l'authentification des utilisateurs en communicant avec la base de données.
+   - Gestion de l'authentification des utilisateurs en communicant avec la base de données Oracle SQL.
 
 **Fonctionnalités de l'application**
 
@@ -41,7 +42,7 @@ L'application se divise en trois composants principaux :
    - **Tableau de Bord** : Vue d'ensemble de tous les utilisateurs et fonctionnalités de modération
    - **Rapports d'utilisation** : Statistiques générales d'utilisation des utilisateurs
 
-3. **API REST en PHP** :
+3. **API REST en C#** :
    - **Endpoints des publications** : Création, modificaftion et suppression des publications
    - **Gestion des Utilisateurs** : Inscription, authentification et modération des utilisateurs, différents rôles et permissions.
    - **Gestion des messageries** : Envoie/réception des messages entre utilisateurs.
