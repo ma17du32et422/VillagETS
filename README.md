@@ -12,7 +12,7 @@ Notre projet se veut d'offrir un moyen de communication et d'entraide numérique
 
 **Description du projet:**
 
-L'application se divise en trois composants principaux :
+L'application se divise en quatre composants principaux :
 
 1. **Application mobile android pour utilisateurs** :
    - Salon publique de clavardage entre tous les étudiants.
@@ -29,6 +29,7 @@ L'application se divise en trois composants principaux :
 3. **API REST en C#** :
    - Gestion des différentes publications et clavardages publiques/privés
    - Gestion de l'authentification des utilisateurs en communicant avec la base de données Oracle SQL.
+   - Liste des tables dans Oracle : classe mère Publication, ventes, utilisateurs, messages directs. 
 
 **Fonctionnalités de l'application**
 
@@ -46,6 +47,10 @@ L'application se divise en trois composants principaux :
    - **Endpoints des publications** : Création, modificaftion et suppression des publications
    - **Gestion des Utilisateurs** : Inscription, authentification et modération des utilisateurs, différents rôles et permissions.
    - **Gestion des messageries** : Envoie/réception des messages entre utilisateurs.
+
+4. **information multi-usager** :
+   - les clients peuvent faire des publications, des offres, des conversations.
+   - les admins possèdent les fonctionnalités des clients et peuvent supprimer des publications, des offres et des fonctionnalité avancé de recherche.
 
 **Critères de Réussite**
 
