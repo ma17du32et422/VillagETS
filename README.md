@@ -24,7 +24,7 @@ L'application se divise en trois composants principaux :
 2. **Application web d'administration** :
    - Tableaux de bord pour la gestion des utilisateurs.
    - Outils de filtres des publications
-   - NextJS pour simplifier le développement
+   - Next.js et React pour simplifier le développement
 
 3. **API REST en C#** :
    - Gestion des différentes publications et clavardages publiques/privés
