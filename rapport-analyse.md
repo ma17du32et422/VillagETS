@@ -22,7 +22,7 @@ Database ORACLE SQL
 
 **Diagramme de cas d'utilisation**
 
-Créez un diagramme de cas d'utilisation pour le système de votre projet. Celui-ci devra identifier les différents acteurs possibles du système et leurs cas d'utilisation comme vue en classe.
+![Cas d'utilisation](Schemas/Cas_utilisation.png)
 
 **Schéma initial de la base de données**
 
