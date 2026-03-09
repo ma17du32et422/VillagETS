@@ -26,7 +26,8 @@ Database ORACLE SQL
 
 **Schéma initial de la base de données**
 
-<img width="1585" height="673" alt="image" src="https://github.com/user-attachments/assets/01e528d0-9fe8-4295-8757-1e54d91c57d7" />
+<img width="1507" height="643" alt="image" src="https://github.com/user-attachments/assets/b69ae984-eeb9-4935-9eb7-d787d887ca19" />
+
 
 
 **Liste d'user stories**
