@@ -25,17 +25,21 @@ Database ORACLE SQL
 ![Cas d'utilisation](Schemas/Cas_utilisation.png)
 
 **Schéma initial de la base de données**
+
 <img width="1585" height="673" alt="image" src="https://github.com/user-attachments/assets/01e528d0-9fe8-4295-8757-1e54d91c57d7" />
 
 
 **Liste d'user stories**
+
 ISSUES: https://github.com/ma17du32et422/TCH099/issues
 
 **Liste de requis technologiques**
+
 Pour publier et gérer des publications, il faut un API Rest en C# pour de la communication en ligne.
 Pour envoyer des messages privés, il faut utiliser Websockets.
 Pour les différencier les utilisateurs dont les administrateurs, il faut un système de compte en utilisant une base de données ORACLE SQL.
 POour faire un version mobile du forum, il faut utiliser Android Studio.
 
 **Liste de requis non fonctionnels**
+
 Ajoutez les requis non fonctionnels avec les liens vers les Issues de votre projet.
