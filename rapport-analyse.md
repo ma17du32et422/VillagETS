@@ -41,5 +41,21 @@ Pour les différencier les utilisateurs dont les administrateurs, il faut un sys
 POour faire un version mobile du forum, il faut utiliser Android Studio.
 
 **Liste de requis non fonctionnels**
+1.	Performances
+  a.	Le temps de chargement visé pour le site est de moins de 2 sec pour la version web 
+  b.	Pour la version android nous nous référons aux guidelines de Android Dev https://developer.android.com/topic/performance/vitals/launch-time?hl=fr
+  c.	Si l’ont se fie au traffic de r/etsmtl, nous auront un max de 8 000 utilisateurs par semaine
+2.	Fiabilité
+  a.	Le site et la base de donnée serons sur deux serveurs pour avoir une disponibilité 24h et une récupération des données corrompues par un bris physique
+3.	Sécurité
+  a.	Pour protéger notre site nous allons utiliser https pour sécuriser les requêtes. 
+  b.	L’authentification des requêtes sera sécurisé avec une clé d’API ou BEAR API 
+  c.	La database sera sécurisé contre les injections sql et les mots de passes seront encryptés
+4.	 Maintenance 
+  a.	Le code sera commenté et expliqué sur GitHub
+  b.	Le projet sera lié par l’Api rest pour que chaque partie soit indépendante et modulaire
+  c.	Il y a une version admin pour modérer facilement les publications
+5.	Convivialité
+  a.	La règle des trois clics sera appliquée pour que les utilisateurs aient facilement accès aux fonctions
+  b.	L’interface des deux versions sera similaire pour que les utilisateurs n’aient pas à en apprendre deux.
 
-Ajoutez les requis non fonctionnels avec les liens vers les Issues de votre projet.
