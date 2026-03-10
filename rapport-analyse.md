@@ -46,7 +46,7 @@ POour faire un version mobile du forum, il faut utiliser Android Studio.
   -	Pour la version android nous nous référons aux guidelines de Android Dev https://developer.android.com/topic/performance/vitals/launch-time?hl=fr
   - Si l’ont se fie au traffic de r/etsmtl, nous auront un max de 8 000 utilisateurs par semaine
 2.	Fiabilité
-  a.	Le site et la base de donnée serons sur deux serveurs pour avoir une disponibilité 24h et une récupération des données corrompues par un bris physique
+  -	Le site et la base de donnée serons sur deux serveurs pour avoir une disponibilité 24h et une récupération des données corrompues par un bris physique
 3.	Sécurité
   - Pour protéger notre site nous allons utiliser https pour sécuriser les requêtes. 
   - L’authentification des requêtes sera sécurisé avec une clé d’API ou BEAR API 
