@@ -3,6 +3,8 @@ import Actions from "./components/Actions";
 import Flux from "./components/Flux";
 import Messages from "./components/Messages";
 
+import './assets/App.css'
+
 function App(){
   return(
     <>

@@ -1,0 +1,34 @@
+*{
+    box-sizing: border-box;
+}
+
+header{
+    display: flex;
+    justify-content: center;
+}
+
+/** Main window layout with all 3 sections*/
+main{
+    display: flex;
+    justify-content: space-between;
+}
+
+.scrollable{
+    overflow-y: auto;
+    min-height: 100%;
+}
+
+#actions{
+    width: 20%;
+    background-color: lightgray;
+}
+
+#flux{
+    width: 60%;
+    background-color: whitesmoke;
+}
+
+#messages{
+    width: 20%;
+    background-color: lightgray;
+}
