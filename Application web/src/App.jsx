@@ -1,10 +1,15 @@
+/** Component imports */
+
 import Header from "./components/Header";
 import Actions from "./components/Actions";
 import Flux from "./components/Flux";
 import Messages from "./components/Messages";
 
+/** Styling */
 import './assets/App.css'
 
+/** Layout for the web application */
+/** DO NOT TOUCH */
 function App(){
   return(
     <>
