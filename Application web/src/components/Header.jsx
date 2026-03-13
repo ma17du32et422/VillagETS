@@ -1,8 +1,13 @@
+/** Style imports */
+import '.././assets/Header.css'
+
 /** Header */
 export default function Header(){
   return(
-    <div>
-      Header  
+    <div class="head-container">
+      <h2 id="app-name">VILLAGETS</h2>
+      <input id="search" type="text" placeholder="Search"></input>
+      <button id="profile" type='button'>Profile</button>  
     </div>
   );
 }

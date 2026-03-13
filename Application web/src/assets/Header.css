@@ -1,0 +1,21 @@
+.head-container{
+    width: 100%;
+    height: 5vf;
+    display: flex;
+    justify-content: space-between;
+}
+
+#search{
+    width: 35%;
+    height: 25px;
+}
+
+#app-name{
+    width: 20%;
+    margin-top: 0px;
+}
+
+#profile{
+    width: 20%;
+    height: 25px;
+}

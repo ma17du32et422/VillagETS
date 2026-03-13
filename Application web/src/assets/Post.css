@@ -1,0 +1,18 @@
+/** Post borders */
+.post{
+    border: 2px black solid;
+    margin-bottom: 25px;
+}
+
+/** Image layouts */
+#image-container{
+    display: flex;
+    justify-content: center;
+}
+
+#image{
+    min-width: 50%;
+    min-height: 50%;
+    max-width: 75%;
+    max-height: 75%;
+}
