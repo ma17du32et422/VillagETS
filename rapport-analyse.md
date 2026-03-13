@@ -38,7 +38,7 @@ ISSUES: https://github.com/ma17du32et422/TCH099/issues
 Pour publier et gérer des publications, il faut un API Rest en C# pour de la communication en ligne.
 Pour envoyer des messages privés, il faut utiliser Websockets.
 Pour les différencier les utilisateurs dont les administrateurs, il faut un système de compte en utilisant une base de données ORACLE SQL.
-POour faire un version mobile du forum, il faut utiliser Android Studio.
+Pour faire un version mobile du forum, il faut utiliser Android Studio.
 
 **Liste de requis non fonctionnels**
 1.	Performances
