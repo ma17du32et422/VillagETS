@@ -2,6 +2,12 @@
     box-sizing: border-box;
 }
 
+body{
+    overflow: hidden;
+}
+
+
+/** Header layout */
 header{
     display: flex;
     justify-content: center;
@@ -10,25 +16,33 @@ header{
 /** Main window layout with all 3 sections*/
 main{
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    max-height: 100vh;
 }
 
-.scrollable{
-    overflow-y: auto;
-    min-height: 100%;
-}
-
-#actions{
-    width: 20%;
-    background-color: lightgray;
-}
-
-#flux{
+/** Flux layout manager */
+#flux-container{
+    display: flex;
     width: 60%;
+    height: 100vh;
     background-color: whitesmoke;
 }
 
-#messages{
+#flux{
+    flex: 1;
+    overflow-y: auto;
+}
+
+/** Actions and messages layout manager*/
+
+#actions-manager, #messages-manager{
+    display: flex;
     width: 20%;
+    height: 100vh;
     background-color: lightgray;
+}
+
+#actions, #messages{
+    flex: 1;
+    overflow-y: scroll;
 }

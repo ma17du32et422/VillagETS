@@ -7,7 +7,9 @@ import Post from './subcomponents/Post'
  */
 export default function Flux(){
   return(
-    <div>
+    <div id="feed">
+      <Post />
+      <Post />
       <Post />
       <Post />
       <Post />

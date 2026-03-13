@@ -17,11 +17,17 @@ function App(){
 
       <main id="main">
 
-        <section id="actions" className="scrollable"><Actions /></section>
+        <section id="actions-container">
+          <div id="actions"><Actions /></div>
+        </section>
 
-        <section id="flux" className="scrollable"><Flux /></section>
+        <section id="flux-container">
+          <div id="flux"><Flux /></div>
+        </section>
 
-        <section id="messages" className="scrollable"><Messages /></section>
+        <section id="messages-container">
+          <div id="messages"><Messages /></div>
+        </section>
 
       </main>
     </>
