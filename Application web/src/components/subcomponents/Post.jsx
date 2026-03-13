@@ -15,9 +15,11 @@ export default function Post(){
     */
     <article class="post">
 
-      <h2 id="title">Title</h2>
+      <h2 id="title">Post title on top of the post</h2>
 
-      <img id="image" src={image}></img>
+      <div id="image-container">
+        <img id="image" src={image}></img>
+      </div>
 
       <p id="contents">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor 
         incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation 
