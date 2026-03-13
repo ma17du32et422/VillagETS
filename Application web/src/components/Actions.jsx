@@ -1,4 +1,4 @@
-
+// Import CSS and other Media
 
 // Actions
 export default function Actions(){
@@ -6,7 +6,7 @@ export default function Actions(){
 
     // Actions layout
     <div class="Actions">
-        Actions
+        <p>Actions</p>
         <button type="button" onClick="onCreerClick">Créer</button>
         <menu>
             <ul>Exemple 1</ul>
