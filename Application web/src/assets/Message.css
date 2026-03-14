@@ -1,0 +1,18 @@
+.message{
+    display: flex;
+    border: 2px black solid;
+    height: 75px;
+}
+
+#pfp-container{
+    display: flex;
+    width: 30%;
+}
+
+#msg-container{
+    width: 70%;
+}
+
+#pfp{
+    object-fit: cover;
+}
