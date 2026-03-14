@@ -1,18 +1,16 @@
-// Import CSS and other Media
+/** Style imports */
+import '.././assets/Actions.css'
 
-// Actions
+/** Actions */
 export default function Actions(){
   return(
 
-    // Actions layout
-    <div class="Actions">
-        <p>Actions</p>
-        <button type="button" onClick="onCreerClick">Créer</button>
-        <menu>
-            <ul>Exemple 1</ul>
-            <ul>Exemple 2</ul>
-            <ul>Exemple 3</ul>
-        </menu>
+    /** Actions layout 
+     * The buttons do not return anything for now, nor they add a post to the flux
+    */
+    <div class="actions">
+      <button id="create-post" type="button">Nouvelle publication</button>
+      <button id="menu" type="button">Menu (TO CHANGE LATER)</button>
     </div>
   );
 }

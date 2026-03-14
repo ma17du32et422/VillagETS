@@ -1,0 +1,8 @@
+.actions{
+    width: 100%;
+}
+
+#create-post, #menu{
+    width: 100%;
+    height: 50px;
+}

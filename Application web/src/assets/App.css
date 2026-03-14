@@ -1,3 +1,5 @@
+/** DO NOT TOUCH */
+/** General layout */
 *{
     box-sizing: border-box;
 }
@@ -10,6 +12,7 @@ body{
 header{
     display: flex;
     justify-content: center;
+    border: 2px black solid;
 }
 
 /** Main window layout with all 3 sections*/
@@ -17,6 +20,7 @@ main{
     display: flex;
     justify-content: center;
     max-height: 100vh;
+    width: 100%;
 }
 
 /** Flux layout manager */
@@ -34,11 +38,12 @@ main{
 
 /** Actions and messages layout manager*/
 
-#actions-manager, #messages-manager{
+#actions-container, #messages-container{
     display: flex;
     width: 20%;
     height: 100vh;
     background-color: lightgray;
+    border: 2px black solid;
 }
 
 #actions, #messages{
