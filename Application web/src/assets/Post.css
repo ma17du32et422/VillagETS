@@ -1,7 +1,25 @@
 /** Post borders */
 .post{
-    border: 2px black solid;
+    border-bottom: 2px black solid;
     margin-bottom: 25px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+#post-header{
+    background-color: lightgrey;
+}
+
+/** Post layouts */
+#op-info{
+    display: flex;
+    justify-content: space-between;
+    margin-right: 2px;
+}
+
+#title, #op-info{
+    margin-left: 1%;
+    margin-top: 1%;
 }
 
 /** Image layouts */

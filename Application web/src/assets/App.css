@@ -28,7 +28,6 @@ main{
     display: flex;
     width: 60%;
     height: 100vh;
-    background-color: whitesmoke;
 }
 
 #flux{
@@ -42,7 +41,6 @@ main{
     display: flex;
     width: 20%;
     height: 100vh;
-    background-color: lightgray;
     border: 2px black solid;
 }
 

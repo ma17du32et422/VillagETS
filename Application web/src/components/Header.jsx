@@ -7,7 +7,9 @@ export default function Header(){
     <div class="head-container">
       <h2 id="app-name">VILLAGETS</h2>
       <input id="search" type="text" placeholder="Search"></input>
-      <button id="profile" type='button'>Profile</button>  
+      <button id="profile" type='button'>
+        <p id="profile-text">Profile</p>
+      </button>  
     </div>
   );
 }

@@ -15,7 +15,14 @@ export default function Post(){
     */
     <article class="post">
 
-      <h2 id="title">Post title on top of the post</h2>
+      <div id="post-header">
+        <h2 id="title">Post title on top of the post</h2>
+
+        <div id="op-info">
+          <p id="op-name">Name of op</p>
+          <p id="datetime">Date and time</p>
+        </div>
+      </div>
 
       <div id="image-container">
         <img id="image" src={image}></img>

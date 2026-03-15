@@ -9,7 +9,6 @@ import Message from './subcomponents/Message'
 export default function Messages(){
   return(
     <div id="messages">
-      <h2>Messages</h2>
       <Message />
       <Message />
       <Message />

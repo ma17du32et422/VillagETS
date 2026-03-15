@@ -1,7 +1,9 @@
 .message{
     display: flex;
-    border: 2px black solid;
+    border-bottom: 2px black solid;
     height: 75px;
+    margin-left: 4px;
+    margin-right: 4px;
 }
 
 #pfp-container{
