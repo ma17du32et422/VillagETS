@@ -1,147 +1,170 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- TOP BAR -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/menuBtn"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="16dp"/>
+        <!-- TOP BAR -->
 
-    <TextView
-        android:id="@+id/appTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="VillagETS"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@id/menuBtn"
-        app:layout_constraintEnd_toStartOf="@id/addPostBtn"
-        app:layout_constraintTop_toTopOf="@id/menuBtn"
-        app:layout_constraintBottom_toBottomOf="@id/menuBtn"/>
+        <ImageButton
+            android:id="@+id/menuBtn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/baseline_menu_24"
+            android:contentDescription="Menu"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
 
-    <ImageView
-        android:id="@+id/addPostBtn"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        app:layout_constraintEnd_toStartOf="@id/profileBtn"
-        app:layout_constraintTop_toTopOf="@id/menuBtn"
-        app:layout_constraintBottom_toBottomOf="@id/menuBtn"
-        android:layout_marginEnd="12dp"/>
-
-    <ImageView
-        android:id="@+id/profileBtn"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/menuBtn"
-        app:layout_constraintBottom_toBottomOf="@id/menuBtn"/>
-
-
-    <!-- POSTS AREA -->
-
-    <ScrollView
-        android:id="@+id/postScroll"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@id/menuBtn"
-        app:layout_constraintBottom_toTopOf="@id/homeBtn"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <LinearLayout
-            android:id="@+id/postContainer"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/appTitle"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="12dp">
+            android:text="VillagETS"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/menuBtn"
+            app:layout_constraintEnd_toStartOf="@id/addPostBtn"
+            app:layout_constraintTop_toTopOf="@id/menuBtn"
+            app:layout_constraintBottom_toBottomOf="@id/menuBtn"/>
 
-            <TextView
+        <ImageButton
+            android:id="@+id/addPostBtn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            app:layout_constraintEnd_toStartOf="@id/profileBtn"
+            android:src ="@drawable/add"
+            app:layout_constraintTop_toTopOf="@id/menuBtn"
+            app:layout_constraintBottom_toBottomOf="@id/menuBtn"
+            android:layout_marginEnd="12dp"/>
+
+        <ImageButton
+            android:id="@+id/profileBtn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src ="@drawable/silicate"
+            android:scaleType="centerCrop"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/menuBtn"
+            app:layout_constraintBottom_toBottomOf="@id/menuBtn"/>
+
+
+        <!-- POSTS AREA -->
+
+        <ScrollView
+            android:id="@+id/postScroll"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintTop_toBottomOf="@id/menuBtn"
+            app:layout_constraintBottom_toTopOf="@id/homeBtn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:id="@+id/postContainer"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#DDDDDD"
-                android:gravity="center"
-                android:text="Post"
-                android:textSize="18sp" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
 
-        </LinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#DDDDDD"
+                    android:gravity="center"
+                    android:text="Post"
+                    android:textSize="18sp" />
 
-    </ScrollView>
+            </LinearLayout>
+
+        </ScrollView>
 
 
-    <!-- BOTTOM NAV -->
+        <!-- BOTTOM NAV -->
 
-    <ImageButton
-        android:id="@+id/homeBtn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="@null"
+        <ImageButton
+            android:id="@+id/homeBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src = "@drawable/home"
 
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/moneyBtn"
-        app:layout_constraintBottom_toBottomOf="parent"
+            android:contentDescription="Home"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/moneyBtn"
+            app:layout_constraintBottom_toBottomOf="parent"
 
-        app:layout_constraintHorizontal_chainStyle="packed"
-        android:layout_marginBottom="12dp"/>
+            app:layout_constraintHorizontal_chainStyle="packed"
+            android:layout_marginBottom="12dp"/>
 
-    <ImageButton
-        android:id="@+id/moneyBtn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="16dp"
+        <ImageButton
+            android:id="@+id/moneyBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="16dp"
+            android:src = "@drawable/outline_diamond_shine_24"
+            android:layout_marginBottom="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/searchBtn"
+            app:layout_constraintStart_toEndOf="@id/homeBtn" />
 
-        android:layout_marginBottom="12dp"
-        android:background="@null"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/searchBtn"
-        app:layout_constraintStart_toEndOf="@id/homeBtn" />
+        <ImageButton
+            android:id="@+id/searchBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="16dp"
+            android:src ="@drawable/search"
+            android:layout_marginBottom="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/messageBtn"
+            app:layout_constraintStart_toEndOf="@id/moneyBtn" />
 
-    <ImageButton
-        android:id="@+id/searchBtn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="16dp"
+        <ImageButton
+            android:id="@+id/messageBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="16dp"
+            android:src ="@drawable/msg"
+            android:layout_marginBottom="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/notificationBtn"
+            app:layout_constraintStart_toEndOf="@id/searchBtn" />
 
-        android:layout_marginBottom="12dp"
-        android:background="@null"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/messageBtn"
-        app:layout_constraintStart_toEndOf="@id/moneyBtn" />
+        <ImageButton
+            android:id="@+id/notificationBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="16dp"
+            android:src ="@drawable/notif"
+            android:layout_marginBottom="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/messageBtn" />
 
-    <ImageButton
-        android:id="@+id/messageBtn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="16dp"
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-        android:layout_marginBottom="12dp"
-        android:background="@null"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/notificationBtn"
-        app:layout_constraintStart_toEndOf="@id/searchBtn" />
+    <!-- Empty Drawer -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@android:color/white" />
 
-    <ImageButton
-        android:id="@+id/notificationBtn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="16dp"
-
-        android:layout_marginBottom="12dp"
-        android:background="@null"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/messageBtn" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.drawerlayout.widget.DrawerLayout>
