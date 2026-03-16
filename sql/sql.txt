@@ -1,0 +1,112 @@
+DROP TABLE IF EXISTS Message_Piece_Jointe CASCADE;
+DROP TABLE IF EXISTS Message_Utilisateur CASCADE;
+DROP TABLE IF EXISTS Message CASCADE;
+DROP TABLE IF EXISTS Publication_Piece_Jointe CASCADE;
+DROP TABLE IF EXISTS Piece_Jointe CASCADE;
+DROP TABLE IF EXISTS Categorie_Publication_Publication CASCADE;
+DROP TABLE IF EXISTS Categorie_Publication CASCADE;
+DROP TABLE IF EXISTS Article_A_Vendre CASCADE;
+DROP TABLE IF EXISTS Publication CASCADE;
+DROP TABLE IF EXISTS Utilisateur CASCADE;
+
+CREATE TABLE Utilisateur (
+    id_utilisateur INTEGER PRIMARY KEY,
+    pseudo VARCHAR(16) UNIQUE,
+    password VARCHAR(40),
+    date_creation TIMESTAMP,
+    nom VARCHAR(30),
+    prenom VARCHAR(30),
+    email VARCHAR(50) UNIQUE,
+    annee_naissance TIMESTAMP,
+    main_admin BOOLEAN
+);
+
+CREATE TABLE Publication (
+    id_publication INTEGER PRIMARY KEY,
+    Utilisateurid INTEGER,
+    nom VARCHAR(50),
+    contenu VARCHAR(255),
+    CONSTRAINT fk_publication_utilisateur
+        FOREIGN KEY (Utilisateurid)
+        REFERENCES Utilisateur(id_utilisateur)
+);
+
+CREATE TABLE Article_A_Vendre (
+    id_article INTEGER PRIMARY KEY,
+    nom VARCHAR(30),
+    description TEXT,
+    prix DECIMAL(8,2),
+    id_publication INTEGER,
+    CONSTRAINT fk_article_publication
+        FOREIGN KEY (id_publication)
+        REFERENCES Publication(id_publication)
+);
+
+CREATE TABLE Categorie_Publication (
+    id_categorie_publication INTEGER PRIMARY KEY,
+    nom VARCHAR(20) UNIQUE
+);
+
+CREATE TABLE Categorie_Publication_Publication (
+    id_categorie_publication INTEGER,
+    publicationid_publication INTEGER,
+    PRIMARY KEY (id_categorie_publication, publicationid_publication),
+    CONSTRAINT fk_cpp_categorie
+        FOREIGN KEY (id_categorie_publication)
+        REFERENCES Categorie_Publication(id_categorie_publication),
+    CONSTRAINT fk_cpp_publication
+        FOREIGN KEY (publicationid_publication)
+        REFERENCES Publication(id_publication)
+);
+
+CREATE TABLE Piece_Jointe (
+    id_piece_jointe INTEGER PRIMARY KEY,
+    nom VARCHAR(30) UNIQUE,
+    lien_fichier VARCHAR(255),
+    type VARCHAR(10)
+);
+
+CREATE TABLE Publication_Piece_Jointe (
+    id_piece_jointe INTEGER,
+    id_publication INTEGER,
+    PRIMARY KEY (id_piece_jointe, id_publication),
+    CONSTRAINT fk_ppj_piece
+        FOREIGN KEY (id_piece_jointe)
+        REFERENCES Piece_Jointe(id_piece_jointe),
+    CONSTRAINT fk_ppj_publication
+        FOREIGN KEY (id_publication)
+        REFERENCES Publication(id_publication)
+);
+
+CREATE TABLE Message (
+    id_message INTEGER PRIMARY KEY,
+    contenu TEXT,
+    envoyeur_id_utilisateur INTEGER,
+    CONSTRAINT fk_message_envoyeur
+        FOREIGN KEY (envoyeur_id_utilisateur)
+        REFERENCES Utilisateur(id_utilisateur)
+);
+
+CREATE TABLE Message_Utilisateur (
+    Messageid_message INTEGER,
+    receveur_id_utilisateur INTEGER,
+    PRIMARY KEY (Messageid_message, receveur_id_utilisateur),
+    CONSTRAINT fk_mu_message
+        FOREIGN KEY (Messageid_message)
+        REFERENCES Message(id_message),
+    CONSTRAINT fk_mu_utilisateur
+        FOREIGN KEY (receveur_id_utilisateur)
+        REFERENCES Utilisateur(id_utilisateur)
+);
+
+CREATE TABLE Message_Piece_Jointe (
+    id_message INTEGER,
+    id_piece_jointe INTEGER,
+    PRIMARY KEY (id_message, id_piece_jointe),
+    CONSTRAINT fk_mpj_message
+        FOREIGN KEY (id_message)
+        REFERENCES Message(id_message),
+    CONSTRAINT fk_mpj_piece
+        FOREIGN KEY (id_piece_jointe)
+        REFERENCES Piece_Jointe(id_piece_jointe)
+);
