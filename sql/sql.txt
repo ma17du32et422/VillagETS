@@ -8,6 +8,9 @@ DROP TABLE IF EXISTS Categorie_Publication CASCADE;
 DROP TABLE IF EXISTS Article_A_Vendre CASCADE;
 DROP TABLE IF EXISTS Publication CASCADE;
 DROP TABLE IF EXISTS Utilisateur CASCADE;
+DROP TABLE IF EXISTS Commentaire CASCADE;
+DROP TABLE IF EXISTS Commentaire_Piece_Jointe CASCADE;
+
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -28,9 +31,30 @@ CREATE TABLE Publication (
     Utilisateurid UUID,
     nom VARCHAR(50),
     contenu VARCHAR(255),
+	likes INTEGER DEFAULT 0,
+	dislikes INTEGER DEFAULT 0,
     CONSTRAINT fk_publication_utilisateur
         FOREIGN KEY (Utilisateurid)
         REFERENCES Utilisateur(id_utilisateur)
+);
+
+CREATE TABLE Commentaire (
+    id_commentaire UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    Utilisateurid UUID,
+	Publicationid UUID,
+	Parent_commentaire UUID,
+    contenu VARCHAR(255),
+	likes INTEGER DEFAULT 0,
+	dislikes INTEGER DEFAULT 0,
+    CONSTRAINT fk_commentaire_utilisateur
+        FOREIGN KEY (Utilisateurid)
+        REFERENCES Utilisateur(id_utilisateur),
+	CONSTRAINT fk_commentaire_publication
+        FOREIGN KEY (Publicationid)
+        REFERENCES Publication(id_publication),
+	CONSTRAINT fk_commentaire_parent
+        FOREIGN KEY (Parent_commentaire)
+        REFERENCES Commentaire(id_commentaire)
 );
 
 CREATE TABLE Article_A_Vendre (
@@ -81,6 +105,18 @@ CREATE TABLE Publication_Piece_Jointe (
         REFERENCES Publication(id_publication)
 );
 
+CREATE TABLE Commentaire_Piece_Jointe (
+    id_piece_jointe UUID,
+    id_commentaire UUID,
+    PRIMARY KEY (id_piece_jointe, id_commentaire),
+    CONSTRAINT fk_cpj_piece
+        FOREIGN KEY (id_piece_jointe)
+        REFERENCES Piece_Jointe(id_piece_jointe),
+    CONSTRAINT fk_cpj_commentaire
+        FOREIGN KEY (id_commentaire)
+        REFERENCES Commentaire(id_commentaire)
+);
+
 CREATE TABLE Message (
     id_message UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     contenu TEXT,
@@ -113,3 +149,25 @@ CREATE TABLE Message_Piece_Jointe (
         FOREIGN KEY (id_piece_jointe)
         REFERENCES Piece_Jointe(id_piece_jointe)
 );
+
+-- Valeurs de test
+INSERT INTO Utilisateur (
+    pseudo,
+    password,
+    date_creation,
+    nom,
+    prenom,
+    email,
+    annee_naissance,
+    main_admin
+) VALUES (
+    'PSEUDO',
+    'mdp',
+    '1900-01-01',
+    'NOM',
+    'PRENOM',
+    'email',
+    '2000-01-01',
+    false
+);
+INSERT INTO Categorie_Publication (nom, categorie_base) VALUES ('Marketplace', TRUE);

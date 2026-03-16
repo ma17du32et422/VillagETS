@@ -33,10 +33,12 @@
             android:text="VillagETS"
             android:textSize="20sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/menuBtn"
+            app:layout_constraintBottom_toBottomOf="@id/menuBtn"
             app:layout_constraintEnd_toStartOf="@id/addPostBtn"
+            app:layout_constraintHorizontal_bias="0.68"
+            app:layout_constraintStart_toEndOf="@id/menuBtn"
             app:layout_constraintTop_toTopOf="@id/menuBtn"
-            app:layout_constraintBottom_toBottomOf="@id/menuBtn"/>
+            app:layout_constraintVertical_bias="1.0" />
 
         <ImageButton
             android:id="@+id/addPostBtn"

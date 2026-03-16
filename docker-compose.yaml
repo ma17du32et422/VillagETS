@@ -1,33 +1,38 @@
-services:
-  api:
-    image: mcr.microsoft.com/dotnet/sdk:10.0
-    working_dir: /src
-    ports:
-      - "5000:8080"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - DOTNET_USE_POLLING_FILE_WATCHER=true
-      - ASPNETCORE_URLS=http://0.0.0.0:8080
-      - ConnectionStrings__DefaultConnection=Server=db;Database=AppDB;User Id=sa;Password=Root1234!;TrustServerCertificate=True;
-    volumes:
-      - ./backend/srv:/src
-      - ./Application-web:/app/webApp
-    command: dotnet watch run --no-launch-profile
-    depends_on:
-      - db
+  services:
+    api:
+      image: mcr.microsoft.com/dotnet/sdk:10.0
+      working_dir: /src
+      ports:
+        - "5000:8080"
+      dns:
+        - 8.8.8.8
+        - 1.1.1.1
+      environment:
+        - ASPNETCORE_ENVIRONMENT=Development
+        - DOTNET_USE_POLLING_FILE_WATCHER=true
+        - ASPNETCORE_URLS=http://0.0.0.0:8080
+        #- ConnectionStrings__DefaultConnection=Server=db;Database=AppDB;User Id=sa;Password=Root1234!;TrustServerCertificate=True;
+      volumes:
+        - ./backend/srv:/src
+        - ./Application-web:/app/webApp
+      command: dotnet watch run --no-launch-profile
+      depends_on:
+        - db
+      env_file:
+        - .env
 
-  web:
-    build: ./Application-web
-    ports:
-      - "80:80"
-    depends_on:
-      - api         # nginx starts after api container is up
+    web:  
+      build: ./Application-web
+      ports:
+        - "80:80"
+      depends_on:
+        - api         # nginx starts after api container is up
 
-  db:
-    image: mcr.microsoft.com/mssql/server:2025-latest
-    container_name: sqlserver
-    environment:
-      ACCEPT_EULA: "Y"
-      SA_PASSWORD: "Root1234!"
-    ports:
-      - "1433:1433"
+    #db:
+    #  image: mcr.microsoft.com/mssql/server:2025-latest
+    #  container_name: sqlserver
+    #  environment:
+    #    ACCEPT_EULA: "Y"
+    #    SA_PASSWORD: "Root1234!"
+    #  ports:
+    #    - "1433:1433"
