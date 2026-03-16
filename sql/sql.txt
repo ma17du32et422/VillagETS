@@ -9,21 +9,23 @@ DROP TABLE IF EXISTS Article_A_Vendre CASCADE;
 DROP TABLE IF EXISTS Publication CASCADE;
 DROP TABLE IF EXISTS Utilisateur CASCADE;
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE Utilisateur (
-    id_utilisateur INTEGER PRIMARY KEY,
+    id_utilisateur UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     pseudo VARCHAR(16) UNIQUE,
     password VARCHAR(40),
-    date_creation TIMESTAMP,
+    date_creation DATE,
     nom VARCHAR(30),
     prenom VARCHAR(30),
     email VARCHAR(50) UNIQUE,
-    annee_naissance TIMESTAMP,
+    annee_naissance DATE,
     main_admin BOOLEAN
 );
 
 CREATE TABLE Publication (
-    id_publication INTEGER PRIMARY KEY,
-    Utilisateurid INTEGER,
+    id_publication UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    Utilisateurid UUID,
     nom VARCHAR(50),
     contenu VARCHAR(255),
     CONSTRAINT fk_publication_utilisateur
@@ -31,25 +33,29 @@ CREATE TABLE Publication (
         REFERENCES Utilisateur(id_utilisateur)
 );
 
+-- like dislike, 
+-- commentaires: contenu like dislike piece_jointe, commentaire peut avoir commentaire à lui même
+
 CREATE TABLE Article_A_Vendre (
-    id_article INTEGER PRIMARY KEY,
+    id_article UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nom VARCHAR(30),
     description TEXT,
     prix DECIMAL(8,2),
-    id_publication INTEGER,
+    id_publication UUID,
     CONSTRAINT fk_article_publication
         FOREIGN KEY (id_publication)
         REFERENCES Publication(id_publication)
 );
 
 CREATE TABLE Categorie_Publication (
-    id_categorie_publication INTEGER PRIMARY KEY,
-    nom VARCHAR(20) UNIQUE
+    id_categorie_publication UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nom VARCHAR(20) UNIQUE,
+	categorie_base BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE Categorie_Publication_Publication (
-    id_categorie_publication INTEGER,
-    publicationid_publication INTEGER,
+    id_categorie_publication UUID,
+    publicationid_publication UUID,
     PRIMARY KEY (id_categorie_publication, publicationid_publication),
     CONSTRAINT fk_cpp_categorie
         FOREIGN KEY (id_categorie_publication)
@@ -60,15 +66,15 @@ CREATE TABLE Categorie_Publication_Publication (
 );
 
 CREATE TABLE Piece_Jointe (
-    id_piece_jointe INTEGER PRIMARY KEY,
+    id_piece_jointe UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nom VARCHAR(30) UNIQUE,
     lien_fichier VARCHAR(255),
     type VARCHAR(10)
 );
 
 CREATE TABLE Publication_Piece_Jointe (
-    id_piece_jointe INTEGER,
-    id_publication INTEGER,
+    id_piece_jointe UUID,
+    id_publication UUID,
     PRIMARY KEY (id_piece_jointe, id_publication),
     CONSTRAINT fk_ppj_piece
         FOREIGN KEY (id_piece_jointe)
@@ -79,17 +85,17 @@ CREATE TABLE Publication_Piece_Jointe (
 );
 
 CREATE TABLE Message (
-    id_message INTEGER PRIMARY KEY,
+    id_message UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     contenu TEXT,
-    envoyeur_id_utilisateur INTEGER,
+    envoyeur_id_utilisateur UUID,
     CONSTRAINT fk_message_envoyeur
         FOREIGN KEY (envoyeur_id_utilisateur)
         REFERENCES Utilisateur(id_utilisateur)
 );
 
 CREATE TABLE Message_Utilisateur (
-    Messageid_message INTEGER,
-    receveur_id_utilisateur INTEGER,
+    Messageid_message UUID,
+    receveur_id_utilisateur UUID,
     PRIMARY KEY (Messageid_message, receveur_id_utilisateur),
     CONSTRAINT fk_mu_message
         FOREIGN KEY (Messageid_message)
@@ -100,8 +106,8 @@ CREATE TABLE Message_Utilisateur (
 );
 
 CREATE TABLE Message_Piece_Jointe (
-    id_message INTEGER,
-    id_piece_jointe INTEGER,
+    id_message UUID,
+    id_piece_jointe UUID,
     PRIMARY KEY (id_message, id_piece_jointe),
     CONSTRAINT fk_mpj_message
         FOREIGN KEY (id_message)

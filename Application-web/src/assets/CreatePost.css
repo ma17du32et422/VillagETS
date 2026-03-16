@@ -1,0 +1,25 @@
+*{
+    width: 100%;
+}
+
+/** Form layout */
+#form-container{
+    display: flex;
+    flex-direction: column;
+}
+
+#form-text{
+    resize: none;
+}
+
+#form-post, #form-cancel{
+    background-color: #666666;
+}
+
+#form-post-text, #form-cancel-text{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 16px;
+    margin: auto;
+    color: #ffffff;
+}
+

@@ -4,7 +4,7 @@
     height: 50px;
     display: flex;
     justify-content: space-between;
-    background-color: #de022b;
+    background-color: #E40032;
 }
 
 /** Components layout */
@@ -27,7 +27,7 @@
 #profile{
     width: 20%;
     height: 100%;
-    background-color: #333333;
+    background-color: #666666;
 }
 
 #profile-text{
