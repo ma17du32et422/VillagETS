@@ -3,14 +3,17 @@ import { useState } from 'react';
 import '../.././assets/CreatePost.css'
 
 /** Create post popup */
-export default function CreatePost(){
+export default function CreatePost({onRemove}){
     /** Form variable use states */
     const [title, setTitle] = useState("");
     const [textContent, setTextContent] = useState("");
 
-    /** Form submission */
+    /** Form management
+     * The submit tab manages the submission to the db (for later)
+     */
     const submit = (event) => {
         event.preventDefault();
+        onRemove();
     }; 
     const handleTitle = (event) => {setTitle(event.target.value);};
     const handleTextContent = (event) => {setTextContent(event.target.value);};
@@ -31,7 +34,7 @@ export default function CreatePost(){
             <button id="form-post" type="submit">
                 <p id="form-post-text">Post</p>
             </button>
-            <button id="form-cancel" type="button">
+            <button id="form-cancel" type="button" onClick={onRemove}>
                 <p id="form-cancel-text">Cancel</p>
             </button>
         </form>
