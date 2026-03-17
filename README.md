@@ -28,7 +28,7 @@ L'application se divise en quatre composants principaux :
 
 3. **API REST en C#** :
    - Gestion des différentes publications et clavardages publiques/privés
-   - Gestion de l'authentification des utilisateurs en communicant avec la base de données Oracle SQL.
+   - Gestion de l'authentification des utilisateurs en communicant avec la base de données Supabase SQL.
    - Liste des tables dans Oracle : classe mère Publication, ventes, utilisateurs, messages directs. 
 
 **Fonctionnalités de l'application**
