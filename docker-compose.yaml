@@ -16,8 +16,6 @@
         - ./backend/srv:/src
         - ./Application-web:/app/webApp
       command: dotnet watch run --no-launch-profile
-      depends_on:
-        - db
       env_file:
         - .env
 
