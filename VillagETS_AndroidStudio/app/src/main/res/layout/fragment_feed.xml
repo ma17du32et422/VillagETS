@@ -22,6 +22,14 @@
             android:layout_height="300dp"
             android:background="#DDDDDD"
             android:text="Deuxième Post"
+            android:gravity="center"
+            android:layout_marginBottom="10dp"/>/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:background="#CCCCCC"
+            android:text="Troisieme Post"
             android:gravity="center" />
 
     </LinearLayout>

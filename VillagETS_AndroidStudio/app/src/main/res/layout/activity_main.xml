@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageButton android:id="@+id/menuBtn" android:layout_width="30dp" android:layout_height="30dp"
+        <ImageButton android:id="@+id/menuBtn" android:layout_width="48dp" android:layout_height="48dp"
             android:src="@drawable/baseline_menu_24" android:layout_marginStart="16dp"
             android:layout_marginTop="16dp" app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" android:background="?attr/selectableItemBackgroundBorderless"/>
@@ -20,9 +20,10 @@
         <TextView android:id="@+id/appTitle" android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="VillagETS" android:textSize="20sp" android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@id/menuBtn" app:layout_constraintEnd_toStartOf="@id/addPostBtn"
-            app:layout_constraintStart_toEndOf="@id/menuBtn" app:layout_constraintTop_toTopOf="@id/menuBtn" />
+            app:layout_constraintStart_toEndOf="@id/menuBtn" app:layout_constraintTop_toTopOf="@id/menuBtn"
+            android:fontFamily="@font/delta_light"/>
 
-        <ImageButton android:id="@+id/addPostBtn" android:layout_width="30dp" android:layout_height="30dp"
+        <ImageButton android:id="@+id/addPostBtn" android:layout_width="48dp" android:layout_height="48dp"
             android:src ="@drawable/add" app:layout_constraintEnd_toStartOf="@id/profileBtn"
             app:layout_constraintTop_toTopOf="@id/menuBtn" app:layout_constraintBottom_toBottomOf="@id/menuBtn"
             android:layout_marginEnd="12dp"
@@ -44,31 +45,31 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <ImageButton android:id="@+id/homeBtn" android:layout_width="40dp" android:layout_height="40dp"
+        <ImageButton android:id="@+id/homeBtn" android:layout_width="48dp" android:layout_height="48dp"
             android:src = "@drawable/home" app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/moneyBtn" app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_chainStyle="packed" android:layout_marginBottom="12dp"
             android:background="?attr/selectableItemBackgroundBorderless"/>
 
-        <ImageButton android:id="@+id/moneyBtn" android:layout_width="40dp" android:layout_height="40dp"
+        <ImageButton android:id="@+id/moneyBtn" android:layout_width="48dp" android:layout_height="48dp"
             android:layout_marginStart="16dp" android:src = "@drawable/outline_diamond_shine_24"
             app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toStartOf="@id/searchBtn"
             app:layout_constraintStart_toEndOf="@id/homeBtn" android:layout_marginBottom="12dp"
             android:background="?attr/selectableItemBackgroundBorderless"/>
 
-        <ImageButton android:id="@+id/searchBtn" android:layout_width="40dp" android:layout_height="40dp"
+        <ImageButton android:id="@+id/searchBtn" android:layout_width="48dp" android:layout_height="48dp"
             android:layout_marginStart="16dp" android:src = "@drawable/search"
             app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toStartOf="@id/messageBtn"
             app:layout_constraintStart_toEndOf="@id/moneyBtn" android:layout_marginBottom="12dp"
             android:background="?attr/selectableItemBackgroundBorderless"/>
 
-        <ImageButton android:id="@+id/messageBtn" android:layout_width="40dp" android:layout_height="40dp"
+        <ImageButton android:id="@+id/messageBtn" android:layout_width="48dp" android:layout_height="48dp"
             android:layout_marginStart="16dp" android:src = "@drawable/msg"
             app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toStartOf="@id/notificationBtn"
             app:layout_constraintStart_toEndOf="@id/searchBtn" android:layout_marginBottom="12dp"
             android:background="?attr/selectableItemBackgroundBorderless"/>
 
-        <ImageButton android:id="@+id/notificationBtn" android:layout_width="40dp" android:layout_height="40dp"
+        <ImageButton android:id="@+id/notificationBtn" android:layout_width="48dp" android:layout_height="48dp"
             android:layout_marginStart="16dp" android:src = "@drawable/notif"
             app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/messageBtn" android:layout_marginBottom="12dp"
