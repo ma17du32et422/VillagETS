@@ -1,3 +1,6 @@
+/** Package imports */
+import { useNavigate } from 'react-router-dom'
+
 /** Style imports */
 import '../.././assets/Message.css'
 
@@ -8,10 +11,9 @@ import pfp from '../.././assets/images/example.jpg'
 
 /** Post */
 export default function Message(){
-  /** Redirects the user to the messages page 
-   * TO IMPLEMENT
-  */
-  const redirectMsgPage = () => {alert(`Hi`)};
+  /** Redirects the user to the messages page */
+  const navigate = useNavigate();
+  const redirectMsgPage = () => {navigate('/MsgPage')};
 
   return(
 
