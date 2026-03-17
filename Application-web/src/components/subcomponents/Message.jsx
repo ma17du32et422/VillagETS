@@ -8,12 +8,17 @@ import pfp from '../.././assets/images/example.jpg'
 
 /** Post */
 export default function Message(){
+  /** Redirects the user to the messages page 
+   * TO IMPLEMENT
+  */
+  const redirectMsgPage = () => {alert(`Hi`)};
+
   return(
 
     /** Message layout
      * TO CHANGE DYNAMICALLY LATER
     */
-    <div class="message">
+    <div class="message" onClick={redirectMsgPage}>
 
       <div id="pfp-container">
         <img id="pfp" src={pfp}></img>
