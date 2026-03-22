@@ -8,6 +8,7 @@ material = "1.13.0"
 viewpager2 = "1.1.0"
 activity = "1.13.0"
 constraintlayout = "2.2.1"
+jackson = "2.21.2"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -18,7 +19,9 @@ material = { group = "com.google.android.material", name = "material", version =
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version = "1.1.0" }
+jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson" }
+jackson-core = { group = "com.fasterxml.jackson.core", name = "jackson-core", version.ref = "jackson" }
+jackson-annotations = { group = "com.fasterxml.jackson.annotation", name = "jackson-annotations", version.ref = "jackson" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-
