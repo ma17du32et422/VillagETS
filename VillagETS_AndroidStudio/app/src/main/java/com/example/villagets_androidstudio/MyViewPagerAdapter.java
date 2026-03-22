@@ -13,8 +13,12 @@ public class MyViewPagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        // Pour l'instant on retourne FeedFragment pour toutes les positions
-        // Car les autres Fragments (MoneyFragment, etc.) n'existent pas encore.
+        switch (position) {
+            case 0:
+                return new FeedFragment();
+            case 1:
+                return new MarketPlaceFragment();
+        }
         return new FeedFragment();
     }
 

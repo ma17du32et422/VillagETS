@@ -38,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // 4. Logique de navigation via les boutons du bas
-        homeBtn.setOnClickListener(v -> viewPager.setCurrentItem(0));
-        moneyBtn.setOnClickListener(v -> viewPager.setCurrentItem(1));
+        homeBtn.setOnClickListener(v -> viewPager.setCurrentItem(0)); // sends to index 0 page
+        moneyBtn.setOnClickListener(v -> viewPager.setCurrentItem(1)); // sends to index 1 page
 
         // 5. Gestion des Insets
         View mainView = findViewById(R.id.main);
