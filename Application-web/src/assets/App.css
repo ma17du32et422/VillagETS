@@ -48,3 +48,11 @@ main{
     flex: 1;
     overflow-y: scroll;
 }
+
+/** section for the discussion in the MsgPage */
+#discussion-container{
+    display: flex;
+    width: 78%;
+    height: 100vh;
+    border: 2px black solid;
+}

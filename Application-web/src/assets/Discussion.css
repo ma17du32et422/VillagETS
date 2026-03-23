@@ -1,0 +1,32 @@
+.discussion{
+    display: flex;
+    height: 75px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+#pfp-disc-container{
+    display: flex;
+    width: 5%;
+}
+
+#discussion-container{
+    width: 95%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+#pfp-discussion{
+    object-fit: cover;
+}
+
+#user{
+    
+}
+
+
+#disc{
+    text-align: left;
+    
+}
