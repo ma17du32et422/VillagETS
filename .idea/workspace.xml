@@ -8,6 +8,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Application-web/src/assets/ProfilePage.css" beforeDir="false" afterPath="$PROJECT_DIR$/Application-web/src/assets/ProfilePage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application-web/src/pages/ProfilePage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Application-web/src/pages/ProfilePage.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,8 +62,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.23726.103" />
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.23726.103" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.32098.39" />
       </set>
     </attachedChunks>
   </component>
@@ -83,6 +83,7 @@
       <workItem from="1774219983239" duration="1117000" />
       <workItem from="1774225987520" duration="17000" />
       <workItem from="1774226013722" duration="2000" />
+      <workItem from="1774303060535" duration="2544000" />
     </task>
     <servers />
   </component>
