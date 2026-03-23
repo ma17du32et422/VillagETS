@@ -2,7 +2,7 @@ package com.example.villagets_androidstudio;
 
 public class Post {
     private int id;
-    private int usrId;
+    private int userId;
     private String titre;
     private String contenu;
     private String lienImage;
@@ -15,7 +15,7 @@ public class Post {
 
     public Post(int id, int usrId, String titre, String contenu, String lienImage, String date,Categorie[] categories) {
         this.id = id;
-        this.usrId = usrId;
+        this.userId = usrId;
         this.titre = titre;
         this.contenu = contenu;
         this.lienImage = lienImage;
@@ -40,11 +40,11 @@ public class Post {
     }
 
     public int getUsrId() {
-        return usrId;
+        return userId;
     }
 
-    public void setUsrId(int usrId) {
-        this.usrId = usrId;
+    public void setUsrId(int userId) {
+        this.userId = userId;
     }
 
     public String getTitre() {

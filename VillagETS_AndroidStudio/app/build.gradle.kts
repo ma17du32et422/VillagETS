@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.jackson.databind)
     implementation(libs.jackson.core)
     implementation(libs.jackson.annotations)
+    implementation(libs.recyclerview)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
