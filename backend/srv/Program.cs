@@ -17,7 +17,7 @@ await supabase.InitializeAsync();
 app.MapGet("/", async () =>
 {
     var result = await supabase
-        .From<sql.CategoriePublication>()
+        .From<CategoriePublication>()
         .Get();
 
     return $"Count: {result.Models.Count} | Raw: {result.Content}";
@@ -26,17 +26,16 @@ app.MapGet("/", async () =>
 app.MapGet("/Categorie", async () =>
 {
     var result = await supabase
-        .From<sql.CategoriePublication>()
+        .From<CategoriePublication>()
         .Get();
 
     return $"Count: {result.Models.Count} | Raw: {result.Content}";
 });
 // à tester
-
-app.MapPost("/addCategorie", async (sql.CategoriePublication categorie) =>
+app.MapPost("/addCategorie", async (CategoriePublication categorie) =>
 {
     var response = await supabase
-        .From<sql.CategoriePublication>()
+        .From<CategoriePublication>()
         .Insert(categorie);
 
     return Results.Ok(response);
@@ -45,7 +44,7 @@ app.MapPost("/addCategorie", async (sql.CategoriePublication categorie) =>
 app.MapGet("/Utilisateur", async () =>
 {
     var result = await supabase
-        .From<sql.Utilisateur>()
+        .From<Utilisateur>()
         .Get();
 
     return $"Count: {result.Models.Count} | Raw: {result.Content}";
@@ -55,3 +54,26 @@ app.MapGet("/Utilisateur", async () =>
 app.UseStaticFiles();
 app.MapFallbackToFile("index.html");
 app.Run();
+
+[Table("categorie_publication")]
+class CategoriePublication : BaseModel
+{
+    [PrimaryKey("id_categorie_publication")]
+    public string? id { get; set; }
+    [Column("catagorie_base")]
+    public string? catagorie_base { get; set; }
+    [Column("nom")]
+    public string? nom { get; set; }
+
+};
+[Table("utilisateur")]
+class Utilisateur : BaseModel
+{
+    [PrimaryKey("id_utilisateur")]
+    public string? id { get; set; }
+    [Column("nom")]
+    public string? nom { get; set; }
+    [Column("prenom")]
+    public string? prenom { get; set; }
+
+};
