@@ -39,6 +39,13 @@ dependencies {
     implementation(libs.viewpager2)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+
+    // Jackson JSON
+    implementation(libs.jackson.databind)
+    implementation(libs.jackson.core)
+    implementation(libs.jackson.annotations)
+    implementation(libs.recyclerview)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
