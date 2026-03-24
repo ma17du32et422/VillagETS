@@ -21,7 +21,12 @@
             android:text="Post Title"
             android:textSize="18sp"
             android:textStyle="bold" />
-
+        <ImageView
+            android:id="@+id/postImage"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:layout_marginTop="8dp" />
         <TextView
             android:id="@+id/postContent"
             android:layout_width="match_parent"

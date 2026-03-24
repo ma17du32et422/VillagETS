@@ -46,6 +46,10 @@ dependencies {
     implementation(libs.jackson.annotations)
     implementation(libs.recyclerview)
 
+    // Glide
+    implementation(libs.glide)
+    annotationProcessor(libs.glide.compiler)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
