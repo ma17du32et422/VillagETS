@@ -5,7 +5,7 @@ public class Post {
     private int userId;
     private String titre;
     private String contenu;
-    private String lienImage;
+    private String[] lienImage;
     private String date;
     private Categorie[] categories;
 
@@ -13,7 +13,7 @@ public class Post {
     public Post() {
     }
 
-    public Post(int id, int usrId, String titre, String contenu, String lienImage, String date,Categorie[] categories) {
+    public Post(int id, int usrId, String titre, String contenu, String[] lienImage, String date,Categorie[] categories) {
         this.id = id;
         this.userId = usrId;
         this.titre = titre;
@@ -63,11 +63,11 @@ public class Post {
         this.contenu = contenu;
     }
 
-    public String getLienImage() {
+    public String[] getLienImage() {
         return lienImage;
     }
 
-    public void setLienImage(String lienImage) {
+    public void setLienImage(String[] lienImage) {
         this.lienImage = lienImage;
     }
 
