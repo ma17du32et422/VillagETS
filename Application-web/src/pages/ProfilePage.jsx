@@ -1,11 +1,12 @@
 /** Component imports */
+import Header from "../components/Header.jsx";
 import LoginForm from "../components/LoginForm";
+import SignupForm from "../components/SignupForm";
 import UsernameForm from "../components/UsernameForm";
 import PasswordForm from "../components/PasswordForm";
 
 /** Styling */
 import '../assets/ProfilePage.css'
-
 
 /** If not logged in, the user can log in using a form.
 If logged in, the user can modify his username and profile picture.
@@ -15,16 +16,17 @@ TO BE HANDLED DYNAMICALLY LATER -> PLUG INTO JS LOGIC AND SETUP STATES TO SHOW/H
 function ProfilePage(){
   return(
     <>
-        <header id="header">
-            <h1>Profile</h1>
+        <header>
+            <Header />
         </header>
 
-        <main id="main">
+        <main id="profileMain">
 
-            {/** LoginForm */}
+            {/** LoginForm and SignupForm */}
             <section id="login-container">
                 <div id="login">
                     <LoginForm />
+                    <SignupForm />
                 </div>
             </section>
 
@@ -40,6 +42,8 @@ function ProfilePage(){
                         <img alt="Profile Picture"/>
                         <button>Change Profile Picture</button>
                     </div>
+
+                    <button>Log Out</button>
                 </div>
             </section>
         </main>
