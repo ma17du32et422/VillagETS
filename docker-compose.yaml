@@ -1,6 +1,7 @@
   services:
     api:
       image: mcr.microsoft.com/dotnet/sdk:10.0
+      restart: unless-stopped
       working_dir: /src
       ports:
         - "5000:8080"
@@ -22,7 +23,7 @@
     web:  
       build: ./Application-web
       ports:
-        - "80:80"
+        - "420:80"
       depends_on:
         - api         # nginx starts after api container is up
 

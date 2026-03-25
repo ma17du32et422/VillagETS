@@ -29,10 +29,13 @@ CREATE TABLE Utilisateur (
 CREATE TABLE Publication (
     id_publication UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     Utilisateurid UUID,
-    nom VARCHAR(50),
-    contenu VARCHAR(255),
+    nom VARCHAR(50) NOT NULL,
+	date_publication TIMESTAMP, 
+    contenu VARCHAR(255) NOT NULL,
 	likes INTEGER DEFAULT 0,
 	dislikes INTEGER DEFAULT 0,
+	prix DECIMAL(8,2),
+	article_a_vendre BOOLEAN,
     CONSTRAINT fk_publication_utilisateur
         FOREIGN KEY (Utilisateurid)
         REFERENCES Utilisateur(id_utilisateur)
@@ -57,24 +60,13 @@ CREATE TABLE Commentaire (
         REFERENCES Commentaire(id_commentaire)
 );
 
-CREATE TABLE Article_A_Vendre (
-    id_article UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    nom VARCHAR(30),
-    description TEXT,
-    prix DECIMAL(8,2),
-    id_publication UUID,
-    CONSTRAINT fk_article_publication
-        FOREIGN KEY (id_publication)
-        REFERENCES Publication(id_publication)
-);
-
 CREATE TABLE Categorie_Publication (
     id_categorie_publication UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nom VARCHAR(20) UNIQUE,
 	categorie_base BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE Categorie_Publication_Publication (
+CREATE TABLE Cat_Pub_Publication (
     id_categorie_publication UUID,
     publicationid_publication UUID,
     PRIMARY KEY (id_categorie_publication, publicationid_publication),
