@@ -13,6 +13,12 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("https://villagets.lesageserveur.com")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
 
 
