@@ -52,7 +52,7 @@ function ProfilePage() {
                                     const formData = new FormData();
                                     formData.append('file', file);
 
-                                    const response = await fetch('https://villagets.lesageserveur.com/upload', {
+                                    const response = await fetch('https://apivillagets.lesageserveur.com/upload', {
                                         method: 'POST',
                                         body: formData,
                                     });
