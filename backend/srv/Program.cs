@@ -9,22 +9,22 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:420")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-    options.AddPolicy("AllowFrontend", policy =>
-    {
-        policy.WithOrigins("https://villagets.lesageserveur.com")
+        policy.WithOrigins(
+                "http://localhost:420",
+                "https://villagets.lesageserveur.com"
+              )
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
 
 
+builder.Services.AddAntiforgery();
 
 var app = builder.Build();
+
 app.UseCors("AllowFrontend");
+app.UseAntiforgery();
 
 var url = Environment.GetEnvironmentVariable("SUPABASE_URL");
 var key = Environment.GetEnvironmentVariable("SUPABASE_KEY");

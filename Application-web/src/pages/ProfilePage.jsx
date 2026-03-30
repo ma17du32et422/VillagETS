@@ -52,18 +52,13 @@ function ProfilePage() {
                                     const formData = new FormData();
                                     formData.append('file', file);
 
-                                    const response = await fetch('https://villagets.lesageserveur.com/upload', {
+                                    const response = await fetch('http://localhost:5000/upload', {
                                         method: 'POST',
                                         body: formData,
                                     });
 
-                                    
-                                    const text = await response.text();
-                                    console.log('Statut:', response.status);
-                                    console.log('Réponse brute:', text);
-
-                                    const data = JSON.parse(text); 
-                                    console.log('URL du fichier :', data.url);
+                                    const data = await response.json();
+                                    console.log('URL du fichier :', data.url); //url du fichier uploadé ici
                                 }}
                             />
                             <button onClick={() => document.getElementById('profile-picture-input').click()}>
