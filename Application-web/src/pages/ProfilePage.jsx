@@ -57,8 +57,13 @@ function ProfilePage() {
                                         body: formData,
                                     });
 
-                                    const data = await response.json();
-                                    console.log('URL du fichier :', data.url); //url du fichier uploadé ici
+                                    
+                                    const text = await response.text();
+                                    console.log('Statut:', response.status);
+                                    console.log('Réponse brute:', text);
+
+                                    const data = JSON.parse(text); 
+                                    console.log('URL du fichier :', data.url);
                                 }}
                             />
                             <button onClick={() => document.getElementById('profile-picture-input').click()}>
