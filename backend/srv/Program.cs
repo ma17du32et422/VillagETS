@@ -88,7 +88,6 @@ app.MapGet("/Utilisateur", async () =>
 
 app.MapPost("/auth/signup", async (SignupRequest req, HttpContext ctx) =>
 {
-    // NAME PASSWORD VALIDATION
     // TODO: add regex for email validation + make sure all fields are not empty
 
     if (req.Pseudo.Length < 3)
@@ -185,14 +184,6 @@ app.MapGet("/me", (HttpContext ctx) =>
 
     return Results.Ok(new { userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value });
 });
-// Post a post and get post and delete a post
-app.MapPost("/addPublication", async (sql.Publication publication) =>
-{
-    var response = await supabase
-        .From<sql.Publication>()
-        .Insert(publication);
-    return Results.Ok(response);
-});
 
 app.MapGet("/publication/{id}", async (int id) => {
     var response = await supabase
@@ -204,18 +195,43 @@ app.MapGet("/publication/{id}", async (int id) => {
 
 app.MapPost("/publication", async (sql.Publication publication, HttpContext ctx) =>
 {
+    var token = ctx.Request.Cookies["token"];
+    if (token == null) return Results.Unauthorized();
+    var principal = villagets.Auth.JwtHelper.ValidateToken(token);
+    if (principal == null) return Results.Unauthorized();
+
     var response = await supabase
         .From<sql.Publication>()
         .Insert(publication);
     return Results.Ok(response);
 });
 
-app.MapDelete("/publication/{id}", async (int id) =>
+app.MapDelete("/publication/{id}", async (int id, HttpContext ctx) =>
 {
+    var token = ctx.Request.Cookies["token"];
+    if (token == null) return Results.Unauthorized();
+    var principal = villagets.Auth.JwtHelper.ValidateToken(token);
+    if (principal == null) return Results.Unauthorized();
+
+    var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    var existing = await supabase
+        .From<sql.Publication>()
+        .Where(p => p.Id == id.ToString())
+        .Get();
+
+    var publication = existing.Models.FirstOrDefault();
+    if (publication == null)
+        return Results.NotFound("Publication not found");
+
+    if (publication.UtilisateurId != userId)
+        return Results.Forbid();
+
     await supabase
         .From<sql.Publication>()
         .Where(p => p.Id == id.ToString())
         .Delete();
+
     return Results.Ok();
 });
 
