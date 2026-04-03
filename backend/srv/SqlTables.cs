@@ -120,13 +120,13 @@ namespace sql
     public class Fichier : BaseModel
     {
         [PrimaryKey("id_fichier")]
-        public string? Id { get; set; }
+        public Guid? Id { get; set; }
 
         [Column("nom")]
         public string? Nom { get; set; }
 
         [Column("id_proprietaire")]
-        public string? IdProprietaire { get; set; }
+        public Guid? IdProprietaire { get; set; }
 
         [Column("lien_fichier")]
         public string? LienFichier { get; set; }

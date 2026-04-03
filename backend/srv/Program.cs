@@ -17,7 +17,11 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "http://localhost:420",
-                "https://villagets.lesageserveur.com"
+                "http://localhost:8080",
+                "http://localhost:5000",
+                "https://villagets.lesageserveur.com",
+                "https://apivillagets.lesageserveur.com",
+                "https://api.villagets.lesageserveur.com"
               )
               .AllowAnyHeader()
               .AllowAnyMethod();
@@ -239,33 +243,33 @@ app.MapDelete("/publication/{id}", async (int id, HttpContext ctx) =>
 //UPLOAD DE FICHIERS
 var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
 Directory.CreateDirectory(uploadFolder);
+
+
 app.MapPost("/upload", async (HttpContext ctx) =>
 {
-    var form = await ctx.Request.ReadFormAsync();
-
-    var file = form.Files["file"];
-    var nom = form["nom"].ToString();
-    var type = form["type"].ToString();
-
-    if (file is null || file.Length == 0)
-        return Results.BadRequest("Aucun fichier fourni.");
-
-    var extension = Path.GetExtension(file.FileName);
-    var uniqueName = $"{Guid.NewGuid()}{extension}";
-    var filePath = Path.Combine(uploadFolder, uniqueName);
-
-    using var stream = File.Create(filePath);
-    await file.CopyToAsync(stream);
-
-    var baseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
-    var fileUrl = $"{baseUrl}/uploads/{uniqueName}";
-
     try
     {
+        var form = await ctx.Request.ReadFormAsync();
+        var file = form.Files["file"];
+        var nom = form["nom"].ToString();
+        var type = form["type"].ToString();
+
+        if (file is null || file.Length == 0)
+            return Results.BadRequest(new { error = "Aucun fichier fourni." });
+
+        var extension = Path.GetExtension(file.FileName);
+        var uniqueName = $"{Guid.NewGuid()}{extension}";
+        var filePath = Path.Combine(uploadFolder, uniqueName);
+
+        using var stream = File.Create(filePath);
+        await file.CopyToAsync(stream);
+
+        var baseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
+        var fileUrl = $"{baseUrl}/uploads/{uniqueName}";
+
         var fichier = new sql.Fichier
         {
             Nom = nom,
-            IdProprietaire = null,
             LienFichier = fileUrl,
             Type = type
         };
@@ -274,20 +278,29 @@ app.MapPost("/upload", async (HttpContext ctx) =>
             .From<sql.Fichier>()
             .Insert(fichier);
 
-        return Results.Ok(new
+        var savedFile = response.Models.FirstOrDefault();
+        if (savedFile == null)
+            return Results.BadRequest(new { error = "Impossible d'enregistrer le fichier." });
+
+        return Results.Json(new
         {
             url = fileUrl,
-            db = response.Model
+            db = new
+            {
+                id = savedFile.Id?.ToString(), 
+                nom = savedFile.Nom,
+                lien_fichier = savedFile.LienFichier,
+                type = savedFile.Type
+            }
         });
     }
     catch (Exception ex)
     {
-        return Results.BadRequest(ex.Message);
+        return Results.BadRequest(new { error = ex.Message });
     }
 })
 .DisableAntiforgery();
 
-// Sert les fichiers statiques depuis wwwroot/uploads
 app.UseStaticFiles();
 
 

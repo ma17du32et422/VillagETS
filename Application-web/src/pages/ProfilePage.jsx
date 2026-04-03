@@ -54,15 +54,17 @@ function ProfilePage() {
                                     formData.append('nom', file.name);
                                     formData.append('type', "pfp");
 
-                                    const response = await fetch('https://apivillagets.lesageserveur.com/upload', {
+                                    const response = await fetch('https://apivillagets.lesageserveur.com/upload', { //http://localhost:5000/upload
                                         method: 'POST',
                                         body: formData,
                                     });
 
-                                    const data = await response.json();
-                                    console.log('URL du fichier :', data.url); //url du fichier uploadé ici
+                                    //const data = await response.json();
+                                    //console.log('URL du fichier :', data.url); //url du fichier uploadé ici
+                                    const text = await response.text();
+                                    console.log('Réponse serveur:', text);
 
-                                    
+
                                 }}
                             />
                             <button onClick={() => document.getElementById('profile-picture-input').click()}>
