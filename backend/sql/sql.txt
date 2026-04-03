@@ -1,15 +1,18 @@
-DROP TABLE IF EXISTS Message_Piece_Jointe CASCADE;
+DROP TABLE IF EXISTS Message_Fichier CASCADE;
 DROP TABLE IF EXISTS Message_Utilisateur CASCADE;
 DROP TABLE IF EXISTS Message CASCADE;
-DROP TABLE IF EXISTS Publication_Piece_Jointe CASCADE;
-DROP TABLE IF EXISTS Piece_Jointe CASCADE;
-DROP TABLE IF EXISTS Categorie_Publication_Publication CASCADE;
+
+DROP TABLE IF EXISTS Commentaire_Fichier CASCADE;
+DROP TABLE IF EXISTS Publication_Fichier CASCADE;
+
+DROP TABLE IF EXISTS Cat_Pub_Publication CASCADE;
 DROP TABLE IF EXISTS Categorie_Publication CASCADE;
-DROP TABLE IF EXISTS Article_A_Vendre CASCADE;
-DROP TABLE IF EXISTS Publication CASCADE;
-DROP TABLE IF EXISTS Utilisateur CASCADE;
+
 DROP TABLE IF EXISTS Commentaire CASCADE;
-DROP TABLE IF EXISTS Commentaire_Piece_Jointe CASCADE;
+DROP TABLE IF EXISTS Publication CASCADE;
+
+DROP TABLE IF EXISTS Fichier CASCADE;
+DROP TABLE IF EXISTS Utilisateur CASCADE;
 
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -78,33 +81,34 @@ CREATE TABLE Cat_Pub_Publication (
         REFERENCES Publication(id_publication)
 );
 
-CREATE TABLE Piece_Jointe (
-    id_piece_jointe UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+CREATE TABLE Fichier (
+    id_fichier UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nom VARCHAR(30) UNIQUE,
+    id_proprietaire UUID,
     lien_fichier VARCHAR(255),
     type VARCHAR(10)
 );
 
-CREATE TABLE Publication_Piece_Jointe (
-    id_piece_jointe UUID,
+CREATE TABLE Publication_Fichier (
+    id_fichier UUID,
     id_publication UUID,
-    PRIMARY KEY (id_piece_jointe, id_publication),
-    CONSTRAINT fk_ppj_piece
-        FOREIGN KEY (id_piece_jointe)
-        REFERENCES Piece_Jointe(id_piece_jointe),
-    CONSTRAINT fk_ppj_publication
+    PRIMARY KEY (id_fichier, id_publication),
+    CONSTRAINT fk_pf_fichier
+        FOREIGN KEY (id_fichier)
+        REFERENCES Fichier(id_fichier),
+    CONSTRAINT fk_pf_publication
         FOREIGN KEY (id_publication)
         REFERENCES Publication(id_publication)
 );
 
-CREATE TABLE Commentaire_Piece_Jointe (
-    id_piece_jointe UUID,
+CREATE TABLE Commentaire_Fichier (
+    id_fichier UUID,
     id_commentaire UUID,
-    PRIMARY KEY (id_piece_jointe, id_commentaire),
-    CONSTRAINT fk_cpj_piece
-        FOREIGN KEY (id_piece_jointe)
-        REFERENCES Piece_Jointe(id_piece_jointe),
-    CONSTRAINT fk_cpj_commentaire
+    PRIMARY KEY (id_fichier, id_commentaire),
+    CONSTRAINT fk_cf_fichier
+        FOREIGN KEY (id_fichier)
+        REFERENCES Fichier(id_fichier),
+    CONSTRAINT fk_cf_commentaire
         FOREIGN KEY (id_commentaire)
         REFERENCES Commentaire(id_commentaire)
 );
@@ -130,16 +134,16 @@ CREATE TABLE Message_Utilisateur (
         REFERENCES Utilisateur(id_utilisateur)
 );
 
-CREATE TABLE Message_Piece_Jointe (
+CREATE TABLE Message_Fichier (
     id_message UUID,
-    id_piece_jointe UUID,
-    PRIMARY KEY (id_message, id_piece_jointe),
-    CONSTRAINT fk_mpj_message
+    id_fichier UUID,
+    PRIMARY KEY (id_message, id_fichier),
+    CONSTRAINT fk_mf_message
         FOREIGN KEY (id_message)
         REFERENCES Message(id_message),
-    CONSTRAINT fk_mpj_piece
-        FOREIGN KEY (id_piece_jointe)
-        REFERENCES Piece_Jointe(id_piece_jointe)
+    CONSTRAINT fk_mf_fichier
+        FOREIGN KEY (id_fichier)
+        REFERENCES Fichier(id_fichier)
 );
 
 -- Valeurs de test
@@ -163,3 +167,4 @@ INSERT INTO Utilisateur (
     false
 );
 INSERT INTO Categorie_Publication (nom, categorie_base) VALUES ('Marketplace', TRUE);
+INSERT INTO Fichier (nom, lien_fichier, type) VALUES ('LegaultLeBoss', 'https://apivillagets.lesageserveur.com/uploads/90c9dce0-039c-408d-b8fd-d0956bf46814.jpg', 'Image');
