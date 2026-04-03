@@ -26,7 +26,8 @@ CREATE TABLE Utilisateur (
     prenom VARCHAR(30),
     email VARCHAR(50) UNIQUE,
     annee_naissance DATE,
-    main_admin BOOLEAN
+    main_admin BOOLEAN,
+    photo_profil VARCHAR(255)
 );
 
 CREATE TABLE Publication (
@@ -83,7 +84,7 @@ CREATE TABLE Cat_Pub_Publication (
 
 CREATE TABLE Fichier (
     id_fichier UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    nom VARCHAR(30) UNIQUE,
+    nom VARCHAR(30),
     id_proprietaire UUID,
     lien_fichier VARCHAR(255),
     type VARCHAR(10)

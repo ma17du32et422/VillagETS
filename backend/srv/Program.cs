@@ -235,15 +235,21 @@ app.MapDelete("/publication/{id}", async (int id, HttpContext ctx) =>
     return Results.Ok();
 });
 
+
 //UPLOAD DE FICHIERS
 var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
 Directory.CreateDirectory(uploadFolder);
-app.MapPost("/upload", async (IFormFile file) =>
+app.MapPost("/upload", async (HttpContext ctx) =>
 {
+    var form = await ctx.Request.ReadFormAsync();
+
+    var file = form.Files["file"];
+    var nom = form["nom"].ToString();
+    var type = form["type"].ToString();
+
     if (file is null || file.Length == 0)
         return Results.BadRequest("Aucun fichier fourni.");
 
-    
     var extension = Path.GetExtension(file.FileName);
     var uniqueName = $"{Guid.NewGuid()}{extension}";
     var filePath = Path.Combine(uploadFolder, uniqueName);
@@ -251,11 +257,33 @@ app.MapPost("/upload", async (IFormFile file) =>
     using var stream = File.Create(filePath);
     await file.CopyToAsync(stream);
 
-    // Retourne l'URL publique
     var baseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
     var fileUrl = $"{baseUrl}/uploads/{uniqueName}";
 
-    return Results.Ok(new { url = fileUrl, fileName = uniqueName });
+    try
+    {
+        var fichier = new sql.Fichier
+        {
+            Nom = nom,
+            IdProprietaire = null,
+            LienFichier = fileUrl,
+            Type = type
+        };
+
+        var response = await supabase
+            .From<sql.Fichier>()
+            .Insert(fichier);
+
+        return Results.Ok(new
+        {
+            url = fileUrl,
+            db = response.Model
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
 })
 .DisableAntiforgery();
 

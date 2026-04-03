@@ -39,7 +39,7 @@ function ProfilePage() {
                         {/** Profile Picture Selection */}
                         <div id="profile-picture">
                             <h3>Profile Picture</h3>
-                            <img alt="alt: pfp devrait être ici" src="http://localhost:5000/uploads/865eacfa-b497-41c9-843f-0ffc4849df06.jpg" height="80sp" /> {/** Image de test */}
+                            <img alt="alt: pfp devrait être ici" src="https://apivillagets.lesageserveur.com/uploads/90c9dce0-039c-408d-b8fd-d0956bf46814.jpg" height="80sp" /> {/** Image de test */}
                             <input
                                 type="file"
                                 id="profile-picture-input"
@@ -51,6 +51,8 @@ function ProfilePage() {
 
                                     const formData = new FormData();
                                     formData.append('file', file);
+                                    formData.append('nom', file.name);
+                                    formData.append('type', "pfp");
 
                                     const response = await fetch('https://apivillagets.lesageserveur.com/upload', {
                                         method: 'POST',
@@ -59,6 +61,8 @@ function ProfilePage() {
 
                                     const data = await response.json();
                                     console.log('URL du fichier :', data.url); //url du fichier uploadé ici
+
+                                    
                                 }}
                             />
                             <button onClick={() => document.getElementById('profile-picture-input').click()}>
