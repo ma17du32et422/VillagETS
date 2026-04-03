@@ -1,7 +1,13 @@
+using sql;
 using Supabase;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 using System.Text.Json;
+using BCrypt.Net;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Security.Claims;
 
 //autorise les uploads à partir du site web
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +24,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? throw new Exception("JWT_SECRET environment variable is not set");
+
+villagets.Auth.JwtHelper.Initialize(jwtSecret);
 
 builder.Services.AddAntiforgery();
 
@@ -76,6 +85,140 @@ app.MapGet("/Utilisateur", async () =>
 });
 
 
+
+app.MapPost("/auth/signup", async (SignupRequest req, HttpContext ctx) =>
+{
+    // NAME PASSWORD VALIDATION
+    // TODO: add regex for email validation + make sure all fields are not empty
+
+    if (req.Pseudo.Length < 3)
+        return Results.BadRequest("Username must be at least 3 characters");
+
+    if (req.Password.Length < 8)
+        return Results.BadRequest("Password must be at least 8 characters");
+
+    try
+    {
+        var existing = await supabase.From<sql.Utilisateur>().Where(u => u.Email == req.Email).Get();
+        if (existing.Models.Count > 0)
+            return Results.BadRequest("Email already in use");
+
+
+        // Create utilisateur db
+        var user = new Utilisateur
+        {
+            Pseudo = req.Pseudo,
+            Nom = req.Nom,
+            Prenom = req.Prenom,
+            Password = BCrypt.Net.BCrypt.HashPassword(req.Password),
+            Email = req.Email,
+            DateCreation = DateTime.UtcNow,
+            AnneeNaissance = req.AnneeNaissance,
+
+        };
+        var response = await supabase.From<Utilisateur>().Insert(user);
+        var newUser = response.Model!;
+        var token = villagets.Auth.JwtHelper.GenerateToken(newUser.Id!, newUser.Email!, newUser.Pseudo!);
+
+        ctx.Response.Cookies.Append("token", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        });
+        // return token
+        return Results.Ok(new
+        {
+            userId = newUser.Id
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
+});
+
+app.MapPost("/auth/login", async (LoginRequest req, HttpContext ctx) =>
+{
+    if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Password))
+        return Results.BadRequest("Email and password are required");
+
+    try
+    {
+        var result = await supabase.From<Utilisateur>()
+            .Where(u => u.Email == req.Email)
+            .Get();
+
+        var user = result.Models.FirstOrDefault();
+        if (user == null || !BCrypt.Net.BCrypt.Verify(req.Password, user.Password))
+            return Results.Unauthorized();
+
+        var token = villagets.Auth.JwtHelper.GenerateToken(user.Id!, user.Email!, user.Pseudo!);
+        ctx.Response.Cookies.Append("token", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        });
+        
+        return Results.Ok(new { userId = user.Id });
+    }
+    catch
+    {
+        return Results.Unauthorized();
+    }
+});
+app.MapPost("/auth/logout", (HttpContext ctx) =>
+{
+    ctx.Response.Cookies.Delete("token");
+    return Results.Ok();
+});
+
+app.MapGet("/me", (HttpContext ctx) =>
+{
+    var token = ctx.Request.Cookies["token"];
+    if (token == null) return Results.Unauthorized();
+    var principal = villagets.Auth.JwtHelper.ValidateToken(token);
+    if (principal == null) return Results.Unauthorized();
+
+    return Results.Ok(new { userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value });
+});
+// Post a post and get post and delete a post
+app.MapPost("/addPublication", async (sql.Publication publication) =>
+{
+    var response = await supabase
+        .From<sql.Publication>()
+        .Insert(publication);
+    return Results.Ok(response);
+});
+
+app.MapGet("/publication/{id}", async (int id) => {
+    var response = await supabase
+        .From<sql.Publication>()
+        .Where(p => p.Id == id.ToString())
+        .Get();
+    return Results.Ok(response.Model);
+});
+
+app.MapPost("/publication", async (sql.Publication publication, HttpContext ctx) =>
+{
+    var response = await supabase
+        .From<sql.Publication>()
+        .Insert(publication);
+    return Results.Ok(response);
+});
+
+app.MapDelete("/publication/{id}", async (int id) =>
+{
+    await supabase
+        .From<sql.Publication>()
+        .Where(p => p.Id == id.ToString())
+        .Delete();
+    return Results.Ok();
+});
+
 //UPLOAD DE FICHIERS
 var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
 Directory.CreateDirectory(uploadFolder);
@@ -106,3 +249,6 @@ app.UseStaticFiles();
 
 app.MapFallbackToFile("index.html");
 app.Run();
+
+record SignupRequest(string Email, string Password, string Pseudo, string Nom, string Prenom, DateTime AnneeNaissance);
+record LoginRequest(string Email, string Password);
