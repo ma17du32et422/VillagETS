@@ -4,14 +4,12 @@ plugins {
 
 android {
     namespace = "com.example.villagets_androidstudio"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.villagets_androidstudio"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -49,6 +47,10 @@ dependencies {
     // Glide
     implementation(libs.glide)
     annotationProcessor(libs.glide.compiler)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.jackson)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
