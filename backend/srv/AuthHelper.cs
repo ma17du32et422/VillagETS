@@ -4,7 +4,7 @@ using System.Security.Claims;
 using System.Text;
 namespace villagets.Auth;
 
-public static class JwtHelper
+public static class AuthHelper
 {
     private static SymmetricSecurityKey? _key;
 
@@ -56,5 +56,11 @@ public static class JwtHelper
             }, out _);
         }
         catch { return null; }
+    }
+    public static ClaimsPrincipal? GetPrincipalFromContext(HttpContext ctx)
+    {
+        var token = ctx.Request.Cookies["token"];
+        if (token == null) return null;
+        return ValidateToken(token);
     }
 }

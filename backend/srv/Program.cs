@@ -8,6 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Claims;
+using srv;
 
 //autorise les uploads à partir du site web
 var builder = WebApplication.CreateBuilder(args);
@@ -30,7 +31,7 @@ builder.Services.AddCors(options =>
 
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? throw new Exception("JWT_SECRET environment variable is not set");
 
-villagets.Auth.JwtHelper.Initialize(jwtSecret);
+villagets.Auth.AuthHelper.Initialize(jwtSecret);
 
 builder.Services.AddAntiforgery();
 
@@ -45,10 +46,14 @@ var options = new Supabase.SupabaseOptions
 {
     AutoConnectRealtime = true
 };
-var supabase = new Supabase.Client(url, key, options);
-await supabase.InitializeAsync();
 
+SupabaseService supabaseService = new(url, key, options);
+supabaseService.InitializeAsync().Wait();
 
+var supabase = SupabaseService.GetClient();
+
+PostService postService = new PostService();
+PostRoutes.Map(app, postService);
 
 //ROUTES
 app.MapGet("/", async () =>
@@ -121,7 +126,7 @@ app.MapPost("/auth/signup", async (SignupRequest req, HttpContext ctx) =>
         };
         var response = await supabase.From<Utilisateur>().Insert(user);
         var newUser = response.Model!;
-        var token = villagets.Auth.JwtHelper.GenerateToken(newUser.Id!, newUser.Email!, newUser.Pseudo!);
+        var token = villagets.Auth.AuthHelper.GenerateToken(newUser.Id!, newUser.Email!, newUser.Pseudo!);
 
         ctx.Response.Cookies.Append("token", token, new CookieOptions
         {
@@ -157,7 +162,7 @@ app.MapPost("/auth/login", async (LoginRequest req, HttpContext ctx) =>
         if (user == null || !BCrypt.Net.BCrypt.Verify(req.Password, user.Password))
             return Results.Unauthorized();
 
-        var token = villagets.Auth.JwtHelper.GenerateToken(user.Id!, user.Email!, user.Pseudo!);
+        var token = villagets.Auth.AuthHelper.GenerateToken(user.Id!, user.Email!, user.Pseudo!);
         ctx.Response.Cookies.Append("token", token, new CookieOptions
         {
             HttpOnly = true,
@@ -183,62 +188,11 @@ app.MapGet("/me", (HttpContext ctx) =>
 {
     var token = ctx.Request.Cookies["token"];
     if (token == null) return Results.Unauthorized();
-    var principal = villagets.Auth.JwtHelper.ValidateToken(token);
+    var principal = villagets.Auth.AuthHelper.ValidateToken(token);
     if (principal == null) return Results.Unauthorized();
 
     return Results.Ok(new { userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value });
 });
-
-app.MapGet("/publication/{id}", async (int id) => {
-    var response = await supabase
-        .From<sql.Publication>()
-        .Where(p => p.Id == id.ToString())
-        .Get();
-    return Results.Ok(response.Model);
-});
-
-app.MapPost("/publication", async (sql.Publication publication, HttpContext ctx) =>
-{
-    var token = ctx.Request.Cookies["token"];
-    if (token == null) return Results.Unauthorized();
-    var principal = villagets.Auth.JwtHelper.ValidateToken(token);
-    if (principal == null) return Results.Unauthorized();
-
-    var response = await supabase
-        .From<sql.Publication>()
-        .Insert(publication);
-    return Results.Ok(response);
-});
-
-app.MapDelete("/publication/{id}", async (int id, HttpContext ctx) =>
-{
-    var token = ctx.Request.Cookies["token"];
-    if (token == null) return Results.Unauthorized();
-    var principal = villagets.Auth.JwtHelper.ValidateToken(token);
-    if (principal == null) return Results.Unauthorized();
-
-    var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    var existing = await supabase
-        .From<sql.Publication>()
-        .Where(p => p.Id == id.ToString())
-        .Get();
-
-    var publication = existing.Models.FirstOrDefault();
-    if (publication == null)
-        return Results.NotFound("Publication not found");
-
-    if (publication.UtilisateurId != userId)
-        return Results.Forbid();
-
-    await supabase
-        .From<sql.Publication>()
-        .Where(p => p.Id == id.ToString())
-        .Delete();
-
-    return Results.Ok();
-});
-
 
 //UPLOAD DE FICHIERS
 var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
