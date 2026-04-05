@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio;
+package com.example.villagets_androidstudio.View;
 
 import android.os.Bundle;
 import android.view.View;
@@ -12,6 +12,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager2.widget.ViewPager2;
+
+import com.example.villagets_androidstudio.R;
 
 public class MainActivity extends AppCompatActivity {
 

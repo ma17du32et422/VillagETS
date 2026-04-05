@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio;
+package com.example.villagets_androidstudio.Model;
 
 public class Post {
     private int id;
