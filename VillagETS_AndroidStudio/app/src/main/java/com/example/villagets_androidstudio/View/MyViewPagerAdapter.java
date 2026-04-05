@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio;
+package com.example.villagets_androidstudio.View;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;

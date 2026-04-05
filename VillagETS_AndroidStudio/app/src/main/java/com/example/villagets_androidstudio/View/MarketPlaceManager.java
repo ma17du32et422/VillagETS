@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio;
+package com.example.villagets_androidstudio.View;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import com.example.villagets_androidstudio.R;
 
 public class MarketPlaceManager extends BaseAdapter {
 

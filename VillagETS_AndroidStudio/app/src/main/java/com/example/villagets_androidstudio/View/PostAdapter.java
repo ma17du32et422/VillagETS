@@ -1,5 +1,6 @@
-package com.example.villagets_androidstudio;
+package com.example.villagets_androidstudio.View;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,15 +11,27 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.villagets_androidstudio.Model.Post;
+import com.example.villagets_androidstudio.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
 
-    private List<Post> postList;
+    private List<Post> postList = new ArrayList<>();
+
+    public PostAdapter() {
+    }
 
     public PostAdapter(List<Post> postList) {
         this.postList = postList;
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void setPosts(List<Post> posts) {
+        this.postList = posts;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -30,6 +43,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
+        if (postList == null || position >= postList.size()) return;
+        
         Post post = postList.get(position);
         holder.title.setText(post.getTitre());
         holder.content.setText(post.getContenu());
@@ -46,7 +61,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     @Override
     public int getItemCount() {
-        return postList.size();
+        return postList != null ? postList.size() : 0;
     }
 
     static class PostViewHolder extends RecyclerView.ViewHolder {
