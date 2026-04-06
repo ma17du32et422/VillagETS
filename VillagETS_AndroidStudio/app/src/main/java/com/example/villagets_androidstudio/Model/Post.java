@@ -1,7 +1,7 @@
 package com.example.villagets_androidstudio.Model;
 
 public class Post {
-    private int id;
+    private String id;
     private int userId;
     private String titre;
     private String contenu;
@@ -13,7 +13,7 @@ public class Post {
     public Post() {
     }
 
-    public Post(int id, int usrId, String titre, String contenu, String[] lienImage, String date,Categorie[] categories) {
+    public Post(String id, int usrId, String titre, String contenu, String[] lienImage, String date,Categorie[] categories) {
         this.id = id;
         this.userId = usrId;
         this.titre = titre;
@@ -31,11 +31,11 @@ public class Post {
         this.categories = categories;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

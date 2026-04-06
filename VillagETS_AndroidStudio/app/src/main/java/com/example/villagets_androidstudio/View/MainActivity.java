@@ -1,8 +1,10 @@
 package com.example.villagets_androidstudio.View;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,7 +15,16 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.villagets_androidstudio.Model.Dao.RetrofitClient;
+import com.example.villagets_androidstudio.Model.Dao.UserApi;
+import com.example.villagets_androidstudio.Model.User;
 import com.example.villagets_androidstudio.R;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,6 +39,11 @@ public class MainActivity extends AppCompatActivity {
         ImageButton menuBtn = findViewById(R.id.menuBtn);
         ImageButton homeBtn = findViewById(R.id.homeBtn);
         ImageButton moneyBtn = findViewById(R.id.moneyBtn);
+        ImageButton addPostBtn = findViewById(R.id.addPostBtn);
+        ImageButton profileBtn = findViewById(R.id.profileBtn);
+        ImageButton searchBtn = findViewById(R.id.searchBtn);
+        ImageButton messageBtn = findViewById(R.id.messageBtn);
+        ImageButton notificationBtn = findViewById(R.id.notificationBtn);
 
         // 2. Configuration du ViewPager2
         ViewPager2 viewPager = findViewById(R.id.view_pager);
@@ -40,8 +56,58 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // 4. Logique de navigation via les boutons du bas
-        homeBtn.setOnClickListener(v -> viewPager.setCurrentItem(0)); // sends to index 0 page
-        moneyBtn.setOnClickListener(v -> viewPager.setCurrentItem(1)); // sends to index 1 page
+        homeBtn.setOnClickListener(v -> viewPager.setCurrentItem(0));
+        moneyBtn.setOnClickListener(v -> viewPager.setCurrentItem(1));
+
+        // Executor pour les tâches en arrière-plan
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        // Ajout des nouveaux OnClickListeners
+        addPostBtn.setOnClickListener(v -> {
+            User loic = new User("william", "password", "loic", "loic", "loic", "2000-01-01");
+            
+            executor.execute(() -> {
+                try {
+                    UserApi api = RetrofitClient.getInstance().create(UserApi.class);
+                    // Test de la route signup au lieu de getAllUsers
+                    Response<User> response = api.signup(loic).execute();
+                    
+                    runOnUiThread(() -> {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(this, "Inscription réussie !", Toast.LENGTH_SHORT).show();
+                            Log.d("MainActivity", "User inscrit: " + response.body().getEmail());
+                        } else {
+                            Toast.makeText(this, "Erreur API Signup: " + response.code(), Toast.LENGTH_SHORT).show();
+                            try {
+                                Log.e("MainActivity", "Erreur: " + response.errorBody().string());
+                            } catch (IOException ignored) {}
+                        }
+                    });
+                } catch (IOException e) {
+                    String detail = e.getMessage();
+                    runOnUiThread(() -> Toast.makeText(this, "Détail réseau: " + detail, Toast.LENGTH_LONG).show());
+                    Log.e("MainActivity", "Erreur réseau signup", e);
+                }
+            });
+
+            loic.saveUser(this);
+        });
+
+        profileBtn.setOnClickListener(v -> {
+            Toast.makeText(this, "Bouton Profil cliqué", Toast.LENGTH_SHORT).show();
+        });
+
+        searchBtn.setOnClickListener(v -> {
+            Toast.makeText(this, "Bouton Recherche cliqué", Toast.LENGTH_SHORT).show();
+        });
+
+        messageBtn.setOnClickListener(v -> {
+            Toast.makeText(this, "Bouton Messages cliqué", Toast.LENGTH_SHORT).show();
+        });
+
+        notificationBtn.setOnClickListener(v -> {
+            Toast.makeText(this, "Bouton Notifications cliqué", Toast.LENGTH_SHORT).show();
+        });
 
         // 5. Gestion des Insets
         View mainView = findViewById(R.id.main);

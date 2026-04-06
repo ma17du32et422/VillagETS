@@ -11,18 +11,20 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+
 public interface PostApi {
     @GET("/posts")
     Call<List<Post>> getAllPosts();
+
     @POST("/posts")
     Call<Post> createPost(@Body Post post);
+
     @PUT("/posts/{id}")
-    Call<Post> updatePost(@Path("id") int id, @Body Post post);
+    Call<Post> updatePost(@Path("id") String id, @Body Post post);
+
     @DELETE("/posts/{id}")
-    Call<Void> deletePost(@Path("id") int id);
+    Call<Void> deletePost(@Path("id") String id);
+
     @GET("/posts/{id}")
-    Call<Post> getPostById(@Path("id") int id);
-
-
-
+    Call<Post> getPostById(@Path("id") String id);
 }
