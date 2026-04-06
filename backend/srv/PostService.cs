@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration.UserSecrets;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration.UserSecrets;
 using System.Security.Claims;
 using villagets.Auth;
 namespace srv
@@ -20,7 +21,12 @@ namespace srv
                 .Get();
             return result.Model;
         }
+        public async Task<List<sql.Publication>> GetFeed(string userId)
+        {
+            var result = await _supabase.From<sql.Publication>().Order("date_publication", Supabase.Postgrest.Constants.Ordering.Descending).Limit(20).Get();
 
+            return result.Models.ToList();
+        }
         public async Task<sql.Publication?> Create(sql.Publication publication, string userId)
         {
             publication.UtilisateurId = userId;
