@@ -1,38 +1,29 @@
 /** Style imports */
 import '../.././assets/Post.css'
 
-/** Image imports 
- * TO CHANGE DYNAMICALLY LATER
-*/
-import image from '../.././assets/images/example.jpg'
-
 /** Post */
-export default function Post(){
+export default function Post({post}){
   return(
 
     /** Post layout 
      * TO CHANGE DYNAMICALLY LATER
     */
-    <article class="post">
+    <article className="post">
 
       <div id="post-header">
-        <h2 id="title">Post title on top of the post</h2>
+        <h2 id="title">{post.title}</h2>
 
         <div id="op-info">
-          <p id="op-name">Name of op</p>
-          <p id="datetime">Date and time</p>
+          <p id="op-name">{post.op}</p>
+          <p id="datetime">{post.datetime}</p>
         </div>
       </div>
 
       <div id="image-container">
-        <img id="image" src={image}></img>
+        <img id="image" src={post.imageUrl}></img>
       </div>
 
-      <p id="contents">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor 
-        incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation 
-        ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit 
-        in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat 
-        non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      <p id="contents">{post.contents}</p>
 
     </article>
   );
