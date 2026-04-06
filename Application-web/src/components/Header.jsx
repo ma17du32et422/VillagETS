@@ -11,11 +11,12 @@ export default function Header(){
   const {user} = useAuth()
   const navigate = useNavigate();
 
+  const redirectHome = () => {navigate('/')}
   const redirectProfilePage = () => {navigate(user ? '/ProfilePage': '/LoginPage')};
   
   return(
     <div class="head-container">
-      <h2 id="app-name">VILLAGETS</h2>
+      <h2 id="app-name" onClick={redirectHome}>VILLAGETS</h2>
       <input id="search" type="text" placeholder="Search"></input>
       <button id="profile" type='button' onClick={redirectProfilePage}>
         <p id="profile-text">{user ? 'My Profile' : 'Login'}</p>
