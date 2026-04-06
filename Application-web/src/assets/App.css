@@ -26,7 +26,7 @@ main{
 /** Flux layout manager */
 #flux-container{
     display: flex;
-    width: 56%;
+    width: 64%;
     height: 100vh;
 }
 
@@ -39,20 +39,29 @@ main{
 
 #actions-container, #messages-container{
     display: flex;
-    width: 22%;
+    width: 18%;
     height: 100vh;
     border: 2px black solid;
 }
 
 #actions, #messages{
     flex: 1;
-    overflow-y: scroll;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /** section for the discussion in the MsgPage */
 #discussion-container{
     display: flex;
-    width: 78%;
+    flex-direction: column;
+    width: 82%;
     height: 100vh;
     border: 2px black solid;
+    position: relative;
+}
+
+#discussion {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 120px; /* More space for input container */
 }
