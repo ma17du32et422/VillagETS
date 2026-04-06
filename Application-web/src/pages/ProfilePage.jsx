@@ -1,7 +1,5 @@
 /** Component imports */
 import Header from "../components/Header.jsx";
-import LoginForm from "../components/LoginForm";
-import SignupForm from "../components/SignupForm";
 import UsernameForm from "../components/UsernameForm";
 import PasswordForm from "../components/PasswordForm";
 
@@ -21,14 +19,6 @@ function ProfilePage() {
             </header>
 
             <main id="profileMain">
-
-                {/** LoginForm and SignupForm */}
-                <section id="login-container">
-                    <div id="login">
-                        <LoginForm />
-                        <SignupForm />
-                    </div>
-                </section>
 
                 {/** UsernameForm and PasswordForm */}
                 <section id="profile-edit-container">
@@ -63,7 +53,6 @@ function ProfilePage() {
                                     //console.log('URL du fichier :', data.url); //url du fichier uploadé ici
                                     const text = await response.text();
                                     console.log('Réponse serveur:', text);
-
 
                                 }}
                             />
