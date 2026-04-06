@@ -9,7 +9,8 @@ namespace srv
         {
             var supabaseClient = srv.SupabaseService.GetClient();
 
-            app.MapGet("/publication/{id}", async (string id) => {
+            app.MapGet("/publication/{id}", async (string id) =>
+            {
                 var post = await postService.GetById(id);
                 if (post is null) return Results.NotFound("Publication not found");
 
@@ -53,7 +54,25 @@ namespace srv
                 }
             });
 
+            app.MapGet("/feed", async (HttpContext ctx) =>
+            {
+                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                if (principal == null) return Results.Unauthorized();
+
+                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+
+                var feed = await postService.GetFeed(userId);
+
+                return Results.Ok(feed.Select(p => new
+                {
+                    id = p.Id,
+                    titre = p.Nom,
+                    contenu = p.Contenu,
+                    utilisateurId = p.UtilisateurId,
+                    dateCreation = p.DatePublication
+                }));
+            });
         }
     }
-}
+};
 
