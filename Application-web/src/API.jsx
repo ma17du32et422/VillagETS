@@ -2,7 +2,7 @@
 
 export const getBaseUrl = () => {
   if (window.location.hostname === 'localhost') {
-    return 'http://localhost:5173';
+    return 'http://localhost:5000';
   }
-  return 'https://apivillagets.lesageserver.com';
+  return 'https://apivillagets.lesageserveur.com';
 };

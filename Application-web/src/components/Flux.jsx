@@ -1,33 +1,44 @@
-/** Subcomponent imports */
-import Post from './subcomponents/Post'
+import { useEffect, useState } from 'react';
+import Post from './subcomponents/Post';
+import { getBaseUrl } from '../API';
 
-/** Flux
- *  Posts should not be manually added to the flux, it will instead take from the database
- *  For the 1st sprint, we will manually add posts for the sake of presenting
- */
-export default function Flux(){
-  return(
+export default function Flux() {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await fetch(`${getBaseUrl()}/feed`, {
+          credentials: 'include', 
+        });
+
+        if (!res.ok) {
+          throw new Error('Failed to fetch posts');
+        }
+
+        const data = await res.json();
+        setPosts(data); 
+      } catch (err) {
+        console.error('Error fetching posts:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  if (loading) return <p>Loading posts...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+  return (
     <div id="feed">
-      {posts.map(post => (<Post key={post.id} post={post} />))}
+      {posts.map((post) => (
+        <Post key={post.id} post={post} />
+      ))}
     </div>
   );
 }
-
-const posts = [
-  {
-    "id": 1,
-    "title": "Hellaur this is a JSON test :D",
-    "author": "RAM Cat",
-    "datetime": "2026-04-05 23:15",
-    "imageUrl": "/src/assets/images/example.jpg",
-    "contents": "Too lazy to write smth here icl"
-  },
-  {
-    "id": 2,
-    "title": "The nefarious creature",
-    "author": "Evil Cat",
-    "datetime": "2026-04-05 23:30",
-    "imageUrl": "/src/assets/images/example2.jpg",
-    "contents": "The person that sells your cat for RAM"
-  }
-]
