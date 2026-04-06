@@ -130,7 +130,7 @@ app.MapPost("/auth/signup", async (SignupRequest req, HttpContext ctx) =>
             Password = BCrypt.Net.BCrypt.HashPassword(req.Password),
             Email = req.Email,
             DateCreation = DateTime.UtcNow,
-            AnneeNaissance = req.AnneeNaissance,
+            AnneeNaissance = DateTime.UtcNow
 
         };
         var response = await supabase.From<Utilisateur>().Insert(user);
@@ -270,5 +270,5 @@ app.UseStaticFiles();
 app.MapFallbackToFile("index.html");
 app.Run();
 
-record SignupRequest(string Email, string Password, string Pseudo, string Nom, string Prenom, DateTime AnneeNaissance);
+record SignupRequest(string Email, string Password, string Pseudo, string Nom, string Prenom);
 record LoginRequest(string Email, string Password);

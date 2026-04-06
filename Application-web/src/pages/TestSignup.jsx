@@ -24,7 +24,7 @@ function TestSignup() {
   const sendSignup = async () => {
     try {
       // 1. Send signup request
-      await fetch(`${getBaseUrl()}/auth/signup`, {
+      const res = await fetch(`${getBaseUrl()}/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,18 +33,11 @@ function TestSignup() {
         body: JSON.stringify({
           email: form.email,
           password: form.password,
-          user: form.username,
-          firstname: form.firstName,
-          lastname: form.lastName,
-          yearOfBirth: form.yearOfBirth,
+          pseudo: form.username,
+          nom: form.firstName,
+          prenom: form.lastName,
         }),
       });
-
-      // 2. Fetch logged-in user (cookie should now exist)
-      const res = await fetch(`${getBaseUrl()}/me`, {
-        credentials: 'include',
-      });
-
       const userData = await res.json();
 
       // 3. Save user in AuthContext
