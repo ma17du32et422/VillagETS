@@ -20,7 +20,7 @@ export default function Message(){
     /** Message layout
      * TO CHANGE DYNAMICALLY LATER
     */
-    <div class="message" onClick={redirectMsgPage}>
+    <div className="message" onClick={redirectMsgPage}>
 
       <div id="pfp-container">
         <img id="pfp" src={pfp}></img>

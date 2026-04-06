@@ -33,15 +33,17 @@ function MsgPage(){
 
         <section id="discussion-container">
           <div id="discussion"><Discussions /></div>
-          <input id="write" type="text" placeholder="Write something"
-            value={message} 
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          />
-          
-          <button id="send" type='button' onClick={handleSend}>
-            <p id="send-text">send</p>
-          </button>
+          <div id="message-input-container">
+            <input id="write" type="text" placeholder="Write something"
+              value={message} 
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+            />
+            
+            <button id="send" type='button' onClick={handleSend}>
+              <p id="send-text">send</p>
+            </button>
+          </div>
         </section>
       </main>
     </>

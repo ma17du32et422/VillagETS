@@ -9,7 +9,7 @@ namespace srv
         {
             var supabaseClient = srv.SupabaseService.GetClient();
 
-            app.MapGet("/publication/{id}", async (string id) =>
+            app.MapGet("/post/{id}", async (string id) =>
             {
                 var post = await postService.GetById(id);
                 if (post is null) return Results.NotFound("Publication not found");
@@ -20,12 +20,12 @@ namespace srv
                     titre = post.Nom,
                     contenu = post.Contenu,
                     utilisateurId = post.UtilisateurId,
-                    dateCreation = post.DatePublication
+                    datePublication = post.DatePublication
                 });
             });
 
 
-            app.MapPost("/publication", async (sql.Publication publication, HttpContext ctx) =>
+            app.MapPost("/post", async (sql.Publication publication, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetPrincipalFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
@@ -36,7 +36,7 @@ namespace srv
                 return Results.Ok(created);
             });
 
-            app.MapDelete("/publication/{id}", async (string id, HttpContext ctx) =>
+            app.MapDelete("/post/{id}", async (string id, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetPrincipalFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
@@ -69,7 +69,7 @@ namespace srv
                     titre = p.Nom,
                     contenu = p.Contenu,
                     utilisateurId = p.UtilisateurId,
-                    dateCreation = p.DatePublication
+                    datePublication = p.DatePublication
                 }));
             });
         }

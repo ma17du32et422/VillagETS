@@ -1,18 +1,44 @@
-/** Subcomponent imports */
-import Post from './subcomponents/Post'
+import { useEffect, useState } from 'react';
+import Post from './subcomponents/Post';
+import { getBaseUrl } from '../API';
 
-/** Flux
- *  Posts should not be manually added to the flux, it will instead take from the database
- *  For the 1st sprint, we will manually add posts for the sake of presenting
- */
-export default function Flux(){
-  return(
+export default function Flux() {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await fetch(`${getBaseUrl()}/feed`, {
+          credentials: 'include', 
+        });
+
+        if (!res.ok) {
+          throw new Error('Failed to fetch posts');
+        }
+
+        const data = await res.json();
+        setPosts(data); 
+      } catch (err) {
+        console.error('Error fetching posts:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  if (loading) return <p>Loading posts...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+  return (
     <div id="feed">
-      <Post />
-      <Post />
-      <Post />
-      <Post />
-      <Post />
+      {posts.map((post) => (
+        <Post key={post.id} post={post} />
+      ))}
     </div>
   );
 }

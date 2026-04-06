@@ -12,20 +12,29 @@ using srv;
 
 //autorise les uploads à partir du site web
 var builder = WebApplication.CreateBuilder(args);
+var isDevelopment = builder.Environment.IsDevelopment();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:420",
-                "http://localhost:8080",
-                "http://localhost:5000",
-                "https://villagets.lesageserveur.com",
-                "https://apivillagets.lesageserveur.com",
-                "https://api.villagets.lesageserveur.com"
-              )
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        if (isDevelopment)
+        {
+            policy.SetIsOriginAllowed(_ => true)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
+        else
+        {
+            policy.WithOrigins(
+                    "https://villagets.lesageserveur.com",
+                    "https://apivillagets.lesageserveur.com",
+                    "https://api.villagets.lesageserveur.com"
+                  )
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
     });
 });
 
@@ -121,7 +130,7 @@ app.MapPost("/auth/signup", async (SignupRequest req, HttpContext ctx) =>
             Password = BCrypt.Net.BCrypt.HashPassword(req.Password),
             Email = req.Email,
             DateCreation = DateTime.UtcNow,
-            AnneeNaissance = req.AnneeNaissance,
+            AnneeNaissance = DateTime.UtcNow
 
         };
         var response = await supabase.From<Utilisateur>().Insert(user);
@@ -131,8 +140,8 @@ app.MapPost("/auth/signup", async (SignupRequest req, HttpContext ctx) =>
         ctx.Response.Cookies.Append("token", token, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = !isDevelopment,
+            SameSite = isDevelopment ? SameSiteMode.Lax : SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
         // return token
@@ -166,8 +175,8 @@ app.MapPost("/auth/login", async (LoginRequest req, HttpContext ctx) =>
         ctx.Response.Cookies.Append("token", token, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = !isDevelopment,
+            SameSite = isDevelopment ? SameSiteMode.Lax : SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
         
@@ -261,5 +270,5 @@ app.UseStaticFiles();
 app.MapFallbackToFile("index.html");
 app.Run();
 
-record SignupRequest(string Email, string Password, string Pseudo, string Nom, string Prenom, DateTime AnneeNaissance);
+record SignupRequest(string Email, string Password, string Pseudo, string Nom, string Prenom);
 record LoginRequest(string Email, string Password);
