@@ -11,7 +11,7 @@ DROP TABLE IF EXISTS Categorie_Publication CASCADE;
 DROP TABLE IF EXISTS Commentaire CASCADE;
 DROP TABLE IF EXISTS Publication CASCADE;
 
-DROP TABLE IF EXISTS Fichier CASCADE;
+--DROP TABLE IF EXISTS Fichier CASCADE;
 --DROP TABLE IF EXISTS Utilisateur CASCADE;
 
 
@@ -30,7 +30,7 @@ CREATE TABLE Utilisateur (
     photo_profil VARCHAR(255)
 );
 
-CREATE TABLE publication (
+CREATE TABLE Publication (
     id_publication INTEGER GENERATED ALWAYS AS IDENTITY 
                    (START WITH 1000 INCREMENT BY 1) PRIMARY KEY,
     id_utilisateur UUID,
@@ -93,7 +93,7 @@ CREATE TABLE Fichier (
 
 CREATE TABLE Publication_Fichier (
     id_fichier UUID,
-    id_publication UUID,
+    id_publication INTEGER,
     PRIMARY KEY (id_fichier, id_publication),
     CONSTRAINT fk_pf_fichier
         FOREIGN KEY (id_fichier)
