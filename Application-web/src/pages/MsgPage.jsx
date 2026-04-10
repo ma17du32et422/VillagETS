@@ -6,7 +6,6 @@ import Messages from "../components/Messages";
 import Discussions from "../components/Discussions";
 
 /** Styling */
-import '../assets/App.css'
 import '../assets/Discussion.css'
 import '../assets/Message.css'
 
@@ -39,10 +38,6 @@ function MsgPage(){
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
             />
-            
-            <button id="send" type='button' onClick={handleSend}>
-              <p id="send-text">send</p>
-            </button>
           </div>
         </section>
       </main>

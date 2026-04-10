@@ -13,6 +13,7 @@ export default function Discussions(){
       <Discussion />
       <Discussion />
       <Discussion />
+      <Discussion />
     </div>
   );
 }

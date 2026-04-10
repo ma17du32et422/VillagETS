@@ -16,9 +16,12 @@ export default function Discussion(){
         <div id="pfp-disc-container">
           <img id="pfp-discussion" src={pfp2}></img>
         </div>
-        <div id="discussion-container">
+        <div id="disc-container">
           <b id="user">Stare cat</b>
-          <p id="disc">He will totally sell you</p>
+          <p id="disc">He will totally sell you.
+                      He really needs the RAM.
+                      It is way more useful than you are.
+          </p>
         </div>
       </div>
 
@@ -27,7 +30,7 @@ export default function Discussion(){
         <div id="pfp-disc-container"> 
           <img id="pfp-discussion" src={pfp}></img>
         </div>
-        <div id="discussion-container">
+        <div id="disc-container">
           <b id="user">RAM cat</b>
           <p id="disc">Pls don't sell me for RAM</p>
         </div>
