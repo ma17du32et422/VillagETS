@@ -10,10 +10,22 @@ function SignupForm() {
   const [username, setUsername] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [birthMonth, setBirthMonth] = useState('');
+  const [birthDay, setBirthDay] = useState('');
+  const [birthYear, setBirthYear] = useState('');
+  const [profilePic, setProfilePic] = useState(null);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  const handleProfilePicChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePic(file);
+      setProfilePicPreview(URL.createObjectURL(file));
+    }
+  };
 
   const signUp = async (e) => {
     e.preventDefault();
@@ -39,6 +51,11 @@ function SignupForm() {
       return;
     }
 
+    if (!birthMonth || !birthDay || !birthYear) {
+      setError('Please enter your date of birth.');
+      return;
+    }
+
     try {
       setSubmitting(true);
       const res = await fetch(`${getBaseUrl()}/auth/signup`, {
@@ -53,6 +70,7 @@ function SignupForm() {
           pseudo: username,
           nom: firstName,
           prenom: lastName,
+          dateNaissance: `${birthYear}-${String(birthMonth).padStart(2, '0')}-${String(birthDay).padStart(2, '0')}`,
         }),
       });
 
@@ -120,6 +138,45 @@ function SignupForm() {
           id="signLastName"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label>Date of Birth: </label>
+        <select value={birthMonth} onChange={e => { setBirthMonth(e.target.value); setBirthDay(''); }}>
+          <option value="">Month</option>
+          {["January","February","March","April","May","June",
+                "July","August","September","October","November","December"]
+              .map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
+        </select>
+
+        <select value={birthDay} onChange={e => setBirthDay(e.target.value)}>
+          <option value="">Day</option>
+          {Array.from(
+              { length: new Date(birthYear || 2000, birthMonth, 0).getDate() },
+              (_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>
+          )}
+        </select>
+
+        <select value={birthYear} onChange={e => { setBirthYear(e.target.value); setBirthDay(''); }}>
+          <option value="">Year</option>
+          {Array.from({ length: 100 }, (_, i) => {
+            const y = new Date().getFullYear() - i;
+            return <option key={y} value={y}>{y}</option>;
+          })}
+        </select>
+      </div>
+
+      <div>
+        <button type="button" onClick={() => document.getElementById('profilePicInput').click()}>
+          {profilePic ? 'Change Profile Picture' : 'Upload Profile Picture'}
+        </button>
+        <input
+            type="file"
+            id="profilePicInput"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={handleProfilePicChange}
         />
       </div>
 
