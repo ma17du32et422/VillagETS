@@ -49,19 +49,3 @@ main{
     overflow-y: auto;
     overflow-x: hidden;
 }
-
-/** section for the discussion in the MsgPage */
-#discussion-container{
-    display: flex;
-    flex-direction: column;
-    width: 82%;
-    height: 100vh;
-    border: 2px black solid;
-    position: relative;
-}
-
-#discussion {
-    flex: 1;
-    overflow-y: auto;
-    padding-bottom: 120px; /* More space for input container */
-}
