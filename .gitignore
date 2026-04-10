@@ -426,3 +426,9 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# macOS system files
+.DS_Store
+
+# JetBrains / IntelliJ / PyCharm / WebStorm project files
+.idea/
