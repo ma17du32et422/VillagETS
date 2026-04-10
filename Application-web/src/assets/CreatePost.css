@@ -8,8 +8,21 @@
     flex-direction: column;
 }
 
+#form-title,
+#form-image,
+#form-tags,
+#form-text{
+    margin-bottom: 10px;
+}
+
 #form-text{
     resize: none;
+}
+
+#form-tags{
+    padding: 8px;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
 }
 
 #form-post, #form-cancel{

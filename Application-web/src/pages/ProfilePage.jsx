@@ -1,67 +1,149 @@
 /** Component imports */
-import Header from "../components/Header.jsx";
-import UsernameForm from "../components/UsernameForm";
-import PasswordForm from "../components/PasswordForm";
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../AuthContext';
+import Header from '../components/Header.jsx';
+import UsernameForm from '../components/UsernameForm';
+import PasswordForm from '../components/PasswordForm';
+import { getBaseUrl } from '../API';
 
 /** Styling */
 import '../assets/ProfilePage.css'
 
-/** If not logged in, the user can log in using a form.
-If logged in, the user can modify his username and profile picture.
-TO BE HANDLED DYNAMICALLY LATER -> PLUG INTO JS LOGIC AND SETUP STATES TO SHOW/HIDE COMPONENTS*/
-
 /** ProfilePage */
 function ProfilePage() {
+    const { user, logout, loading } = useAuth();
+    const [profileUser, setProfileUser] = useState(null);
+    const [profilePicUrl, setProfilePicUrl] = useState('');
+    const [uploadMessage, setUploadMessage] = useState('');
+    const [uploading, setUploading] = useState(false);
+    const inputRef = useRef(null);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!user || loading) return;
+
+        const fetchProfile = async () => {
+            try {
+                const res = await fetch(`${getBaseUrl()}/Utilisateur`);
+                if (!res.ok) {
+                    throw new Error('Unable to load profile');
+                }
+
+                const allUsers = await res.json();
+                const currentUser = allUsers.find((u) => u.id_utilisateur === user.userId);
+                if (currentUser) {
+                    setProfileUser(currentUser);
+                    setProfilePicUrl(currentUser.photo_profil || '');
+                } else {
+                    setProfileUser(null);
+                }
+            } catch (err) {
+                console.error('Profile load failed:', err);
+            }
+        };
+
+        fetchProfile();
+    }, [user, loading]);
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/LoginPage');
+    };
+
+    const handleFileChange = async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        setUploadMessage('');
+        setUploading(true);
+
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('nom', file.name);
+            formData.append('type', 'pfp');
+
+            const response = await fetch(`${getBaseUrl()}/upload`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(text || 'Upload failed');
+            }
+
+            const data = await response.json();
+            setProfilePicUrl(data.url || '');
+            setUploadMessage('Profile picture uploaded successfully.');
+        } catch (err) {
+            console.error('Upload failed:', err);
+            setUploadMessage(err.message || 'Upload failed.');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <>
+                <header><Header /></header>
+                <main id="profileMain"><p>Loading profile...</p></main>
+            </>
+        );
+    }
+
+    if (!user) {
+        return (
+            <>
+                <header><Header /></header>
+                <main id="profileMain">
+                    <section id="profile-edit-container">
+                        <div id="profile-edit">
+                            <h2>Please log in to access your profile</h2>
+                            <button type="button" onClick={() => navigate('/LoginPage')}>Go to Login</button>
+                        </div>
+                    </section>
+                </main>
+            </>
+        );
+    }
+
     return (
         <>
-            <header>
-                <Header />
-            </header>
-
+            <header><Header /></header>
             <main id="profileMain">
-
-                {/** UsernameForm and PasswordForm */}
                 <section id="profile-edit-container">
                     <div id="profile-edit">
+                        <h2>My Profile</h2>
+                        <p><strong>User ID:</strong> {user.userId}</p>
+                        {profileUser && profileUser.pseudo && <p><strong>Username:</strong> {profileUser.pseudo}</p>}
+
                         <UsernameForm />
                         <PasswordForm />
 
-                        {/** Profile Picture Selection */}
                         <div id="profile-picture">
                             <h3>Profile Picture</h3>
-                            <img alt="alt: pfp devrait être ici" src="https://apivillagets.lesageserveur.com/uploads/90c9dce0-039c-408d-b8fd-d0956bf46814.jpg" height="80sp" /> {/** Image de test */}
+                            <img
+                                alt="Profile"
+                                src={profilePicUrl || 'https://via.placeholder.com/140?text=No+image'}
+                                height="140"
+                            />
                             <input
+                                ref={inputRef}
                                 type="file"
                                 id="profile-picture-input"
                                 accept="image/*"
                                 style={{ display: 'none' }}
-                                onChange={async (e) => {
-                                    const file = e.target.files[0];
-                                    if (!file) return;
-
-                                    const formData = new FormData();
-                                    formData.append('file', file);
-                                    formData.append('nom', file.name);
-                                    formData.append('type', "pfp");
-
-                                    const response = await fetch('https://apivillagets.lesageserveur.com/upload', { //http://localhost:5000/upload
-                                        method: 'POST',
-                                        body: formData,
-                                    });
-
-                                    //const data = await response.json();
-                                    //console.log('URL du fichier :', data.url); //url du fichier uploadé ici
-                                    const text = await response.text();
-                                    console.log('Réponse serveur:', text);
-
-                                }}
+                                onChange={handleFileChange}
                             />
-                            <button onClick={() => document.getElementById('profile-picture-input').click()}>
-                                Change Profile Picture
+                            <button type="button" onClick={() => inputRef.current?.click()} disabled={uploading}>
+                                {uploading ? 'Uploading…' : 'Change Profile Picture'}
                             </button>
+                            {uploadMessage && <p id="profile-upload-message">{uploadMessage}</p>}
                         </div>
 
-                        <button>Log Out</button>
+                        <button type="button" onClick={handleLogout}>Log Out</button>
                     </div>
                 </section>
             </main>

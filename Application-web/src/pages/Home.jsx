@@ -1,15 +1,67 @@
-/** Component imports */
+import { useEffect, useState } from 'react';
+import { useAuth } from '../AuthContext';
 import Header from "../components/Header";
 import Actions from "../components/Actions";
 import Flux from "../components/Flux";
 import Messages from "../components/Messages";
+import { getBaseUrl } from '../API';
 
-/** Styling */
 import '../assets/App.css'
 
-/** Layout for the web application */
-/** DO NOT TOUCH */
 function App(){
+  const { user, loading: authLoading } = useAuth();
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!user) {
+      setPosts([]);
+      setError('You must be logged in to view posts.');
+      setLoading(false);
+      return;
+    }
+
+    const fetchPosts = async () => {
+      try {
+        const res = await fetch(`${getBaseUrl()}/feed`, {
+          credentials: 'include',
+        });
+
+        if (!res.ok) {
+          throw new Error('Failed to fetch posts');
+        }
+
+        const data = await res.json();
+        setPosts(data.map((post) => ({
+          id: post.id,
+          title: post.titre ?? '',
+          contents: post.contenu ?? '',
+          op: post.utilisateurId ?? 'Unknown',
+          datetime: post.datePublication ?? '',
+          tags: post.tags ?? [],
+          likes: post.likes ?? 0,
+          dislikes: post.dislikes ?? 0,
+          comments: post.comments ?? [],
+        })));
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching posts:', err);
+        setError(err.message ?? 'Failed to fetch posts');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, [authLoading, user]);
+
+  const handlePostCreated = (newPost) => {
+    setPosts((prev) => [newPost, ...prev]);
+  };
+
   return(
     <>
       <header id="header"><Header /></header>
@@ -17,11 +69,11 @@ function App(){
       <main id="main">
 
         <section id="actions-container">
-          <div id="actions"><Actions /></div>
+          <div id="actions"><Actions onPostCreated={handlePostCreated} user={user} /></div>
         </section>
 
         <section id="flux-container">
-          <div id="flux"><Flux /></div>
+          <div id="flux"><Flux posts={posts} loading={loading} error={error} /></div>
         </section>
 
         <section id="messages-container">

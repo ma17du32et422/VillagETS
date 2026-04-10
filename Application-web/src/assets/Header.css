@@ -30,6 +30,21 @@
     background-color: #666666;
 }
 
+#profile-button-wrapper{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 8px;
+}
+
+#profile-button-pic{
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffffff;
+}
+
 #profile-text{
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 16px;
