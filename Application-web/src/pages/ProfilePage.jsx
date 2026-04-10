@@ -23,6 +23,20 @@ function ProfilePage() {
     useEffect(() => {
         if (!user || loading) return;
 
+        const parseUsersResponse = async (response) => {
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch {
+                const rawIndex = text.indexOf('Raw:');
+                if (rawIndex !== -1) {
+                    const rawJson = text.slice(rawIndex + 4).trim();
+                    return JSON.parse(rawJson);
+                }
+                return null;
+            }
+        };
+
         const fetchProfile = async () => {
             try {
                 const res = await fetch(`${getBaseUrl()}/Utilisateur`);
@@ -30,11 +44,15 @@ function ProfilePage() {
                     throw new Error('Unable to load profile');
                 }
 
-                const allUsers = await res.json();
-                const currentUser = allUsers.find((u) => u.id_utilisateur === user.userId);
+                const allUsers = await parseUsersResponse(res);
+                if (!Array.isArray(allUsers)) {
+                    throw new Error('Unable to parse profile list');
+                }
+
+                const currentUser = allUsers.find((u) => u.id_utilisateur === user.userId || u.Id === user.userId || u.id === user.userId);
                 if (currentUser) {
                     setProfileUser(currentUser);
-                    setProfilePicUrl(currentUser.photo_profil || '');
+                    setProfilePicUrl(currentUser.photo_profil || currentUser.PhotoProfil || '');
                 } else {
                     setProfileUser(null);
                 }
