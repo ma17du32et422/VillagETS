@@ -58,6 +58,10 @@ public class MainActivity extends AppCompatActivity {
         // 4. Logique de navigation via les boutons du bas
         homeBtn.setOnClickListener(v -> viewPager.setCurrentItem(0));
         moneyBtn.setOnClickListener(v -> viewPager.setCurrentItem(1));
+        searchBtn.setOnClickListener(v -> viewPager.setCurrentItem(2));
+        messageBtn.setOnClickListener(v -> viewPager.setCurrentItem(3));
+        notificationBtn.setOnClickListener(v -> viewPager.setCurrentItem(4));
+
 
         // Executor pour les tâches en arrière-plan
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -95,18 +99,6 @@ public class MainActivity extends AppCompatActivity {
 
         profileBtn.setOnClickListener(v -> {
             Toast.makeText(this, "Bouton Profil cliqué", Toast.LENGTH_SHORT).show();
-        });
-
-        searchBtn.setOnClickListener(v -> {
-            Toast.makeText(this, "Bouton Recherche cliqué", Toast.LENGTH_SHORT).show();
-        });
-
-        messageBtn.setOnClickListener(v -> {
-            Toast.makeText(this, "Bouton Messages cliqué", Toast.LENGTH_SHORT).show();
-        });
-
-        notificationBtn.setOnClickListener(v -> {
-            Toast.makeText(this, "Bouton Notifications cliqué", Toast.LENGTH_SHORT).show();
         });
 
         // 5. Gestion des Insets
