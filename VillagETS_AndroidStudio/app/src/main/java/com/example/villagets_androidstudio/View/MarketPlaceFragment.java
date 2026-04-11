@@ -28,7 +28,7 @@ public class MarketPlaceFragment extends Fragment {
         String[] itemNames = {"Camera", "Livre Physique", "MacNEO", "Cat for ram", "Billet de 20$", "Les secrets d'ETS", "Cleaning crew de Bonaventure", "Coupons d'A&W"};
         String[] itemPrices = {"1000$", "67$", "500$", "2000$", "20$", "314159$", "50$", "0$"};
 
-        MarketPlaceManager adapter = new MarketPlaceManager(itemNames, itemPrices);
+        MarketPlaceAdapter adapter = new MarketPlaceAdapter(itemNames, itemPrices);
         recyclerView.setAdapter(adapter);
     }
 }

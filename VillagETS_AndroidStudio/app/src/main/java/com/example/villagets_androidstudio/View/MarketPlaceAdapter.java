@@ -1,6 +1,5 @@
 package com.example.villagets_androidstudio.View;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +10,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.villagets_androidstudio.R;
 
-public class MarketPlaceManager extends RecyclerView.Adapter<MarketPlaceManager.ViewHolder> {
+public class MarketPlaceAdapter extends RecyclerView.Adapter<MarketPlaceAdapter.ViewHolder> {
 
     private String[] names;
     private String[] prices;
 
-    public MarketPlaceManager(String[] names, String[] prices) {
+    public MarketPlaceAdapter(String[] names, String[] prices) {
         this.names = names;
         this.prices = prices;
     }
