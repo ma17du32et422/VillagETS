@@ -6,7 +6,7 @@ import '.././assets/Actions.css'
 import CreatePost from './subcomponents/CreatePost'
 
 /** Actions */
-export default function Actions(){
+export default function Actions({ onPostCreated, user }){
   /** Create or destroy post form */
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -19,16 +19,16 @@ export default function Actions(){
     /** Actions layout 
      * The buttons do not return anything for now, nor they add a post to the flux
     */
-    <div class="actions-layout">{isActionsOpen &&
-      <div class="actions">
-        <button id="create-post" type="button" onClick={toggleForm}>
+    <div className="actions-layout">{isActionsOpen &&
+      <div className="actions">
+        <button id="create-post" type="button" onClick={toggleForm} disabled={!user}>
           <p id="create-post-text">+ New post +</p>
         </button>
         <button id="menu" type="button">
           <p id="menu-text">Menu (TO CHANGE LATER)</p>
         </button>
       </div>}
-      <div>{isFormOpen && <CreatePost onRemove={toggleForm} />}</div>
+      <div>{isFormOpen && <CreatePost onRemove={toggleForm} onCreate={onPostCreated} />}</div>
     </div>
   );
 }
