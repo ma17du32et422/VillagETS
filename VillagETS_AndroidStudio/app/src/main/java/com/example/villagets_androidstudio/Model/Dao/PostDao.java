@@ -1,9 +1,6 @@
 package com.example.villagets_androidstudio.Model.Dao;
-
 import com.example.villagets_androidstudio.Model.Post;
-
 import org.json.JSONException;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +15,7 @@ public class PostDao {
                 
         testPosts.add(new Post("2", 102, "Architecture MVVM validée",
                 "Les données transitent maintenant du Model vers le ViewModel, puis vers la View.", 
-                new String[]{"https://picsum.photos/600"}, "2023-10-27", null));
+                new String[]{"https://apivillagets.lesageserveur.com/uploads/5d8d6b76-8558-4ba5-a09c-7eb983fe0a3c.jpg"}, "2023-10-27", null));
 
         try {
             HttpJsonService service = new HttpJsonService();

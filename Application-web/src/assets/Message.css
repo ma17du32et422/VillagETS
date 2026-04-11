@@ -36,6 +36,7 @@
     flex-direction: column;
     justify-content: center;
     overflow: hidden;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 #user{
