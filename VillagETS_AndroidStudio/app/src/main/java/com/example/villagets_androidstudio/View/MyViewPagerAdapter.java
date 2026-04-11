@@ -18,6 +18,12 @@ public class MyViewPagerAdapter extends FragmentStateAdapter {
                 return new FeedFragment();
             case 1:
                 return new MarketPlaceFragment();
+            case 2:
+                return new SearchFragment();
+            case 3:
+                return new MessageFragment();
+            case 4:
+                return new NotificationFragment();
         }
         return new FeedFragment();
     }
