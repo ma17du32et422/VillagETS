@@ -4,52 +4,50 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.villagets_androidstudio.R;
 
-public class MarketPlaceManager extends BaseAdapter {
+public class MarketPlaceManager extends RecyclerView.Adapter<MarketPlaceManager.ViewHolder> {
 
-    private Context context;
     private String[] names;
     private String[] prices;
 
-    public MarketPlaceManager(Context context, String[] names, String[] prices) {
-        this.context = context;
+    public MarketPlaceManager(String[] names, String[] prices) {
         this.names = names;
         this.prices = prices;
     }
 
+    @NonNull
     @Override
-    public int getCount() {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_marketplace, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.name.setText(names[position]);
+        holder.price.setText(prices[position]);
+    }
+
+    @Override
+    public int getItemCount() {
         return names.length;
     }
 
-    @Override
-    public Object getItem(int position) {
-        return names[position];
-    }
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView name;
+        TextView price;
 
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-        if (convertView == null) {
-            convertView = LayoutInflater.from(context)
-                    .inflate(R.layout.item_marketplace, parent, false);
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            name = itemView.findViewById(R.id.itemName);
+            price = itemView.findViewById(R.id.itemPrice);
         }
-
-        TextView name = convertView.findViewById(R.id.itemName);
-        TextView price = convertView.findViewById(R.id.itemPrice);
-
-        name.setText(names[position]);
-        price.setText(prices[position]);
-
-        return convertView;
     }
 }

@@ -46,9 +46,6 @@ public class SignupActivity extends AppCompatActivity {
             handleSignUp();
         });
 
-        tvLoginLink.setOnClickListener(v -> {
-            finish(); // Go back to login if it exists, or just close for now
-        });
     }
 
     private void handleSignUp() {
@@ -62,34 +59,17 @@ public class SignupActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(username) || 
             TextUtils.isEmpty(firstName) || TextUtils.isEmpty(lastName) || 
             TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!password.equals(confirmPassword)) {
-            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Les mots de passe ne correspondent pas", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        User newUser = new User(username, password, email, firstName, lastName, "2000-01-01");
-
-        executorService.execute(() -> {
-            try {
-                UserApi api = RetrofitClient.getInstance().create(UserApi.class);
-                Response<User> response = api.signup(newUser).execute();
-
-                runOnUiThread(() -> {
-                    if (response.isSuccessful()) {
-                        Toast.makeText(this, "Sign up successful!", Toast.LENGTH_SHORT).show();
-                        finish();
-                    } else {
-                        Toast.makeText(this, "Sign up failed: " + response.code(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            } catch (IOException e) {
-                Log.e("SignupActivity", "Network error", e);
-                runOnUiThread(() -> Toast.makeText(this, "Network error", Toast.LENGTH_SHORT).show());
-            }
-        });
+        // Simulating signup
+        Toast.makeText(this, "Inscription réussie (Mock) !", Toast.LENGTH_SHORT).show();
+        finish();
     }
 }

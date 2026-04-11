@@ -41,10 +41,6 @@ public class LoginActivity extends AppCompatActivity {
 
         btnLogin.setOnClickListener(v -> handleLogin());
 
-        tvSignupLink.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
-            startActivity(intent);
-        });
     }
 
     private void handleLogin() {
@@ -56,38 +52,8 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        User loginUser = new User();
-        // Determine if it's an email or username (pseudo)
-        if (identifier.contains("@")) {
-            loginUser.setEmail(identifier);
-        } else {
-            loginUser.setPseudo(identifier);
-        }
-        loginUser.setPassword(password);
+        // Simulating  login
+        Toast.makeText(this, "Connexion réussie (Mock) !", Toast.LENGTH_SHORT).show();
 
-        executorService.execute(() -> {
-            try {
-                UserApi api = RetrofitClient.getInstance().create(UserApi.class);
-                Response<User> response = api.login(loginUser).execute();
-
-                runOnUiThread(() -> {
-                    if (response.isSuccessful() && response.body() != null) {
-                        User user = response.body();
-                        user.saveUser(this); // Save user info locally
-                        Toast.makeText(this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
-                        
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Toast.makeText(this, "Échec de la connexion. Vérifiez vos identifiants.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            } catch (IOException e) {
-                Log.e("LoginActivity", "Network error", e);
-                runOnUiThread(() -> Toast.makeText(this, "Erreur réseau", Toast.LENGTH_SHORT).show());
-            }
-        });
     }
 }

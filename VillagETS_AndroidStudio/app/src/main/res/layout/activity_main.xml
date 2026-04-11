@@ -19,7 +19,8 @@
 
         <TextView android:id="@+id/appTitle" android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="VillagETS" android:textSize="20sp" android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@id/menuBtn" app:layout_constraintEnd_toStartOf="@id/addPostBtn"
+            android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toBottomOf="@id/menuBtn"
             app:layout_constraintStart_toEndOf="@id/menuBtn" app:layout_constraintTop_toTopOf="@id/menuBtn"
             android:fontFamily="@font/delta_light"/>
 
