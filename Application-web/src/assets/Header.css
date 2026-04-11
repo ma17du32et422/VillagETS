@@ -5,15 +5,16 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 12px;
+    padding: 0 24px;
     background-color: #E40032;
+    gap: 16px;
 }
 
 /** Components layout */
 #search{
     width: 35%;
     height: 50%;
-    margin: auto;
+    margin: 0 auto;
 }
 
 #app-name{
@@ -22,6 +23,7 @@
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 32px;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 #profile{

@@ -6,6 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="bcf7e03b-c303-4ba9-a331-cdf53250a535" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application-web/src/assets/Discussion.css" beforeDir="false" afterPath="$PROJECT_DIR$/Application-web/src/assets/Discussion.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application-web/src/assets/Header.css" beforeDir="false" afterPath="$PROJECT_DIR$/Application-web/src/assets/Header.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application-web/src/assets/Message.css" beforeDir="false" afterPath="$PROJECT_DIR$/Application-web/src/assets/Message.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application-web/src/assets/Post.css" beforeDir="false" afterPath="$PROJECT_DIR$/Application-web/src/assets/Post.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application-web/src/assets/ProfilePage.css" beforeDir="false" afterPath="$PROJECT_DIR$/Application-web/src/assets/ProfilePage.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Application-web/src/components/SignupForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Application-web/src/components/SignupForm.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -55,6 +60,7 @@
     "nodejs_interpreter_path": "node",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "settings.javascript.runtime",
+    "ts.external.directory.path": "C:\\Users\\Ares\\AppData\\Local\\Programs\\WebStorm\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -86,7 +92,8 @@
       <workItem from="1774885701602" duration="10000" />
       <workItem from="1775521339997" duration="2086000" />
       <workItem from="1775693623313" duration="2459000" />
-      <workItem from="1775856882386" duration="4078000" />
+      <workItem from="1775856882386" duration="4816000" />
+      <workItem from="1775936309719" duration="3807000" />
     </task>
     <servers />
   </component>

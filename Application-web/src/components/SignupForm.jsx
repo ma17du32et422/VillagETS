@@ -23,7 +23,7 @@ function SignupForm() {
     const file = e.target.files[0];
     if (file) {
       setProfilePic(file);
-      setProfilePicPreview(URL.createObjectURL(file));
+      //setProfilePicPreview(URL.createObjectURL(file));
     }
   };
 

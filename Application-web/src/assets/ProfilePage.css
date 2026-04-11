@@ -1,10 +1,30 @@
+#profileMain {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    min-height: calc(100vh - 50px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background-color: #f6f8fa;
+}
+
 #profileMain > section {
-    margin-top: 30px;
+    background-color: #ffffff;
+    border: 1px solid #d0d7de;
+    border-radius: 10px;
     padding: 40px;
+    width: 100%;
+    max-width: 380px;
+    margin-bottom: 16px;
 }
 
 #profileMain h2, #profileMain h3 {
     margin-bottom: 30px;
+    margin-bottom: 24px;
+    font-size: 20px;
+    color: #222;
+    text-align: center;
 }
 
 #profileMain input {
@@ -12,11 +32,15 @@
 }
 
 #profileMain button {
-    margin-top: 10px;
+    display: block;
+    margin: 15px auto 15px auto;
     padding: 10px 20px;
     width: auto;
     max-height: 35px;
     max-width: 180px;
+    background-color: lightgreen;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 12px;
 }
 
 #profileMain #login > *,
