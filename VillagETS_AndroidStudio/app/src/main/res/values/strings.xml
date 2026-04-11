@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">VillagETS_AndroidStudio</string>
+    <string name="login_title">Connexion</string>
+    <string name="login_identifier_hint">Email ou Nom d\'utilisateur</string>
+    <string name="login_password_hint">Mot de passe</string>
+    <string name="login_button">Se connecter</string>
+    <string name="login_no_account">Pas de compte? Inscription</string>
+    <string name="signup_title">Page d\'inscription</string>
+    <string name="signup_email_hint">Addresse e-mail</string>
+    <string name="signup_username_hint">Nom d\'utilisateur</string>
+    <string name="signup_firstname_hint">Prénom</string>
+    <string name="signup_lastname_hint">Nom</string>
+    <string name="signup_confirm_password_hint">Confirme mot de passe</string>
+    <string name="signup_button">Créer mon compte</string>
+    <string name="signup_already_registered">Déjà inscrit? Connexion</string>
 </resources>
