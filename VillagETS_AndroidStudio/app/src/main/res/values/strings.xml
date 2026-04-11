@@ -13,4 +13,5 @@
     <string name="signup_confirm_password_hint">Confirme mot de passe</string>
     <string name="signup_button">Créer mon compte</string>
     <string name="signup_already_registered">Déjà inscrit? Connexion</string>
+    <string name="recherche">Recherche</string>
 </resources>

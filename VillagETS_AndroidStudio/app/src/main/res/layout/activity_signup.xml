@@ -124,15 +124,15 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="@string/signup_button"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:backgroundTint="#E40032" />
 
         <TextView
             android:id="@+id/tvLoginLink"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="@string/signup_already_registered"
-            android:textColor="?attr/colorPrimary" />
+            android:text="@string/signup_already_registered" />
 
     </LinearLayout>
 </ScrollView>
