@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 public class RetrofitClient {
 
-    private static final String URL_POINT_ENTREE = "http://10.0.2.2:5000";
+    private static final String URL_POINT_ENTREE = "https://apivillagets.lesageserveur.com/";
     private static Retrofit instance = null;
 
     public static Retrofit getInstance() {
