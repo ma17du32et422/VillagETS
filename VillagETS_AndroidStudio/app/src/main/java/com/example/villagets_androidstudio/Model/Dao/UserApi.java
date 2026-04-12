@@ -30,6 +30,6 @@ public interface UserApi {
     @GET("/users/{email}")
     Call<User> getUserByEmail(@Path("email") String email);
 
-    @POST("/login")
+    @POST("/auth/login")
     Call<User> login(@Body User user);
 }
