@@ -24,7 +24,6 @@ namespace srv
                 });
             });
 
-
             app.MapPost("/post", async (sql.Publication publication, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetPrincipalFromContext(ctx);
@@ -54,14 +53,14 @@ namespace srv
                 }
             });
 
-            app.MapGet("/feed", async (HttpContext ctx) =>
+            app.MapPost("/feed", async (FeedQuery query, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetPrincipalFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
 
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
 
-                var feed = await postService.GetFeed(userId);
+                var feed = await postService.GetFeed(userId, query);
 
                 return Results.Ok(feed.Select(p => new
                 {
@@ -69,7 +68,9 @@ namespace srv
                     titre = p.Nom,
                     contenu = p.Contenu,
                     utilisateurId = p.UtilisateurId,
-                    datePublication = p.DatePublication
+                    datePublication = p.DatePublication,
+                    prix = p.Prix,
+                    articleAVendre = p.ArticleAVendre
                 }));
             });
         }

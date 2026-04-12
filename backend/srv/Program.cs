@@ -272,3 +272,10 @@ app.Run();
 
 record SignupRequest(string Email, string Password, string Pseudo, string Nom, string Prenom);
 record LoginRequest(string Email, string Password);
+
+public record FeedQuery(
+    string? SearchString,
+    string[]? Tags,
+    bool IsMarketplace
+);
+

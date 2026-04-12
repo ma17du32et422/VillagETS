@@ -54,6 +54,8 @@ namespace sql
 
         [Column("contenu")]
         public string? Contenu { get; set; }
+        [Column("media")]
+        public string[]? Media { get; set; }
 
         [Column("likes")]
         public int? Likes { get; set; }
