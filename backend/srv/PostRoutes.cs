@@ -53,7 +53,7 @@ namespace srv
                 }
             });
 
-            app.MapPost("/feed", async (FeedQuery query, HttpContext ctx) =>
+            app.MapGet("/feed", async (FeedQuery query, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetPrincipalFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
