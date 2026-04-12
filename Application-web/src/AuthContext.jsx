@@ -5,8 +5,8 @@ const AuthContext = createContext(null)
 /** Note: A null user means no one is currently logged in */
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -32,7 +32,9 @@ export function AuthProvider({ children }) {
     checkAuth()
   }, [])
 
-  const login = (userData) => setUser(userData)
+  const login = (userData) => {
+    setUser(userData);
+  }
 
   const logout = async () => {
     try {
@@ -44,7 +46,7 @@ export function AuthProvider({ children }) {
       console.error('Logout failed:', err)
     }
 
-    setUser(null)
+    setUser(null);
   }
 
   return (

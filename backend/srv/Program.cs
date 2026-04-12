@@ -128,6 +128,7 @@ app.MapPost("/auth/signup", async (SignupRequest req, HttpContext ctx) =>
             Nom = req.Nom,
             Prenom = req.Prenom,
             Password = BCrypt.Net.BCrypt.HashPassword(req.Password),
+            PhotoProfil = req.PhotoProfil,
             Email = req.Email,
             DateCreation = DateTime.UtcNow,
             AnneeNaissance = DateTime.UtcNow
@@ -193,14 +194,33 @@ app.MapPost("/auth/logout", (HttpContext ctx) =>
     return Results.Ok();
 });
 
-app.MapGet("/me", (HttpContext ctx) =>
+app.MapGet("/me", async (HttpContext ctx) =>
 {
     var token = ctx.Request.Cookies["token"];
     if (token == null) return Results.Unauthorized();
+
     var principal = villagets.Auth.AuthHelper.ValidateToken(token);
     if (principal == null) return Results.Unauthorized();
 
-    return Results.Ok(new { userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value });
+    var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    var result = await supabase
+        .From<sql.Utilisateur>()
+        .Where(u => u.Id == userId)
+        .Get();
+
+    var user = result.Model;
+    if (user == null) return Results.NotFound();
+
+    return Results.Ok(new
+    {
+        userId = user.Id,
+        pseudo = user.Pseudo,
+        nom = user.Nom,
+        prenom = user.Prenom,
+        email = user.Email,
+        photoProfil = user.PhotoProfil
+    });
 });
 
 //UPLOAD DE FICHIERS
@@ -270,7 +290,7 @@ app.UseStaticFiles();
 app.MapFallbackToFile("index.html");
 app.Run();
 
-record SignupRequest(string Email, string Password, string Pseudo, string Nom, string Prenom);
+record SignupRequest(string Email, string Password, string Pseudo, string Nom, string Prenom, string PhotoProfil);
 record LoginRequest(string Email, string Password);
 
 public record FeedQuery(

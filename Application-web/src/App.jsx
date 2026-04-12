@@ -4,6 +4,7 @@ import MsgPage from './pages/MsgPage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
 import TestSignup from './pages/TestSignup';
+import Signup from './pages/Signup'
 
 
 function App(){
@@ -13,6 +14,7 @@ function App(){
       <Route path="/" element={<Home />} />
       <Route path="/MsgPage" element={<MsgPage />} />
       <Route path="/LoginPage" element={<LoginPage />}/>
+      <Route path="/Signup" element={<Signup/>}/>
       <Route path="/ProfilePage" element={<ProfilePage />} />
       <Route path="/test-signup" element={<TestSignup />} />
     </Routes>

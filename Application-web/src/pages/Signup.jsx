@@ -1,12 +1,11 @@
 /** Component imports */
 import Header from "../components/Header.jsx";
-import LoginForm from "../components/LoginForm";
-import SignupForm from "../components/SignupForm";
+import SignupForm from "../components/SignupForm.jsx";
 
 /** Styling */
 import '../assets/ProfilePage.css'
 
-function LoginPage(){
+function Signup(){
     return (
         <>
             <header>
@@ -14,11 +13,10 @@ function LoginPage(){
             </header>
 
             <main id="profileMain">
-
                 {/** LoginForm and SignupForm */}
-                <section id="login-container">
-                    <div id="login">
-                        <LoginForm />
+                <section id="signup-container">
+                    <div id="singup">
+                        <SignupForm />
                     </div>
                 </section>
             </main>
@@ -26,4 +24,4 @@ function LoginPage(){
     );
 }
 
-export default LoginPage;
+export default Signup;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getBaseUrl } from '../API';
 import { useAuth } from '../AuthContext';
 
@@ -14,10 +14,30 @@ function SignupForm() {
   const [birthDay, setBirthDay] = useState('');
   const [birthYear, setBirthYear] = useState('');
   const [profilePic, setProfilePic] = useState(null);
+  const [profilePicPreview, setProfilePicPreview] = useState(null);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Handle image preview
+  useEffect(() => {
+    if (!profilePic) {
+      setProfilePicPreview(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(profilePic);
+    setProfilePicPreview(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [profilePic]);
+
+  useEffect(() => {
+    if (!birthDay || !birthMonth) return;
+    const daysInMonth = new Date(birthYear || 2000, birthMonth, 0).getDate();
+    if (parseInt(birthDay) > daysInMonth) setBirthDay('');
+  }, [birthMonth, birthYear]);
 
   const handleProfilePicChange = (e) => {
     const file = e.target.files[0];
@@ -26,7 +46,25 @@ function SignupForm() {
       //setProfilePicPreview(URL.createObjectURL(file));
     }
   };
+  const uploadFile = async (file) => {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('nom', file.name);
+  form.append('type', file.type);
 
+  const res = await fetch(`${getBaseUrl()}/upload`, {
+    method: 'POST',
+    credentials: 'include',
+    body: form,
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Upload failed');
+  }
+
+  return await res.json();
+};
   const signUp = async (e) => {
     e.preventDefault();
     setError('');
@@ -55,9 +93,13 @@ function SignupForm() {
       setError('Please enter your date of birth.');
       return;
     }
-
     try {
       setSubmitting(true);
+      let photoUrl = null;
+      if (profilePic) {
+        const uploaded = await uploadFile(profilePic);
+        photoUrl = uploaded.lien_fichier;
+      }
       const res = await fetch(`${getBaseUrl()}/auth/signup`, {
         method: 'POST',
         headers: {
@@ -71,6 +113,7 @@ function SignupForm() {
           nom: firstName,
           prenom: lastName,
           dateNaissance: `${birthYear}-${String(birthMonth).padStart(2, '0')}-${String(birthDay).padStart(2, '0')}`,
+          PhotoProfil: photoUrl,
         }),
       });
 
@@ -100,6 +143,28 @@ function SignupForm() {
   return (
     <form onSubmit={signUp}>
       <h2>Sign Up</h2>
+
+      {/* Profile Picture Section */}
+      <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+        {profilePicPreview && (
+          <img 
+            src={profilePicPreview} 
+            alt="Preview" 
+            style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', marginBottom: '10px' }} 
+          />
+        )}
+        <br />
+        <button type="button" onClick={() => document.getElementById('profilePicInput').click()}>
+          {profilePic ? 'Change Photo' : 'Upload Photo'}
+        </button>
+        <input
+          type="file"
+          id="profilePicInput"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={handleProfilePicChange}
+        />
+      </div>
 
       <div>
         <label htmlFor="signEmail">Email: </label>
@@ -143,7 +208,7 @@ function SignupForm() {
 
       <div>
         <label>Date of Birth: </label>
-        <select value={birthMonth} onChange={e => { setBirthMonth(e.target.value); setBirthDay(''); }}>
+        <select value={birthMonth} onChange={e => { setBirthMonth(e.target.value)}}>
           <option value="">Month</option>
           {["January","February","March","April","May","June",
                 "July","August","September","October","November","December"]
@@ -158,26 +223,13 @@ function SignupForm() {
           )}
         </select>
 
-        <select value={birthYear} onChange={e => { setBirthYear(e.target.value); setBirthDay(''); }}>
+        <select value={birthYear} onChange={e => { setBirthYear(e.target.value);}}>
           <option value="">Year</option>
           {Array.from({ length: 100 }, (_, i) => {
             const y = new Date().getFullYear() - i;
             return <option key={y} value={y}>{y}</option>;
           })}
         </select>
-      </div>
-
-      <div>
-        <button type="button" onClick={() => document.getElementById('profilePicInput').click()}>
-          {profilePic ? 'Change Profile Picture' : 'Upload Profile Picture'}
-        </button>
-        <input
-            type="file"
-            id="profilePicInput"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={handleProfilePicChange}
-        />
       </div>
 
       <div>
