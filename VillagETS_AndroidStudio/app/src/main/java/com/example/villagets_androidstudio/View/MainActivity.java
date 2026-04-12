@@ -1,5 +1,6 @@
 package com.example.villagets_androidstudio.View;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -63,6 +64,11 @@ public class MainActivity extends AppCompatActivity {
         notificationBtn.setOnClickListener(v -> viewPager.setCurrentItem(4));
 
 
+        profileBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+        });
+
         // Executor pour les tâches en arrière-plan
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -101,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Bouton Profil cliqué", Toast.LENGTH_SHORT).show();
         });
 
-        // 5. Gestion des Insets
+        // 6. Gestion des Insets
         View mainView = findViewById(R.id.main);
         if (mainView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
