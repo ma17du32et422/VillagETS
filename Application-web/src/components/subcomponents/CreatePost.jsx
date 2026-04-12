@@ -4,10 +4,11 @@ import '../.././assets/CreatePost.css'
 import { getBaseUrl } from '../../API';
 
 /** Create post popup */
-export default function CreatePost({onRemove, onCreate}){
+export default function CreatePost({ onRemove, onCreate, user }) {
     /** Form variable use states */
     const [title, setTitle] = useState("");
-    const [imageFile, setImageFile] = useState(null);
+    const [imageFiles, setImageFiles] = useState([]);
+    const [imagePreviews, setImagePreviews] = useState([]);
     const [imagePreview, setImagePreview] = useState("");
     const [tags, setTags] = useState("");
     const [textContent, setTextContent] = useState("");
@@ -26,6 +27,29 @@ export default function CreatePost({onRemove, onCreate}){
         }
 
         try {
+
+          let mediaUrls = [];
+          if (imageFiles.length > 0) {
+            const uploads = await Promise.all(imageFiles.map(async (file) => {
+              const form = new FormData();
+              form.append('file', file);
+              form.append('nom', file.name);
+              form.append('type', file.type);
+
+              const res = await fetch(`${getBaseUrl()}/upload`, {
+                method: 'POST',
+                credentials: 'include',
+                body: form,
+              });
+
+              if (!res.ok) throw new Error(`Upload failed for ${file.name}`);
+              const data = await res.json();
+              return data.url;
+            }));
+
+            mediaUrls = uploads;
+          }
+          
           const response = await fetch(`${getBaseUrl()}/post`, {
             method: 'POST',
             credentials: 'include',
@@ -35,6 +59,7 @@ export default function CreatePost({onRemove, onCreate}){
             body: JSON.stringify({
               nom: title,
               contenu: textContent,
+              media: mediaUrls,
               tags: tags.split(',').map((tag) => tag.trim()).filter(Boolean),
             }),
           });
@@ -49,28 +74,14 @@ export default function CreatePost({onRemove, onCreate}){
             id: createdPost.id,
             title: createdPost.titre ?? title,
             contents: createdPost.contenu ?? textContent,
-            op: 'You',
+            op: {
+              id: user?.userId,
+              pseudo: user?.pseudo,
+              photoProfil: user?.photoProfil,
+            },
             datetime: createdPost.datePublication ?? new Date().toISOString(),
-            imageUrl: imagePreview || createdPost.imageUrl || null,
-            tags: createdPost.tags ?? tags.split(',').map((tag) => tag.trim()).filter(Boolean),
-            likes: createdPost.likes ?? 0,
-            dislikes: createdPost.dislikes ?? 0,
-            comments: createdPost.comments ?? [],
-          };
-
-          onCreate?.(newFeedPost);
-          onRemove();
-        } catch (err) {
-          console.error('Failed to create post:', err);
-
-          const newFeedPost = {
-            id: `local-${Date.now()}`,
-            title,
-            contents: textContent,
-            op: 'You (offline)',
-            datetime: new Date().toISOString(),
-            imageUrl: imagePreview || null,
-            tags: tags.split(',').map((tag) => tag.trim()).filter(Boolean),
+            media: createdPost.media ?? mediaUrls,
+            tags: tags.split(',').map(t => t.trim()).filter(Boolean),
             likes: 0,
             dislikes: 0,
             comments: [],
@@ -78,31 +89,24 @@ export default function CreatePost({onRemove, onCreate}){
 
           onCreate?.(newFeedPost);
           onRemove();
-          setError('Backend post fail; added locally to feed only.');
+        } catch (err) {
+          console.error('Failed to create post:', err);
+          setError(err.message ?? 'Failed to create post');
         }
     };
 
-    const handleTitle = (event) => {setTitle(event.target.value);};
-    const handleImageFile = (event) => {
-      const file = event.target.files?.[0] ?? null;
-      setImageFile(file);
-      if (file) {
-        const url = URL.createObjectURL(file);
-        setImagePreview(url);
-      } else {
-        setImagePreview("");
-      }
-    };
-    const handleTextContent = (event) => {setTextContent(event.target.value);};
-    const handleTags = (event) => {setTags(event.target.value);};
+  const handleTitle = (event) => {setTitle(event.target.value);};
+  const handleImageFile = (event) => {
+    const files = Array.from(event.target.files ?? []);
+    setImageFiles(files);
+    setImagePreviews(files.map(f => URL.createObjectURL(f)));
+  };
+  const handleTextContent = (event) => {setTextContent(event.target.value);};
+  const handleTags = (event) => {setTags(event.target.value);};
 
-    useEffect(() => {
-      return () => {
-        if (imagePreview) {
-          URL.revokeObjectURL(imagePreview);
-        }
-      };
-    }, [imagePreview]);
+  useEffect(() => {
+    return () => imagePreviews.forEach(url => URL.revokeObjectURL(url));
+  }, [imagePreviews]);
 
   return(
     <article className="post" id="form-container">
@@ -121,6 +125,7 @@ export default function CreatePost({onRemove, onCreate}){
           id="form-image"
           type="file"
           accept="image/*"
+          multiple
           onChange={handleImageFile}
         />
         <input
@@ -129,11 +134,9 @@ export default function CreatePost({onRemove, onCreate}){
           value={tags}
           onChange={handleTags}
         />
-        {imagePreview && (
-          <div id="image-preview-container">
-            <img id="image-preview" src={imagePreview} alt="Selected post preview" />
-          </div>
-        )}
+        {imagePreviews.map((src, i) => (
+          <img key={i} id="image-preview" src={src} alt={`Preview ${i + 1}`} />
+        ))}
         <textarea
           id="form-text"
           placeholder="Add text"

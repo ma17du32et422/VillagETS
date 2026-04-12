@@ -27,7 +27,14 @@ function App(){
     const fetchPosts = async () => {
       try {
         const res = await fetch(`${getBaseUrl()}/feed`, {
+          method: 'POST',
           credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            searchString: null,
+            tags: null,
+            isMarketplace: false,
+          }),
         });
 
         if (!res.ok) {
@@ -39,8 +46,9 @@ function App(){
           id: post.id,
           title: post.titre ?? '',
           contents: post.contenu ?? '',
-          op: post.utilisateurId ?? 'Unknown',
+          op: post.op ?? { id: null, pseudo: 'Unknown', photoProfil: null },
           datetime: post.datePublication ?? '',
+          media: post.media ?? [],
           tags: post.tags ?? [],
           likes: post.likes ?? 0,
           dislikes: post.dislikes ?? 0,

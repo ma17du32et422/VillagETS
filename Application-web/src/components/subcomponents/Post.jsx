@@ -9,6 +9,9 @@ export default function Post({ post }) {
   const [comments, setComments] = useState(post.comments ?? [])
   const [commentVisible, setCommentVisible] = useState(false)
   const [commentText, setCommentText] = useState('')
+  const [mediaIndex, setMediaIndex] = useState(0)
+
+  const media = post.media ?? []
   const tags = post.tags ?? []
 
   const toggleLike = () => {
@@ -58,12 +61,17 @@ export default function Post({ post }) {
   return (
     <article className="post">
       <div id="post-header">
-        <h2 id="title">{post.title ?? post.titre}</h2>
-
         <div id="op-info">
-          <p id="op-name">{post.op}</p>
-          <p id="datetime">{post.datetime}</p>
+          {post.op?.photoProfil
+            ? <img id="op-avatar" src={post.op.photoProfil} alt={post.op.pseudo} />
+            : <div id="op-avatar-placeholder">{post.op?.pseudo?.[0]?.toUpperCase() ?? 'U'}</div>
+          }
+          <div id="op-details">
+            <p id="op-name">{post.op?.pseudo ?? 'Unknown'}</p>
+            <p id="datetime">{post.datetime}</p>
+          </div>
         </div>
+        <h2 id="title">{post.title ?? post.titre}</h2>
       </div>
 
       {tags.length > 0 && (
@@ -74,9 +82,30 @@ export default function Post({ post }) {
         </div>
       )}
 
-      {post.imageUrl && (
+      {media.length > 0 && (
         <div id="image-container">
-          <img id="image" src={post.imageUrl} alt="Post visual" />
+          {media.length > 1 && mediaIndex > 0 && (
+            <button
+              className="media-arrow media-arrow-left"
+              type="button"
+              onClick={() => setMediaIndex(i => i - 1)}
+            >‹</button>
+          )}
+          <img id="image" src={media[mediaIndex]} alt={`Post visual ${mediaIndex + 1}`} />
+          {media.length > 1 && mediaIndex < media.length - 1 && (
+            <button
+              className="media-arrow media-arrow-right"
+              type="button"
+              onClick={() => setMediaIndex(i => i + 1)}
+            >›</button>
+          )}
+          {media.length > 1 && (
+            <div className="media-dots">
+              {media.map((_, i) => (
+                <span key={i} className={`media-dot ${i === mediaIndex ? 'active' : ''}`} />
+              ))}
+            </div>
+          )}
         </div>
       )}
 

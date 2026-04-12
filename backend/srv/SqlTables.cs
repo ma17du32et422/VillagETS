@@ -3,7 +3,7 @@ using Supabase.Postgrest.Models;
 
 namespace sql
 {
-    [Table("utilisateur")]
+    [Supabase.Postgrest.Attributes.Table("utilisateur")]
     public class Utilisateur : BaseModel
     {
         [PrimaryKey("id_utilisateur")]
@@ -37,13 +37,13 @@ namespace sql
         public string? PhotoProfil { get; set; }
     }
 
-    [Table("publication")]
+    [Supabase.Postgrest.Attributes.Table("publication")]
     public class Publication : BaseModel
     {
         [PrimaryKey("id_publication")]
         public string? Id { get; set; }
 
-        [Column("utilisateurid")]
+        [Column("id_utilisateur")]
         public string? UtilisateurId { get; set; }
 
         [Column("nom")]
@@ -70,7 +70,7 @@ namespace sql
         public bool? ArticleAVendre { get; set; }
     }
 
-    [Table("commentaire")]
+    [Supabase.Postgrest.Attributes.Table("commentaire")]
     public class Commentaire : BaseModel
     {
         [PrimaryKey("id_commentaire")]
@@ -95,7 +95,7 @@ namespace sql
         public int? Dislikes { get; set; }
     }
 
-    [Table("categorie_publication")]
+    [Supabase.Postgrest.Attributes.Table("categorie_publication")]
     public class CategoriePublication : BaseModel
     {
         [PrimaryKey("id_categorie_publication")]
@@ -108,7 +108,7 @@ namespace sql
         public bool? CategorieBase { get; set; }
     }
 
-    [Table("cat_pub_publication")]
+    [Supabase.Postgrest.Attributes.Table("cat_pub_publication")]
     public class CatPubPublication : BaseModel
     {
         [PrimaryKey("id_categorie_publication", false)]
@@ -118,7 +118,7 @@ namespace sql
         public string? IdPublication { get; set; }
     }
 
-    [Table("fichier")]
+    [Supabase.Postgrest.Attributes.Table("fichier")]
     public class Fichier : BaseModel
     {
         [PrimaryKey("id_fichier")]
@@ -137,17 +137,19 @@ namespace sql
         public string? Type { get; set; }
     }
 
-    [Table("publication_fichier")]
+    [Supabase.Postgrest.Attributes.Table("publication_fichier")]
     public class PublicationFichier : BaseModel
     {
         [PrimaryKey("id_fichier", false)]
+        [Column("id_fichier")]
         public string? IdFichier { get; set; }
 
         [PrimaryKey("id_publication", false)]
+        [Column("id_publication")]
         public string? IdPublication { get; set; }
     }
 
-    [Table("commentaire_fichier")]
+    [Supabase.Postgrest.Attributes.Table("commentaire_fichier")]
     public class CommentaireFichier : BaseModel
     {
         [PrimaryKey("id_fichier", false)]
@@ -157,7 +159,7 @@ namespace sql
         public string? IdCommentaire { get; set; }
     }
 
-    [Table("message")]
+    [Supabase.Postgrest.Attributes.Table("message")]
     public class Message : BaseModel
     {
         [PrimaryKey("id_message")]
@@ -170,7 +172,7 @@ namespace sql
         public string? EnvoyeurId { get; set; }
     }
 
-    [Table("message_utilisateur")]
+    [Supabase.Postgrest.Attributes.Table("message_utilisateur")]
     public class MessageUtilisateur : BaseModel
     {
         [PrimaryKey("messageid_message", false)]
@@ -180,7 +182,7 @@ namespace sql
         public string? ReceveurId { get; set; }
     }
 
-    [Table("message_fichier")]
+    [Supabase.Postgrest.Attributes.Table("message_fichier")]
     public class MessageFichier : BaseModel
     {
         [PrimaryKey("id_message", false)]
