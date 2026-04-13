@@ -36,7 +36,7 @@ public class ProfileActivity extends AppCompatActivity {
         Button btnSaveProfile = findViewById(R.id.btnSaveProfile);
         ImageButton btnEditImage = findViewById(R.id.btnEditImage);
 
-        // Edit Username Logic
+        // Edit username
         btnEditUsername.setOnClickListener(v -> {
             isUsernameEditing = !isUsernameEditing;
             inputLayoutUsername.setVisibility(isUsernameEditing ? View.VISIBLE : View.GONE);
@@ -46,19 +46,19 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        // Show Password Change Logic
+        // Edit password
         btnShowPasswordChange.setOnClickListener(v -> {
             isPasswordChanging = !isPasswordChanging;
             passwordChangeLayout.setVisibility(isPasswordChanging ? View.VISIBLE : View.GONE);
             btnShowPasswordChange.setText(isPasswordChanging ? "Annuler le changement" : "Changer le mot de passe");
         });
 
-        // Edit Image logic (Mock)
+        // Edit pfp
         btnEditImage.setOnClickListener(v -> {
-            Toast.makeText(this, "Sélection de l'image (Simulation)", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Sélection de l'image", Toast.LENGTH_SHORT).show();
         });
 
-        // Save Profile Logic
+        // Save profile parameters
         btnSaveProfile.setOnClickListener(v -> {
             if (isUsernameEditing) {
                 String newName = etUsername.getText().toString();
@@ -70,7 +70,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
             
             Toast.makeText(this, "Profil mis à jour !", Toast.LENGTH_SHORT).show();
-            finish(); // Retour à l'écran précédent
+            finish();
         });
     }
 }
