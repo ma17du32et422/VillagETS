@@ -68,8 +68,8 @@ namespace sql
 
         [Column("article_a_vendre")]
         public bool? ArticleAVendre { get; set; }
-        [Column("commentaires")]
-        public int? Commentaires { get; set; }
+        [Column("nb_commentaires")]
+        public int? CommentairesCount { get; set; }
 
         public object ToJson(Utilisateur? user = null) => new
         {
@@ -82,7 +82,7 @@ namespace sql
             articleAVendre = ArticleAVendre,
             likes = Likes ?? 0,
             dislikes = Dislikes ?? 0,
-            commentaires = Commentaires ?? 0,
+            commentaires = CommentairesCount ?? 0,
             op = new
             {
                 id = user?.Id,
