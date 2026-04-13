@@ -4,7 +4,9 @@ import com.example.villagets_androidstudio.Model.Post;
 import com.example.villagets_androidstudio.Model.User;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Response;
 
@@ -18,8 +20,14 @@ public class HttpJsonService {
     }
 
     // --- Post Methods ---
-    public List<Post> getAllPosts() throws IOException {
-        Response<List<Post>> response = postApi.getAllPosts().execute();
+    public List<Post> getFeed(String searchString, String[] tags, boolean isMarketplace) throws IOException {
+        // Préparation du corps de la requête POST pour /feed
+        Map<String, Object> body = new HashMap<>();
+        body.put("searchString", searchString);
+        body.put("tags", tags);
+        body.put("isMarketplace", isMarketplace);
+
+        Response<List<Post>> response = postApi.getFeed(body).execute();
         if (response.isSuccessful() && response.body() != null) {
             return response.body();
         }

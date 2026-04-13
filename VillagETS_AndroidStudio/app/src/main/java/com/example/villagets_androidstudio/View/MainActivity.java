@@ -35,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
+        // Initialisation du client Retrofit avec le contexte (Crucial pour SessionManager)
+        RetrofitClient.getInstance(getApplicationContext());
+
         // 1. Initialisation des vues
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         ImageButton menuBtn = findViewById(R.id.menuBtn);
@@ -63,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
         messageBtn.setOnClickListener(v -> viewPager.setCurrentItem(3));
         notificationBtn.setOnClickListener(v -> viewPager.setCurrentItem(4));
 
-
         profileBtn.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
@@ -72,42 +74,7 @@ public class MainActivity extends AppCompatActivity {
         // Executor pour les tâches en arrière-plan
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
-        // Ajout des nouveaux OnClickListeners
-        addPostBtn.setOnClickListener(v -> {
-            User loic = new User("william", "password", "loic", "loic", "loic", "2000-01-01");
-            
-            executor.execute(() -> {
-                try {
-                    UserApi api = RetrofitClient.getInstance().create(UserApi.class);
-                    // Test de la route signup au lieu de getAllUsers
-                    Response<User> response = api.signup(loic).execute();
-                    
-                    runOnUiThread(() -> {
-                        if (response.isSuccessful()) {
-                            Toast.makeText(this, "Inscription réussie !", Toast.LENGTH_SHORT).show();
-                            Log.d("MainActivity", "User inscrit: " + response.body().getEmail());
-                        } else {
-                            Toast.makeText(this, "Erreur API Signup: " + response.code(), Toast.LENGTH_SHORT).show();
-                            try {
-                                Log.e("MainActivity", "Erreur: " + response.errorBody().string());
-                            } catch (IOException ignored) {}
-                        }
-                    });
-                } catch (IOException e) {
-                    String detail = e.getMessage();
-                    runOnUiThread(() -> Toast.makeText(this, "Détail réseau: " + detail, Toast.LENGTH_LONG).show());
-                    Log.e("MainActivity", "Erreur réseau signup", e);
-                }
-            });
-
-            loic.saveUser(this);
-        });
-
-        profileBtn.setOnClickListener(v -> {
-            Toast.makeText(this, "Bouton Profil cliqué", Toast.LENGTH_SHORT).show();
-        });
-
-        // 6. Gestion des Insets
+        // 5. Gestion des Insets
         View mainView = findViewById(R.id.main);
         if (mainView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {

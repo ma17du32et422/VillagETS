@@ -36,7 +36,7 @@ public class FeedFragment extends Fragment {
 
         // Observer les changements de données
         viewModel.getPostsLiveData().observe(getViewLifecycleOwner(), posts -> {
-            if (posts != null && !posts.isEmpty()) {
+            if (posts != null) {
                 adapter.setPosts(posts);
             }
         });
@@ -48,9 +48,16 @@ public class FeedFragment extends Fragment {
             }
         });
 
-        // Charger les posts (qui viennent maintenant du Model via le ViewModel)
-        viewModel.chargerPosts();
-
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Recharger les posts à chaque fois que le fragment devient visible
+        // (Utile après un login ou un retour sur l'app)
+        if (viewModel != null) {
+            viewModel.chargerPosts();
+        }
     }
 }

@@ -21,12 +21,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     private List<Post> postList = new ArrayList<>();
 
-    public PostAdapter() {
-    }
-
-    public PostAdapter(List<Post> postList) {
-        this.postList = postList;
-    }
+    public PostAdapter() {}
 
     @SuppressLint("NotifyDataSetChanged")
     public void setPosts(List<Post> posts) {
@@ -43,16 +38,16 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
-        if (postList == null || position >= postList.size()) return;
-        
         Post post = postList.get(position);
+        if (post == null) return;
+
         holder.title.setText(post.getTitre());
         holder.content.setText(post.getContenu());
 
-        if (post.getLienImage() != null && post.getLienImage().length > 0) {
+        if (post.getMedia() != null && post.getMedia().length > 0) {
             holder.image.setVisibility(View.VISIBLE);
             Glide.with(holder.itemView.getContext())
-                    .load(post.getLienImage()[0])
+                    .load(post.getMedia()[0])
                     .into(holder.image);
         } else {
             holder.image.setVisibility(View.GONE);
@@ -67,6 +62,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     static class PostViewHolder extends RecyclerView.ViewHolder {
         TextView title, content;
         ImageView image;
+
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.postTitle);
