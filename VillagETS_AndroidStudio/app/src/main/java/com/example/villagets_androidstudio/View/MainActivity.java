@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         profileBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
             startActivity(intent);
         });
 
@@ -103,9 +103,6 @@ public class MainActivity extends AppCompatActivity {
             loic.saveUser(this);
         });
 
-        profileBtn.setOnClickListener(v -> {
-            Toast.makeText(this, "Bouton Profil cliqué", Toast.LENGTH_SHORT).show();
-        });
 
         // 6. Gestion des Insets
         View mainView = findViewById(R.id.main);
