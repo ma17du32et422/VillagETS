@@ -66,6 +66,8 @@ PostRoutes.Map(app, postService);
 UserService userService = new UserService();
 UserRoutes.MapUserRoutes(app, userService, isDevelopment);
 
+ReactionService reactionService = new ReactionService();
+ReactionRoutes.MapReactionRoutes(app, reactionService);
 //ROUTES
 app.MapGet("/", async () =>
 {

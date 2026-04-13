@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import '../.././assets/Post.css'
+import { getBaseUrl } from '../../API'
 
 export default function Post({ post }) {
   const [likes, setLikes] = useState(post.likes ?? 0)
@@ -14,49 +15,54 @@ export default function Post({ post }) {
   const media = post.media ?? []
   const tags = post.tags ?? []
 
-  const toggleLike = () => {
-    if (liked) {
-      setLikes((current) => Math.max(0, current - 1))
-      setLiked(false)
-      return
-    }
+  const toggleReaction = async (type) => {
+    try {
+      const res = await fetch(`${getBaseUrl()}/post/${post.id}/react`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type }),
+      });
 
-    setLikes((current) => current + 1)
-    setLiked(true)
-    if (disliked) {
-      setDislikes((current) => Math.max(0, current - 1))
-      setDisliked(false)
-    }
-  }
+      if (!res.ok) return;
+      const data = await res.json();
 
-  const toggleDislike = () => {
-    if (disliked) {
-      setDislikes((current) => Math.max(0, current - 1))
-      setDisliked(false)
-      return
-    }
-
-    setDislikes((current) => current + 1)
-    setDisliked(true)
-    if (liked) {
-      setLikes((current) => Math.max(0, current - 1))
-      setLiked(false)
+      setLikes(data.likes);
+      setDislikes(data.dislikes);
+      setLiked(data.userReaction === 'like');
+      setDisliked(data.userReaction === 'dislike');
+    } catch (err) {
+      console.error('Reaction failed:', err);
     }
   }
 
-  const toggleComments = () => {
-    setCommentVisible((current) => !current)
-  }
+  const toggleComments = () => setCommentVisible(c => !c)
 
   const addComment = (event) => {
     event.preventDefault()
     const text = commentText.trim()
     if (!text) return
-
-    setComments((current) => [...current, { id: Date.now(), text }])
+    setComments(c => [...c, { id: Date.now(), text }])
     setCommentText('')
     setCommentVisible(true)
   }
+  useEffect(() => {
+    const fetchUserReaction = async () => {
+      try {
+        const res = await fetch(`${getBaseUrl()}/post/${post.id}/react`, {
+          credentials: 'include',
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        setLiked(data.userReaction === 'like');
+        setDisliked(data.userReaction === 'dislike');
+      } catch (err) {
+        console.error('Could not fetch reaction:', err);
+      }
+    };
+    fetchUserReaction();
+  }, [post.id]);
+
 
   return (
     <article className="post">
@@ -85,19 +91,11 @@ export default function Post({ post }) {
       {media.length > 0 && (
         <div id="image-container">
           {media.length > 1 && mediaIndex > 0 && (
-            <button
-              className="media-arrow media-arrow-left"
-              type="button"
-              onClick={() => setMediaIndex(i => i - 1)}
-            >‹</button>
+            <button className="media-arrow media-arrow-left" type="button" onClick={() => setMediaIndex(i => i - 1)}>‹</button>
           )}
           <img id="image" src={media[mediaIndex]} alt={`Post visual ${mediaIndex + 1}`} />
           {media.length > 1 && mediaIndex < media.length - 1 && (
-            <button
-              className="media-arrow media-arrow-right"
-              type="button"
-              onClick={() => setMediaIndex(i => i + 1)}
-            >›</button>
+            <button className="media-arrow media-arrow-right" type="button" onClick={() => setMediaIndex(i => i + 1)}>›</button>
           )}
           {media.length > 1 && (
             <div className="media-dots">
@@ -115,14 +113,14 @@ export default function Post({ post }) {
         <button
           className={`reaction-button ${liked ? 'active' : ''}`}
           type="button"
-          onClick={toggleLike}
+          onClick={() => toggleReaction('like')}
         >
           👍 {likes}
         </button>
         <button
           className={`reaction-button ${disliked ? 'active' : ''}`}
           type="button"
-          onClick={toggleDislike}
+          onClick={() => toggleReaction('dislike')}
         >
           👎 {dislikes}
         </button>

@@ -12,18 +12,10 @@ namespace srv
 
             app.MapGet("/post/{id}", async (string id) =>
             {
-                var post = await postService.GetById(id);
-                if (post is null) return Results.NotFound("Publication not found");
+                var ret = await postService.GetById(id);
+                if (ret.publication is null) return Results.NotFound("Publication not found");
 
-                return Results.Ok(new
-                {
-                    id = post.Id,
-                    titre = post.Nom,
-                    contenu = post.Contenu,
-                    media = post.Media,
-                    utilisateurId = post.UtilisateurId,
-                    datePublication = post.DatePublication
-                });
+                return Results.Ok(ret.publication.ToJson(ret.utilisateur));
             });
 
             app.MapPost("/post", async ([FromBody] sql.Publication publication, HttpContext ctx) =>
@@ -78,22 +70,7 @@ namespace srv
 
                 return Results.Ok(feed.posts.Select(p => {
                     feed.users.TryGetValue(p.UtilisateurId ?? "", out var user);
-                    return new
-                    {
-                        id = p.Id,
-                        titre = p.Nom,
-                        contenu = p.Contenu,
-                        media = p.Media,
-                        datePublication = p.DatePublication,
-                        prix = p.Prix,
-                        articleAVendre = p.ArticleAVendre,
-                        op = new
-                        {
-                            id = user?.Id,
-                            pseudo = user?.Pseudo,
-                            photoProfil = user?.PhotoProfil
-                        }
-                    };
+                    return p.ToJson(user);
                 }));
             });
         }

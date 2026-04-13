@@ -13,7 +13,7 @@ function App(){
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  
   useEffect(() => {
     if (authLoading) return;
 
@@ -43,17 +43,18 @@ function App(){
 
         const data = await res.json();
         setPosts(data.map((post) => ({
-          id: post.id,
-          title: post.titre ?? '',
-          contents: post.contenu ?? '',
-          op: post.op ?? { id: null, pseudo: 'Unknown', photoProfil: null },
-          datetime: post.datePublication ?? '',
-          media: post.media ?? [],
-          tags: post.tags ?? [],
-          likes: post.likes ?? 0,
-          dislikes: post.dislikes ?? 0,
-          comments: post.comments ?? [],
-        })));
+        id: post.id,
+        title: post.titre ?? '',
+        contents: post.contenu ?? '',
+        op: post.op ?? { id: null, pseudo: 'Unknown', photoProfil: null },
+        datetime: post.datePublication ?? '',
+        media: post.media ?? [],
+        tags: post.tags ?? [],
+        likes: post.likes ?? 0,
+        dislikes: post.dislikes ?? 0,
+        commentaires: post.commentaires ?? 0,
+        comments: [],
+      })));
         setError(null);
       } catch (err) {
         console.error('Error fetching posts:', err);

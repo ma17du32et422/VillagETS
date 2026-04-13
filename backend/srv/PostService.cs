@@ -16,13 +16,22 @@ namespace srv
             _supabase = SupabaseService.GetClient();
         }
 
-        public async Task<sql.Publication?> GetById(string id)
+        public async Task<(sql.Publication? publication, sql.Utilisateur? utilisateur)> GetById(string id)
         {
             var result = await _supabase
                 .From<sql.Publication>()
                 .Where(p => p.Id == id)
                 .Get();
-            return result.Model;
+
+            var post = result.Model;
+            if (post == null) return (null, null);
+
+            var userResult = await _supabase
+                .From<sql.Utilisateur>()
+                .Where(u => u.Id == post.UtilisateurId)
+                .Get();
+
+            return (post, userResult.Model);
         }
         public async Task<List<sql.Publication>> GetFeed(string userId)
         {

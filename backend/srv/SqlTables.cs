@@ -68,6 +68,28 @@ namespace sql
 
         [Column("article_a_vendre")]
         public bool? ArticleAVendre { get; set; }
+        [Column("commentaires")]
+        public int? Commentaires { get; set; }
+
+        public object ToJson(Utilisateur? user = null) => new
+        {
+            id = Id,
+            titre = Nom,
+            contenu = Contenu,
+            media = Media,
+            datePublication = DatePublication,
+            prix = Prix,
+            articleAVendre = ArticleAVendre,
+            likes = Likes ?? 0,
+            dislikes = Dislikes ?? 0,
+            commentaires = Commentaires ?? 0,
+            op = new
+            {
+                id = user?.Id,
+                pseudo = user?.Pseudo,
+                photoProfil = user?.PhotoProfil
+            }
+        };
     }
 
     [Supabase.Postgrest.Attributes.Table("commentaire")]
@@ -190,5 +212,20 @@ namespace sql
 
         [PrimaryKey("id_fichier", false)]
         public string? FichierId { get; set; }
+    }
+
+    [Table("reaction_publication")]
+    public class ReactionPublication : BaseModel
+    {
+        [PrimaryKey("id_utilisateur", false)]
+        [Column("id_utilisateur")]
+        public string? IdUtilisateur { get; set; }
+
+        [PrimaryKey("id_publication", false)]
+        [Column("id_publication")]
+        public string? IdPublication { get; set; }
+
+        [Column("type")]
+        public string? Type { get; set; }
     }
 }
