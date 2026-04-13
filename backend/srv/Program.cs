@@ -169,14 +169,7 @@ app.MapPost("/upload", async (HttpContext ctx) =>
 
         return Results.Json(new
         {
-            url = fileUrl,
-            db = new
-            {
-                id = savedFile.Id?.ToString(), 
-                nom = savedFile.Nom,
-                lien_fichier = savedFile.LienFichier,
-                type = savedFile.Type
-            }
+            url = fileUrl
         });
     }
     catch (Exception ex)

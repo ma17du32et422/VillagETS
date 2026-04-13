@@ -90,7 +90,7 @@ function LoginForm() {
       <p style={{ marginTop: '12px', fontSize: '14px' }}>
         Don't have an account?{' '}
         <span
-          onClick={() => navigate('/SignupPage')}
+          onClick={() => navigate('/signup')}
           style={{ color: 'blue', cursor: 'pointer', textDecoration: 'underline' }}
         >
           Sign up

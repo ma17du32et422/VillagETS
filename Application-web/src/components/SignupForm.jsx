@@ -98,7 +98,7 @@ function SignupForm() {
       let photoUrl = null;
       if (profilePic) {
         const uploaded = await uploadFile(profilePic);
-        photoUrl = uploaded.lien_fichier;
+        photoUrl = uploaded.url;
       }
       const res = await fetch(`${getBaseUrl()}/auth/signup`, {
         method: 'POST',
