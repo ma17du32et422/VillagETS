@@ -34,38 +34,39 @@ namespace srv
         {
             publication.UtilisateurId = userId;
 
-            var result = await _supabase
-                .From<sql.Publication>()
-                .Insert(publication);
-
+            var result = await _supabase.From<sql.Publication>().Insert(publication);
             var saved = result.Model;
             if (saved is null) return null;
 
-            var urls = publication.Media?.ToList();
+            saved.Media = publication.Media;
 
+            var urls = publication.Media?.Where(u => u != null).ToList();
             if (urls is { Count: > 0 })
             {
                 var fichiers = await _supabase
                     .From<sql.Fichier>()
                     .Filter("lien_fichier", Operator.In, urls)
                     .Get();
+                Console.WriteLine($"URLs searched: {string.Join(", ", urls)}");
+                Console.WriteLine($"Fichiers found: {fichiers.Models.Count}");
+                foreach (var f in fichiers.Models)
+                    Console.WriteLine($"  → Id: {f.Id}, Url: {f.LienFichier}");
 
                 var links = fichiers.Models
                     .Where(f => f.Id.HasValue)
                     .Select(f => new sql.PublicationFichier
                     {
-                        IdFichier = f.Id.ToString(),
+                        IdFichier = f.Id!.Value.ToString("D"),
                         IdPublication = saved.Id
                     }).ToList();
-
+                Console.WriteLine($"Links to insert: {links.Count}");
                 if (links.Count > 0)
-                    await _supabase
-                        .From<sql.PublicationFichier>()
-                        .Insert(links);
+                    await _supabase.From<sql.PublicationFichier>().Insert(links);
             }
 
             return saved;
         }
+
 
         public async Task<bool> Delete(string id, string userId)
         {
@@ -87,9 +88,8 @@ namespace srv
             return true;
         }
 
-        public async Task<List<sql.Publication>> GetFeed(string userId, FeedQuery query)
+        public async Task<(List<sql.Publication> posts, Dictionary<string, sql.Utilisateur> users)> GetFeed(string userId, FeedQuery query)
         {
-            // Step 1: if tags provided, resolve them → publication IDs
             List<string>? taggedPublicationIds = null;
             if (query.Tags is { Length: > 0 })
             {
@@ -101,7 +101,7 @@ namespace srv
                 var categoryIds = categories.Models.Select(c => c.Id.ToString()).ToList();
 
                 if (categoryIds.Count == 0)
-                    return [];
+                    return ([], []);
 
                 var catPubs = await _supabase
                     .From<sql.CatPubPublication>()
@@ -111,7 +111,7 @@ namespace srv
                 taggedPublicationIds = catPubs.Models.Select(cp => cp.IdPublication).Distinct().ToList();
 
                 if (taggedPublicationIds.Count == 0)
-                    return [];
+                    return ([], []);
             }
 
             var q = _supabase.From<sql.Publication>();
@@ -130,7 +130,18 @@ namespace srv
                 .Limit(20)
                 .Get();
 
-            return result.Models.ToList();
+            var posts = result.Models.ToList();
+
+            var userIds = posts.Select(p => p.UtilisateurId).Distinct().Where(id => id != null).ToList();
+
+            var users = await _supabase
+                .From<sql.Utilisateur>()
+                .Filter("id_utilisateur", Operator.In, userIds)
+                .Get();
+
+            var userMap = users.Models.ToDictionary(u => u.Id!, u => u);
+
+            return (posts, userMap);
         }
 
     }

@@ -1,14 +1,15 @@
+using BCrypt.Net;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using sql;
+using srv;
 using Supabase;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
-using System.Text.Json;
-using BCrypt.Net;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using System.Security.Claims;
-using srv;
+using System.Text;
+using System.Text.Json;
 
 //autorise les uploads à partir du site web
 var builder = WebApplication.CreateBuilder(args);
@@ -42,12 +43,10 @@ var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? throw new Ex
 
 villagets.Auth.AuthHelper.Initialize(jwtSecret);
 
-builder.Services.AddAntiforgery();
 
 var app = builder.Build();
 
 app.UseCors("AllowFrontend");
-app.UseAntiforgery();
 
 var url = Environment.GetEnvironmentVariable("SUPABASE_URL");
 var key = Environment.GetEnvironmentVariable("SUPABASE_KEY");
@@ -63,6 +62,9 @@ var supabase = SupabaseService.GetClient();
 
 PostService postService = new PostService();
 PostRoutes.Map(app, postService);
+
+UserService userService = new UserService();
+UserRoutes.MapUserRoutes(app, userService, isDevelopment);
 
 //ROUTES
 app.MapGet("/", async () =>
@@ -93,106 +95,6 @@ app.MapPost("/addCategorie", async (sql.CategoriePublication categorie) =>
     return Results.Ok(response);
 });
 
-app.MapGet("/Utilisateur", async () =>
-{
-    var result = await supabase
-        .From<sql.Utilisateur>()
-        .Get();
-
-    return $"Count: {result.Models.Count} | Raw: {result.Content}";
-});
-
-
-
-app.MapPost("/auth/signup", async (SignupRequest req, HttpContext ctx) =>
-{
-    // TODO: add regex for email validation + make sure all fields are not empty
-
-    if (req.Pseudo.Length < 3)
-        return Results.BadRequest("Username must be at least 3 characters");
-
-    if (req.Password.Length < 8)
-        return Results.BadRequest("Password must be at least 8 characters");
-
-    try
-    {
-        var existing = await supabase.From<sql.Utilisateur>().Where(u => u.Email == req.Email).Get();
-        if (existing.Models.Count > 0)
-            return Results.BadRequest("Email already in use");
-
-
-        // Create utilisateur db
-        var user = new Utilisateur
-        {
-            Pseudo = req.Pseudo,
-            Nom = req.Nom,
-            Prenom = req.Prenom,
-            Password = BCrypt.Net.BCrypt.HashPassword(req.Password),
-            PhotoProfil = req.PhotoProfil,
-            Email = req.Email,
-            DateCreation = DateTime.UtcNow,
-            AnneeNaissance = DateTime.UtcNow
-
-        };
-        var response = await supabase.From<Utilisateur>().Insert(user);
-        var newUser = response.Model!;
-        var token = villagets.Auth.AuthHelper.GenerateToken(newUser.Id!, newUser.Email!, newUser.Pseudo!);
-
-        ctx.Response.Cookies.Append("token", token, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = !isDevelopment,
-            SameSite = isDevelopment ? SameSiteMode.Lax : SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddDays(7)
-        });
-        // return token
-        return Results.Ok(new
-        {
-            userId = newUser.Id
-        });
-    }
-    catch (Exception ex)
-    {
-        return Results.BadRequest(ex.Message);
-    }
-});
-
-app.MapPost("/auth/login", async (LoginRequest req, HttpContext ctx) =>
-{
-    if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Password))
-        return Results.BadRequest("Email and password are required");
-
-    try
-    {
-        var result = await supabase.From<Utilisateur>()
-            .Where(u => u.Email == req.Email)
-            .Get();
-
-        var user = result.Models.FirstOrDefault();
-        if (user == null || !BCrypt.Net.BCrypt.Verify(req.Password, user.Password))
-            return Results.Unauthorized();
-
-        var token = villagets.Auth.AuthHelper.GenerateToken(user.Id!, user.Email!, user.Pseudo!);
-        ctx.Response.Cookies.Append("token", token, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = !isDevelopment,
-            SameSite = isDevelopment ? SameSiteMode.Lax : SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddDays(7)
-        });
-        
-        return Results.Ok(new { userId = user.Id });
-    }
-    catch
-    {
-        return Results.Unauthorized();
-    }
-});
-app.MapPost("/auth/logout", (HttpContext ctx) =>
-{
-    ctx.Response.Cookies.Delete("token");
-    return Results.Ok();
-});
 
 app.MapGet("/me", async (HttpContext ctx) =>
 {
@@ -281,8 +183,7 @@ app.MapPost("/upload", async (HttpContext ctx) =>
     {
         return Results.BadRequest(new { error = ex.Message });
     }
-})
-.DisableAntiforgery();
+});
 
 app.UseStaticFiles();
 

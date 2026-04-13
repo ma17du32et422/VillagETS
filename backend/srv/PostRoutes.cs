@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using villagets.Auth;
 
 namespace srv
@@ -19,12 +20,13 @@ namespace srv
                     id = post.Id,
                     titre = post.Nom,
                     contenu = post.Contenu,
+                    media = post.Media,
                     utilisateurId = post.UtilisateurId,
                     datePublication = post.DatePublication
                 });
             });
 
-            app.MapPost("/post", async (sql.Publication publication, HttpContext ctx) =>
+            app.MapPost("/post", async ([FromBody] sql.Publication publication, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetPrincipalFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
@@ -32,7 +34,19 @@ namespace srv
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
 
                 var created = await postService.Create(publication, userId);
-                return Results.Ok(created);
+                if (created is null) return Results.BadRequest("Failed to create post");
+
+                return Results.Ok(new
+                {
+                    id = created.Id,
+                    titre = created.Nom,
+                    contenu = created.Contenu,
+                    media = created.Media,
+                    utilisateurId = created.UtilisateurId,
+                    datePublication = created.DatePublication,
+                    prix = created.Prix,
+                    articleAVendre = created.ArticleAVendre
+                });
             });
 
             app.MapDelete("/post/{id}", async (string id, HttpContext ctx) =>
@@ -53,7 +67,7 @@ namespace srv
                 }
             });
 
-            app.MapGet("/feed", async (FeedQuery query, HttpContext ctx) =>
+            app.MapPost("/feed", async ([FromBody] FeedQuery query, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetPrincipalFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
@@ -62,15 +76,24 @@ namespace srv
 
                 var feed = await postService.GetFeed(userId, query);
 
-                return Results.Ok(feed.Select(p => new
-                {
-                    id = p.Id,
-                    titre = p.Nom,
-                    contenu = p.Contenu,
-                    utilisateurId = p.UtilisateurId,
-                    datePublication = p.DatePublication,
-                    prix = p.Prix,
-                    articleAVendre = p.ArticleAVendre
+                return Results.Ok(feed.posts.Select(p => {
+                    feed.users.TryGetValue(p.UtilisateurId ?? "", out var user);
+                    return new
+                    {
+                        id = p.Id,
+                        titre = p.Nom,
+                        contenu = p.Contenu,
+                        media = p.Media,
+                        datePublication = p.DatePublication,
+                        prix = p.Prix,
+                        articleAVendre = p.ArticleAVendre,
+                        op = new
+                        {
+                            id = user?.Id,
+                            pseudo = user?.Pseudo,
+                            photoProfil = user?.PhotoProfil
+                        }
+                    };
                 }));
             });
         }

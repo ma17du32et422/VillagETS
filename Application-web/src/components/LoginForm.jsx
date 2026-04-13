@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { getBaseUrl } from '../API';
 import { useAuth } from '../AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 /** LoginForm */
 function LoginForm() {
@@ -9,7 +10,8 @@ function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-
+  const navigate = useNavigate();
+  
   const signIn = async (e) => {
     e.preventDefault();
     setError('');
@@ -85,6 +87,15 @@ function LoginForm() {
       <button type="submit" disabled={submitting}>
         {submitting ? 'Logging in...' : 'Log In'}
       </button>
+      <p style={{ marginTop: '12px', fontSize: '14px' }}>
+        Don't have an account?{' '}
+        <span
+          onClick={() => navigate('/SignupPage')}
+          style={{ color: 'blue', cursor: 'pointer', textDecoration: 'underline' }}
+        >
+          Sign up
+        </span>
+      </p>
     </form>
   );
 }

@@ -28,7 +28,7 @@ export default function Actions({ onPostCreated, user }){
           <p id="menu-text">Menu (TO CHANGE LATER)</p>
         </button>
       </div>}
-      <div>{isFormOpen && <CreatePost onRemove={toggleForm} onCreate={onPostCreated} />}</div>
+      <div>{isFormOpen && <CreatePost onRemove={toggleForm} onCreate={onPostCreated} user={user} />}</div>
     </div>
   );
 }
