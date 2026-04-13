@@ -34,6 +34,10 @@ public class SignupActivity extends AppCompatActivity {
         btnSignUp = findViewById(R.id.signUpButton);
         tvLoginLink = findViewById(R.id.LoginLink);
 
+        tvLoginLink.setOnClickListener(v -> {
+            finish();
+        });
+
 
     }
 }
