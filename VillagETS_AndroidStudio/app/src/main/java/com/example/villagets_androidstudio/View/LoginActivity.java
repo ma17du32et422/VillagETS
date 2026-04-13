@@ -1,5 +1,6 @@
 package com.example.villagets_androidstudio.View;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -54,7 +55,9 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         signupLink.setOnClickListener(v -> {
-            // Logique signup existante
+            // Naviguer vers l'activité de signup
+            startActivity(new Intent(this, SignupActivity.class));
+
         });
     }
 }
