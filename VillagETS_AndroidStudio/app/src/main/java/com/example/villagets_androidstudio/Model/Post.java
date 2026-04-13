@@ -1,81 +1,58 @@
 package com.example.villagets_androidstudio.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Post {
     private String id;
-    private int userId;
     private String titre;
     private String contenu;
-    private String[] lienImage;
-    private String date;
-    private Categorie[] categories;
+    private String[] media;
+    private String datePublication;
+    private Double prix;
+    private boolean articleAVendre;
+    private Author op;
 
+    // Classe interne pour l'auteur (op)
+    public static class Author {
+        private String id;
+        private String pseudo;
+        private String photoProfil;
 
-    public Post() {
+        public Author() {}
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public String getPseudo() { return pseudo; }
+        public void setPseudo(String pseudo) { this.pseudo = pseudo; }
+        public String getPhotoProfil() { return photoProfil; }
+        public void setPhotoProfil(String photoProfil) { this.photoProfil = photoProfil; }
     }
 
-    public Post(String id, int usrId, String titre, String contenu, String[] lienImage, String date,Categorie[] categories) {
-        this.id = id;
-        this.userId = usrId;
-        this.titre = titre;
-        this.contenu = contenu;
-        this.lienImage = lienImage;
-        this.date = date;
-        this.categories = categories;
-    }
+    public Post() {}
 
-    public Categorie[] getCategories() {
-        return categories;
-    }
+    // Getters et Setters
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public void setCategories(Categorie[] categories) {
-        this.categories = categories;
-    }
+    public String getTitre() { return titre; }
+    public void setTitre(String titre) { this.titre = titre; }
 
-    public String getId() {
-        return id;
-    }
+    public String getContenu() { return contenu; }
+    public void setContenu(String contenu) { this.contenu = contenu; }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public String[] getMedia() { return media; }
+    public void setMedia(String[] media) { this.media = media; }
 
-    public int getUsrId() {
-        return userId;
-    }
+    public String getDatePublication() { return datePublication; }
+    public void setDatePublication(String datePublication) { this.datePublication = datePublication; }
 
-    public void setUsrId(int userId) {
-        this.userId = userId;
-    }
+    public Double getPrix() { return prix; }
+    public void setPrix(Double prix) { this.prix = prix; }
 
-    public String getTitre() {
-        return titre;
-    }
+    public boolean isArticleAVendre() { return articleAVendre; }
+    public void setArticleAVendre(boolean articleAVendre) { this.articleAVendre = articleAVendre; }
 
-    public void setTitre(String titre) {
-        this.titre = titre;
-    }
-
-    public String getContenu() {
-        return contenu;
-    }
-
-    public void setContenu(String contenu) {
-        this.contenu = contenu;
-    }
-
-    public String[] getLienImage() {
-        return lienImage;
-    }
-
-    public void setLienImage(String[] lienImage) {
-        this.lienImage = lienImage;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
+    public Author getOp() { return op; }
+    public void setOp(Author op) { this.op = op; }
 }

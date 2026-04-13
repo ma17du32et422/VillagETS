@@ -6,4 +6,8 @@
     </style>
 
     <style name="Theme.VillagETS_AndroidStudio" parent="Base.Theme.VillagETS_AndroidStudio" />
+
+    <style name="CircleImageAppearance">
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>

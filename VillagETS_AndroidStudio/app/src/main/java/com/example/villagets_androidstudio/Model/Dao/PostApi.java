@@ -3,6 +3,7 @@ package com.example.villagets_androidstudio.Model.Dao;
 import com.example.villagets_androidstudio.Model.Post;
 
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -13,8 +14,9 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface PostApi {
-    @GET("/posts")
-    Call<List<Post>> getAllPosts();
+    // Tentative en POST sur la racine /feed selon vos specs
+    @POST("/feed")
+    Call<List<Post>> getFeed(@Body Map<String, Object> body);
 
     @POST("/posts")
     Call<Post> createPost(@Body Post post);

@@ -29,6 +29,9 @@
         <activity
             android:name=".View.SignupActivity"
             android:exported="false" />
+        <activity
+            android:name=".View.ProfileActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
