@@ -11,19 +11,47 @@
 }
 
 /** Components layout */
-#search{
-    width: 35%;
-    height: 50%;
+#search {
+    flex: 1;
+    max-width: 700px;
+    height: 36px;
     margin: 0 auto;
+    border: none;
+    border-radius: 20px;
+    padding: 0 16px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    background-color: rgba(77, 77, 77, 0.4);
+    color: #ffffff;
+    outline: none;
+    transition: background-color 0.2s;
+    text-align: center;
 }
 
-#app-name{
+#search::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+#search:focus {
+    background-color: rgba(255, 255, 255, 0.35);
+}
+
+#app-name {
     width: auto;
     color: #ffffff;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 32px;
     cursor: pointer;
     flex-shrink: 0;
+    flex: 1;
+}
+
+#profile-button-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    justify-content: flex-end;
 }
 
 #profile{
@@ -40,11 +68,6 @@
     cursor: pointer;
 }
 
-#profile-button-wrapper{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
 
 #profile-button-pic{
     width: 32px;
