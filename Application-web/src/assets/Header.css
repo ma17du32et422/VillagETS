@@ -28,6 +28,7 @@
 
 #profile{
     min-width: 120px;
+    width: 100px;
     height: 34px;
     background-color: #666666;
     border: none;
