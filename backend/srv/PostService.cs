@@ -33,7 +33,7 @@ namespace srv
         public async Task<sql.Publication?> Create(sql.Publication publication, string userId)
         {
             publication.UtilisateurId = userId;
-
+            publication.DatePublication = DateTime.UtcNow;
             var result = await _supabase.From<sql.Publication>().Insert(publication);
             var saved = result.Model;
             if (saved is null) return null;
