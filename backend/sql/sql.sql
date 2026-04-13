@@ -39,6 +39,7 @@ CREATE TABLE Publication (
     contenu VARCHAR(255),
     likes INTEGER DEFAULT 0,
     dislikes INTEGER DEFAULT 0,
+    nb_commentaires INTEGER DEFAULT 0,
     prix DECIMAL(8,2),
     article_a_vendre BOOLEAN,
     CONSTRAINT fk_publication_utilisateur
