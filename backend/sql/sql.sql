@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS Message_Fichier CASCADE;
+/**DROP TABLE IF EXISTS Message_Fichier CASCADE;
 DROP TABLE IF EXISTS Message_Utilisateur CASCADE;
 DROP TABLE IF EXISTS Message CASCADE;
 
@@ -13,7 +13,7 @@ DROP TABLE IF EXISTS Publication CASCADE;
 
 --DROP TABLE IF EXISTS Fichier CASCADE;
 --DROP TABLE IF EXISTS Utilisateur CASCADE;
-
+**/
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -51,6 +51,7 @@ CREATE TABLE Commentaire (
     Utilisateurid UUID,
 	Publicationid INTEGER,
 	Parent_commentaire UUID,
+    date_commentaire TIMESTAMP,
     contenu VARCHAR(255),
 	likes INTEGER DEFAULT 0,
 	dislikes INTEGER DEFAULT 0,
@@ -115,26 +116,33 @@ CREATE TABLE Commentaire_Fichier (
         REFERENCES Commentaire(id_commentaire)
 );
 
+CREATE TABLE Conversation (
+    id_conversation UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user1_id UUID,
+    user2_id UUID,
+    nom_conversation VARCHAR(50),
+    description_conversation VARCHAR(255)
+);
+
 CREATE TABLE Message (
     id_message UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     contenu TEXT,
-    envoyeur_id_utilisateur UUID,
+    envoyeur_id UUID,
+    receveur_id UUID,
+    date_msg TIMESTAMP, 
+    id_conversation UUID, 
     CONSTRAINT fk_message_envoyeur
-        FOREIGN KEY (envoyeur_id_utilisateur)
-        REFERENCES Utilisateur(id_utilisateur)
+        FOREIGN KEY (envoyeur_id)
+        REFERENCES Utilisateur(id_utilisateur),
+    CONSTRAINT fk_message_receveur
+        FOREIGN KEY (envoyeur_id)
+        REFERENCES Utilisateur(id_utilisateur),
+    CONSTRAINT fk_convo
+        FOREIGN KEY (id_conversation)
+        REFERENCES Conversation(id_conversation)
 );
 
-CREATE TABLE Message_Utilisateur (
-    Messageid_message UUID,
-    receveur_id_utilisateur UUID,
-    PRIMARY KEY (Messageid_message, receveur_id_utilisateur),
-    CONSTRAINT fk_mu_message
-        FOREIGN KEY (Messageid_message)
-        REFERENCES Message(id_message),
-    CONSTRAINT fk_mu_utilisateur
-        FOREIGN KEY (receveur_id_utilisateur)
-        REFERENCES Utilisateur(id_utilisateur)
-);
+
 
 CREATE TABLE Message_Fichier (
     id_message UUID,
@@ -147,6 +155,20 @@ CREATE TABLE Message_Fichier (
         FOREIGN KEY (id_fichier)
         REFERENCES Fichier(id_fichier)
 );
+
+/**CREATE TABLE Message_Utilisateur (
+    Messageid_message UUID,
+    receveur_id_utilisateur UUID,
+    PRIMARY KEY (Messageid_message, receveur_id_utilisateur),
+    CONSTRAINT fk_mu_message
+        FOREIGN KEY (Messageid_message)
+        REFERENCES Message(id_message),
+    CONSTRAINT fk_mu_utilisateur
+        FOREIGN KEY (receveur_id_utilisateur)
+        REFERENCES Utilisateur(id_utilisateur)
+);*/
+
+
 
 -- Valeurs de test
 INSERT INTO Utilisateur (
