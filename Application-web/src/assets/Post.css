@@ -1,17 +1,20 @@
 /** Post borders */
 .post {
-    border-bottom: 2px var(--border);
+    border: 3px solid var(--accent);
     margin-bottom: 25px;
-    margin-left: 4px;
-    margin-right: 4px;
+    margin-left: 5%;
+    margin-right: 5%;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
+    border-radius: 12px;
 }
 
 #post-header {
-    background-color: var(--bg-secondary);
+    background-color: var(--accent);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 /** Post layouts */
@@ -57,11 +60,12 @@
 #op-name {
     font-weight: 600;
     margin: 0;
+    color: var(--text-contrast)
 }
 
 #datetime {
     font-size: 12px;
-    color: var(--text-muted);
+    color: var(--text-contrast);
     margin: 0;
 }
 

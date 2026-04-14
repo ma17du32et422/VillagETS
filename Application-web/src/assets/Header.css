@@ -9,8 +9,8 @@
     padding: 0 24px;
     background-color: var(--accent);
     gap: 16px;
-    border: none; /* Ensure no border is applied */
     box-shadow: none; /* Ensure no shadow is creating a line effect */
+    border-bottom: 2px solid var(--border);
 }
 
 /** Components layout */
