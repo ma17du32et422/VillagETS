@@ -37,7 +37,5 @@ public class SignupActivity extends AppCompatActivity {
         tvLoginLink.setOnClickListener(v -> {
             finish();
         });
-
-
     }
 }
