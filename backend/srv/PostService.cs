@@ -89,6 +89,57 @@ namespace srv
             if (publication.UtilisateurId != userId)
                 throw new UnauthorizedAccessException();
 
+            // Get all fichier links for this publication
+            var pubFichiers = await _supabase
+                .From<sql.PublicationFichier>()
+                .Filter("id_publication", Operator.Equals, id)
+                .Get();
+
+            var fichierIds = pubFichiers.Models
+                .Where(pf => pf.IdFichier != null)
+                .Select(pf => pf.IdFichier!)
+                .ToList();
+
+            if (fichierIds.Count > 0)
+            {
+                // Get the actual fichier records to find file paths
+                var fichiers = await _supabase
+                    .From<sql.Fichier>()
+                    .Filter("id_fichier", Operator.In, fichierIds)
+                    .Get();
+
+                // Delete physical files from disk
+                var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                foreach (var fichier in fichiers.Models)
+                {
+                    if (fichier.LienFichier == null) continue;
+                    var fileName = Path.GetFileName(fichier.LienFichier);
+                    var filePath = Path.Combine(uploadFolder, fileName);
+                    if (File.Exists(filePath))
+                        File.Delete(filePath);
+                }
+                // Delete publication_fichier links
+                await _supabase
+                    .From<sql.PublicationFichier>()
+                    .Filter("id_publication", Operator.Equals, id)
+                    .Delete();
+
+                // Delete fichier records from DB
+                await _supabase
+                    .From<sql.Fichier>()
+                    .Filter("id_fichier", Operator.In, fichierIds)
+                    .Delete();
+
+
+            }
+
+            // Delete reactions
+            await _supabase
+                .From<sql.ReactionPublication>()
+                .Filter("id_publication", Operator.Equals, id)
+                .Delete();
+
+            // Delete the publication itself
             await _supabase
                 .From<sql.Publication>()
                 .Where(p => p.Id == id)
@@ -97,7 +148,7 @@ namespace srv
             return true;
         }
 
-        public async Task<(List<sql.Publication> posts, Dictionary<string, sql.Utilisateur> users)> GetFeed(string userId, FeedQuery query)
+        public async Task<(List<sql.Publication> posts, Dictionary<string, sql.Utilisateur> users, Dictionary<string, string?> reactions)> GetFeed(string userId, FeedQuery query)
         {
             List<string>? taggedPublicationIds = null;
             if (query.Tags is { Length: > 0 })
@@ -110,7 +161,7 @@ namespace srv
                 var categoryIds = categories.Models.Select(c => c.Id.ToString()).ToList();
 
                 if (categoryIds.Count == 0)
-                    return ([], []);
+                    return ([], [], []);
 
                 var catPubs = await _supabase
                     .From<sql.CatPubPublication>()
@@ -120,7 +171,7 @@ namespace srv
                 taggedPublicationIds = catPubs.Models.Select(cp => cp.IdPublication).Distinct().ToList();
 
                 if (taggedPublicationIds.Count == 0)
-                    return ([], []);
+                    return ([], [], []);
             }
 
             var q = _supabase.From<sql.Publication>();
@@ -150,7 +201,19 @@ namespace srv
 
             var userMap = users.Models.ToDictionary(u => u.Id!, u => u);
 
-            return (posts, userMap);
+            var postIds = posts.Select(p => p.Id).Where(id => id != null).ToList();
+
+            var reactions = await _supabase
+                .From<sql.ReactionPublication>()
+                .Filter("id_utilisateur", Operator.Equals, userId)
+                .Filter("id_publication", Operator.In, postIds)
+                .Get();
+
+            var reactionMap = reactions.Models
+                .ToDictionary(r => r.IdPublication!, r => r.Type);
+
+            return (posts, userMap, reactionMap);
+
         }
 
     }

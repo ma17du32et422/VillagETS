@@ -70,7 +70,8 @@ namespace srv
 
                 return Results.Ok(feed.posts.Select(p => {
                     feed.users.TryGetValue(p.UtilisateurId ?? "", out var user);
-                    return p.ToJson(user);
+                    feed.reactions.TryGetValue(p.Id ?? "", out var reaction);
+                    return p.ToJson(user, reaction);
                 }));
             });
         }

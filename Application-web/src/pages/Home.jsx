@@ -53,6 +53,7 @@ function App(){
         likes: post.likes ?? 0,
         dislikes: post.dislikes ?? 0,
         commentaires: post.commentaires ?? 0,
+        userReaction: post.userReaction ?? null,
         comments: [],
       })));
         setError(null);

@@ -1,40 +1,101 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import '../.././assets/Post.css'
 import { getBaseUrl } from '../../API'
+import { useAuth } from '../../AuthContext'
 
-export default function Post({ post }) {
+export default function Post({ post, onDelete }) {
+  const { user } = useAuth()
   const [likes, setLikes] = useState(post.likes ?? 0)
   const [dislikes, setDislikes] = useState(post.dislikes ?? 0)
-  const [liked, setLiked] = useState(false)
-  const [disliked, setDisliked] = useState(false)
+  const [liked, setLiked] = useState(post.userReaction === 'like')
+  const [disliked, setDisliked] = useState(post.userReaction === 'dislike')
   const [comments, setComments] = useState(post.comments ?? [])
   const [commentVisible, setCommentVisible] = useState(false)
   const [commentText, setCommentText] = useState('')
   const [mediaIndex, setMediaIndex] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef(null)
 
   const media = post.media ?? []
   const tags = post.tags ?? []
+  const isOwner = user?.userId === post.op?.id
 
-  const toggleReaction = async (type) => {
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target))
+        setMenuOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const deletePost = async () => {
+    setMenuOpen(false)
     try {
-      const res = await fetch(`${getBaseUrl()}/post/${post.id}/react`, {
-        method: 'POST',
+      const res = await fetch(`${getBaseUrl()}/post/${post.id}`, {
+        method: 'DELETE',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type }),
-      });
-
-      if (!res.ok) return;
-      const data = await res.json();
-
-      setLikes(data.likes);
-      setDislikes(data.dislikes);
-      setLiked(data.userReaction === 'like');
-      setDisliked(data.userReaction === 'dislike');
+      })
+      if (res.ok) onDelete?.(post.id)
     } catch (err) {
-      console.error('Reaction failed:', err);
+      console.error('Delete failed:', err)
     }
   }
+
+
+  // I LOVE OPTIMIST UPDATES AHAHAHAHAHAHAHAHAHAHAHE FUCK THIS SHI
+const toggleReaction = async (type) => {
+  const prevLiked = liked;
+  const prevDisliked = disliked;
+  const prevLikes = likes;
+  const prevDislikes = dislikes;
+
+  // OPTIMISMMMMMMMMM MORE LIKE TISM
+  if (type === 'like') {
+    if (liked) {
+      setLiked(false);
+      setLikes(l => Math.max(0, l - 1));
+    } else {
+      setLiked(true);
+      setLikes(l => l + 1);
+      if (disliked) { setDisliked(false); setDislikes(d => Math.max(0, d - 1)); }
+    }
+  } else {
+    if (disliked) {
+      setDisliked(false);
+      setDislikes(d => Math.max(0, d - 1));
+    } else {
+      setDisliked(true);
+      setDislikes(d => d + 1);
+      if (liked) { setLiked(false); setLikes(l => Math.max(0, l - 1)); }
+    }
+  }
+
+  try {
+    const res = await fetch(`${getBaseUrl()}/post/${post.id}/react`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type }),
+    });
+
+    if (!res.ok) throw new Error('Failed');
+
+    const data = await res.json();
+    setLikes(data.likes);
+    setDislikes(data.dislikes);
+    setLiked(data.userReaction === 'like');
+    setDisliked(data.userReaction === 'dislike');
+  } catch (err) {
+    console.error('Reaction failed:', err);
+    // Revert to previous state
+    setLiked(prevLiked);
+    setDisliked(prevDisliked);
+    setLikes(prevLikes);
+    setDislikes(prevDislikes);
+  }
+}
 
   const toggleComments = () => setCommentVisible(c => !c)
 
@@ -46,23 +107,6 @@ export default function Post({ post }) {
     setCommentText('')
     setCommentVisible(true)
   }
-  useEffect(() => {
-    const fetchUserReaction = async () => {
-      try {
-        const res = await fetch(`${getBaseUrl()}/post/${post.id}/react`, {
-          credentials: 'include',
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        setLiked(data.userReaction === 'like');
-        setDisliked(data.userReaction === 'dislike');
-      } catch (err) {
-        console.error('Could not fetch reaction:', err);
-      }
-    };
-    fetchUserReaction();
-  }, [post.id]);
-
 
   return (
     <article className="post">
@@ -77,8 +121,25 @@ export default function Post({ post }) {
             <p id="datetime">{post.datetime}</p>
           </div>
         </div>
-        <h2 id="title">{post.title ?? post.titre}</h2>
+
+        <div id="post-menu-wrap" ref={menuRef}>
+          <button id="post-menu-btn" type="button" onClick={() => setMenuOpen(o => !o)}>⋮</button>
+          {menuOpen && (
+            <div id="post-menu-dropdown">
+              {isOwner && (
+                <button className="post-menu-item danger" type="button" onClick={deletePost}>
+                  Delete post
+                </button>
+              )}
+              <button className="post-menu-item" type="button" onClick={() => setMenuOpen(false)}>
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
+      <h2 id="title">{post.title ?? post.titre}</h2>
 
       {tags.length > 0 && (
         <div className="post-tags">
@@ -110,18 +171,10 @@ export default function Post({ post }) {
       <p id="contents">{post.contents ?? post.contenu}</p>
 
       <div className="reaction-bar">
-        <button
-          className={`reaction-button ${liked ? 'active' : ''}`}
-          type="button"
-          onClick={() => toggleReaction('like')}
-        >
+        <button className={`reaction-button ${liked ? 'active' : ''}`} type="button" onClick={() => toggleReaction('like')}>
           👍 {likes}
         </button>
-        <button
-          className={`reaction-button ${disliked ? 'active' : ''}`}
-          type="button"
-          onClick={() => toggleReaction('dislike')}
-        >
+        <button className={`reaction-button ${disliked ? 'active' : ''}`} type="button" onClick={() => toggleReaction('dislike')}>
           👎 {dislikes}
         </button>
         <button className="reaction-button" type="button" onClick={toggleComments}>
@@ -140,7 +193,6 @@ export default function Post({ post }) {
           />
           <button className="reaction-button" type="submit">Add</button>
         </form>
-
         {comments.length > 0 && (
           <div className="comment-list">
             {comments.map((comment) => (

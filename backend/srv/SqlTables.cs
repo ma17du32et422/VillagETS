@@ -71,7 +71,7 @@ namespace sql
         [Column("nb_commentaires")]
         public int? CommentairesCount { get; set; }
 
-        public object ToJson(Utilisateur? user = null) => new
+        public object ToJson(Utilisateur? user = null, string? userReaction = null) => new
         {
             id = Id,
             titre = Nom,
@@ -83,6 +83,7 @@ namespace sql
             likes = Likes ?? 0,
             dislikes = Dislikes ?? 0,
             commentaires = CommentairesCount ?? 0,
+            userReaction = userReaction,
             op = new
             {
                 id = user?.Id,
