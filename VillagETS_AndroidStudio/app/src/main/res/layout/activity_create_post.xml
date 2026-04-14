@@ -21,7 +21,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/red_primary"
+                android:background="@drawable/rounded_red_header"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="10dp">
@@ -48,7 +48,7 @@
                         android:textColor="@color/white"
                         android:textSize="18sp"
                         android:textStyle="bold" />
-                    
+
                 </LinearLayout>
             </LinearLayout>
 
@@ -128,7 +128,7 @@
                     android:id="@+id/btnPost"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/red_primary"
+                    android:background="@drawable/rounded_red_header"
                     android:minWidth="80dp"
                     android:text="Post"
                     android:textAllCaps="false"
@@ -141,7 +141,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
-                    android:background="#E0E0E0"
+                    android:background="@drawable/rounded_gray_header"
                     android:minWidth="80dp"
                     android:text="Cancel"
                     android:textAllCaps="false"
