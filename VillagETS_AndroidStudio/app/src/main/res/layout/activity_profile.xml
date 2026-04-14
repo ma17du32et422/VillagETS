@@ -31,7 +31,7 @@
         android:layout_height="48dp"
         android:layout_marginStart="12dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/baseline_menu_24"
+        android:src="@drawable/back"
         app:layout_constraintBottom_toBottomOf="@id/topBarBackground"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/topBarBackground"
