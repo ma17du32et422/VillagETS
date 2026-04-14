@@ -35,6 +35,15 @@ public class ProfileActivity extends AppCompatActivity {
         
         Button btnSaveProfile = findViewById(R.id.btnSaveProfile);
         ImageButton btnEditImage = findViewById(R.id.btnEditImage);
+        
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        Button btnLogout = findViewById(R.id.btnLogout);
+
+        btnBack.setOnClickListener(v -> finish());
+
+        btnLogout.setOnClickListener(v -> {
+            Toast.makeText(this, "Déconnexion (en cours...)", Toast.LENGTH_SHORT).show();
+        });
 
         // Edit username
         btnEditUsername.setOnClickListener(v -> {

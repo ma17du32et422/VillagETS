@@ -14,4 +14,5 @@
     <string name="signup_button">Créer mon compte</string>
     <string name="signup_already_registered">Déjà inscrit? Connexion</string>
     <string name="recherche">Recherche</string>
+    <string name="villagets">VillagETS</string>
 </resources>

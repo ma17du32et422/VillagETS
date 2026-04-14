@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/messageUserAvatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/CircleImageAppearance"
+        android:src="@drawable/silicate" />
+
+    <TextView
+        android:id="@+id/messageUserName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:fontFamily="@font/delta_medium"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/messageUserAvatar"
+        app:layout_constraintTop_toTopOf="@id/messageUserAvatar"
+        android:text="User Name" />
+
+    <LinearLayout
+        android:id="@+id/messageBubble"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="64dp"
+        android:background="#F0F0F0"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/messageUserAvatar"
+        app:layout_constraintTop_toBottomOf="@id/messageUserName">
+
+        <TextView
+            android:id="@+id/messageText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/delta_light"
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:text="Message text goes here..." />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/messageTimestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:fontFamily="@font/delta_light"
+        android:textColor="#999999"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toBottomOf="@id/messageBubble"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="12:00" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

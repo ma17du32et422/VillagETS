@@ -66,6 +66,8 @@ PostRoutes.Map(app, postService);
 UserService userService = new UserService();
 UserRoutes.MapUserRoutes(app, userService, isDevelopment);
 
+ReactionService reactionService = new ReactionService();
+ReactionRoutes.MapReactionRoutes(app, reactionService);
 //ROUTES
 app.MapGet("/", async () =>
 {
@@ -149,7 +151,7 @@ app.MapPost("/upload", async (HttpContext ctx) =>
         using var stream = File.Create(filePath);
         await file.CopyToAsync(stream);
 
-        var baseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
+        var baseUrl = $"{ctx.Request.Scheme}://{ctx.Request.Host}";
         var fileUrl = $"{baseUrl}/uploads/{uniqueName}";
 
         var fichier = new sql.Fichier

@@ -3,67 +3,53 @@ package com.example.villagets_androidstudio.View;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.bumptech.glide.Glide;
+import com.example.villagets_androidstudio.Model.Message;
 import com.example.villagets_androidstudio.R;
+import com.google.android.material.imageview.ShapeableImageView;
+import java.util.List;
 
-public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
+public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
-    private String[] userNames;
-    private String[] lastMessages;
-    private String[] times;
-    private Integer[] avatarResIds;
+    private List<Message> messageList;
 
-    public MessageAdapter(String[] userNames, String[] lastMessages, String[] times, Integer[] avatarResIds) {
-        this.userNames = userNames;
-        this.lastMessages = lastMessages;
-        this.times = times;
-        this.avatarResIds = avatarResIds;
+    public MessageAdapter(List<Message> messageList) {
+        this.messageList = messageList;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_conversation, parent, false);
-        return new ViewHolder(view);
+    public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message, parent, false);
+        return new MessageViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.tvUserName.setText(userNames[position]);
-        holder.tvLastMessage.setText(lastMessages[position]);
-        holder.tvTime.setText(times[position]);
-
-        if (avatarResIds != null && position < avatarResIds.length) {
-            Glide.with(holder.itemView.getContext())
-                    .load(avatarResIds[position])
-                    .circleCrop()
-                    .placeholder(android.R.color.darker_gray)
-                    .into(holder.ivAvatar);
-        }
+    public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
+        Message message = messageList.get(position);
+        holder.tvUserName.setText(message.getSenderName());
+        holder.tvMessageText.setText(message.getText());
+        holder.tvTimestamp.setText(message.getTimestamp());
+        holder.ivAvatar.setImageResource(R.drawable.silicate);
     }
 
     @Override
     public int getItemCount() {
-        return userNames.length;
+        return messageList.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvUserName, tvLastMessage, tvTime;
-        ImageView ivAvatar;
+    static class MessageViewHolder extends RecyclerView.ViewHolder {
+        ShapeableImageView ivAvatar;
+        TextView tvUserName, tvMessageText, tvTimestamp;
 
-        public ViewHolder(@NonNull View itemView) {
+        public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvUserName = itemView.findViewById(R.id.userName);
-            tvLastMessage = itemView.findViewById(R.id.lastMessage);
-            tvTime = itemView.findViewById(R.id.messageTime);
-            ivAvatar = itemView.findViewById(R.id.userAvatar);
+            ivAvatar = itemView.findViewById(R.id.messageUserAvatar);
+            tvUserName = itemView.findViewById(R.id.messageUserName);
+            tvMessageText = itemView.findViewById(R.id.messageText);
+            tvTimestamp = itemView.findViewById(R.id.messageTimestamp);
         }
     }
 }

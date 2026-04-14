@@ -1,38 +1,121 @@
-*{
+#form-title {
     width: 100%;
-}
-
-/** Form layout */
-#form-container{
-    display: flex;
-    flex-direction: column;
-}
-
-#form-title,
-#form-image,
-#form-tags,
-#form-text{
-    margin-bottom: 10px;
-}
-
-#form-text{
-    resize: none;
-}
-
-#form-tags{
-    padding: 8px;
-    border: 1px solid #cccccc;
-    border-radius: 8px;
-}
-
-#form-post, #form-cancel{
-    background-color: #666666;
-}
-
-#form-post-text, #form-cancel-text{
     font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: 16px;
-    margin: auto;
-    color: #ffffff;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-bottom: 2px solid #cccccc;
+    outline: none;
+    background: transparent;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    padding: 6px 1%;
+    color: #111;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
 }
 
+#form-title::placeholder {
+    color: #aaa;
+    font-weight: normal;
+}
+#form-title:focus {
+    border-bottom-color: #E40032;
+}
+.post-tags-input-wrap {
+    padding: 6px 1%;
+}
+
+#form-tags {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px dashed #cccccc;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background: transparent;
+    outline: none;
+    box-sizing: border-box;
+}
+
+#form-tags::placeholder {
+    color: #aaa;
+}
+
+#image-drop-zone {
+    cursor: pointer;
+    min-height: 120px;
+    border: 2px dashed #cccccc;
+    margin: 0 1% 10px;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#image-drop-zone:hover {
+    border-color: #999;
+    background: #fafafa;
+}
+
+#drop-placeholder {
+    color: #aaa;
+    font-size: 14px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    text-align: center;
+    padding: 20px;
+    width: auto;
+}
+
+#form-text {
+    width: 100%;
+    resize: none;
+    border: 2px solid #cccccc;
+    outline: none;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    padding: 10px 1%;
+    background: transparent;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+}
+#form-text:focus {
+    border-color: #E40032;
+}
+#form-text::placeholder {
+    color: #aaa;
+}
+
+#form-post {
+    background-color: #E40032;
+    color: white;
+    border-color: #E40032;
+    font-weight: bold;
+}
+
+#form-post:hover {
+    background-color: #c4002a;
+}
+
+#form-cancel:hover {
+    background-color: #e0e0e0;
+}
+
+#form-error {
+    color: red;
+    font-size: 13px;
+    padding: 0 1%;
+    width: auto;
+}
+
+#create-post-page {
+    max-width: 700px;
+    margin: 24px auto;
+    padding: 0 16px;
+}
+
+#image-drop-zone.dragging {
+    border-color: #E40032;
+    background: #fff0f3;
+}

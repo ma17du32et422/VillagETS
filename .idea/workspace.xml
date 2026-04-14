@@ -6,12 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="bcf7e03b-c303-4ba9-a331-cdf53250a535" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application-web/src/assets/Discussion.css" beforeDir="false" afterPath="$PROJECT_DIR$/Application-web/src/assets/Discussion.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Application-web/src/assets/Header.css" beforeDir="false" afterPath="$PROJECT_DIR$/Application-web/src/assets/Header.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application-web/src/assets/Message.css" beforeDir="false" afterPath="$PROJECT_DIR$/Application-web/src/assets/Message.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application-web/src/assets/Post.css" beforeDir="false" afterPath="$PROJECT_DIR$/Application-web/src/assets/Post.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application-web/src/assets/ProfilePage.css" beforeDir="false" afterPath="$PROJECT_DIR$/Application-web/src/assets/ProfilePage.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application-web/src/components/SignupForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Application-web/src/components/SignupForm.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,7 +42,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "Post-creation-testing",
+    "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "kotlin-language-version-configured": "true",
@@ -94,6 +89,7 @@
       <workItem from="1775693623313" duration="2459000" />
       <workItem from="1775856882386" duration="4816000" />
       <workItem from="1775936309719" duration="3807000" />
+      <workItem from="1776045733327" duration="213000" />
     </task>
     <servers />
   </component>
