@@ -24,7 +24,7 @@ public class MessageFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerViewConversations);
 
-        // Demo data
+        // placeholders
         String[] userNames = {"Thomas", "Sarah", "Marc-Antoine", "Julie", "Kevin"};
         String[] lastMessages = {
                 "C'est bon pour la calculatrice !",

@@ -32,6 +32,9 @@
         <activity
             android:name=".View.ProfileActivity"
             android:exported="false" />
+        <activity
+            android:name=".View.ChatActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
