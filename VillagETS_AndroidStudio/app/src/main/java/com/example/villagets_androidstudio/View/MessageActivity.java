@@ -17,10 +17,10 @@ import com.example.villagets_androidstudio.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChatActivity extends AppCompatActivity {
+public class MessageActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private ChatAdapter adapter;
+    private MessageAdapter adapter;
     private List<Message> messageList;
     private EditText etMessageInput;
     private ImageButton btnSend;
@@ -29,7 +29,7 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_chat);
+        setContentView(R.layout.activity_message);
 
         String userName = getIntent().getStringExtra("userName");
         TextView tvUserName = findViewById(R.id.chatUserName);
@@ -43,7 +43,6 @@ public class ChatActivity extends AppCompatActivity {
         View toolbarContainer = findViewById(R.id.toolbarContainer);
         View inputContainer = findViewById(R.id.inputContainer);
 
-        // Handle Insets for Notch and Navigation Bar
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.chatMainLayout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             toolbarContainer.setPadding(0, systemBars.top, 0, 0);
@@ -52,12 +51,13 @@ public class ChatActivity extends AppCompatActivity {
         });
 
         messageList = new ArrayList<>();
-        // Demo messages
+
+        // placeholders
         messageList.add(new Message(userName, "Salut ! Est-ce que c'est toujours dispo ?", "10:00", "avatar"));
         messageList.add(new Message("Moi", "Oui, toujours dispo !", "10:05", "avatar"));
         messageList.add(new Message(userName, "Super, je peux passer quand ?", "10:06", "avatar"));
 
-        adapter = new ChatAdapter(messageList);
+        adapter = new MessageAdapter(messageList);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 

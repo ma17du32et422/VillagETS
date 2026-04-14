@@ -21,7 +21,7 @@ public class MyViewPagerAdapter extends FragmentStateAdapter {
             case 2:
                 return new SearchFragment();
             case 3:
-                return new MessageFragment();
+                return new ConversationFragment();
             case 4:
                 return new NotificationFragment();
         }

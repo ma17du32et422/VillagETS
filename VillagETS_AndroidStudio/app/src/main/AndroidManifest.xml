@@ -33,7 +33,7 @@
             android:name=".View.ProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".View.ChatActivity"
+            android:name=".View.MessageActivity"
             android:exported="false" />
     </application>
 

@@ -10,12 +10,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.villagets_androidstudio.R;
 
-public class MessageFragment extends Fragment {
+public class ConversationFragment extends Fragment {
 
     private RecyclerView recyclerView;
 
-    public MessageFragment() {
-        super(R.layout.fragment_message);
+    public ConversationFragment() {
+        super(R.layout.fragment_conversation);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class MessageFragment extends Fragment {
                 R.drawable.silicate
         };
 
-        MessageAdapter adapter = new MessageAdapter(userNames, lastMessages, times, avatarResIds);
+        ConversationAdapter adapter = new ConversationAdapter(userNames, lastMessages, times, avatarResIds);
         recyclerView.setAdapter(adapter);
     }
 }

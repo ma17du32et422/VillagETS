@@ -1,66 +1,55 @@
 package com.example.villagets_androidstudio.View;
 
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.villagets_androidstudio.Model.Message;
 import com.example.villagets_androidstudio.R;
+import com.google.android.material.imageview.ShapeableImageView;
+import java.util.List;
 
-public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ConversationViewHolder> {
+public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
-    private String[] userNames;
-    private String[] lastMessages;
-    private String[] times;
-    private Integer[] avatarResIds;
+    private List<Message> messageList;
 
-    public MessageAdapter(String[] userNames, String[] lastMessages, String[] times, Integer[] avatarResIds) {
-        this.userNames = userNames;
-        this.lastMessages = lastMessages;
-        this.times = times;
-        this.avatarResIds = avatarResIds;
+    public MessageAdapter(List<Message> messageList) {
+        this.messageList = messageList;
     }
 
     @NonNull
     @Override
-    public ConversationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_conversation, parent, false);
-        return new ConversationViewHolder(view);
+    public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message, parent, false);
+        return new MessageViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ConversationViewHolder holder, int position) {
-        String name = userNames[position];
-        holder.userName.setText(name);
-        holder.lastMessage.setText(lastMessages[position]);
-        holder.messageTime.setText(times[position]);
-        holder.userAvatar.setImageResource(avatarResIds[position]);
-
-        holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(v.getContext(), ChatActivity.class);
-            intent.putExtra("userName", name);
-            v.getContext().startActivity(intent);
-        });
+    public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
+        Message message = messageList.get(position);
+        holder.tvUserName.setText(message.getSenderName());
+        holder.tvMessageText.setText(message.getText());
+        holder.tvTimestamp.setText(message.getTimestamp());
+        holder.ivAvatar.setImageResource(R.drawable.silicate);
     }
 
     @Override
     public int getItemCount() {
-        return userNames.length;
+        return messageList.size();
     }
 
-    static class ConversationViewHolder extends RecyclerView.ViewHolder {
-        ImageView userAvatar;
-        TextView userName, lastMessage, messageTime;
+    static class MessageViewHolder extends RecyclerView.ViewHolder {
+        ShapeableImageView ivAvatar;
+        TextView tvUserName, tvMessageText, tvTimestamp;
 
-        public ConversationViewHolder(@NonNull View itemView) {
+        public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
-            userAvatar = itemView.findViewById(R.id.userAvatar);
-            userName = itemView.findViewById(R.id.userName);
-            lastMessage = itemView.findViewById(R.id.lastMessage);
-            messageTime = itemView.findViewById(R.id.messageTime);
+            ivAvatar = itemView.findViewById(R.id.messageUserAvatar);
+            tvUserName = itemView.findViewById(R.id.messageUserName);
+            tvMessageText = itemView.findViewById(R.id.messageText);
+            tvTimestamp = itemView.findViewById(R.id.messageTimestamp);
         }
     }
 }
