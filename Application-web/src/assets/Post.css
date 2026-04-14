@@ -1,6 +1,6 @@
 /** Post borders */
 .post {
-    border-bottom: 2px black solid;
+    border-bottom: 2px var(--border);
     margin-bottom: 25px;
     margin-left: 4px;
     margin-right: 4px;
@@ -8,7 +8,7 @@
 }
 
 #post-header {
-    background-color: lightgrey;
+    background-color: var(--bg-secondary);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -41,7 +41,7 @@
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: #ccc;
+    background: var(--bg-dark);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -61,7 +61,7 @@
 
 #datetime {
     font-size: 12px;
-    color: gray;
+    color: var(--text-muted);
     margin: 0;
 }
 
@@ -78,20 +78,20 @@
     font-size: 20px;
     cursor: pointer;
     padding: 0 6px;
-    color: #555;
+    color: var(--text-muted);
     line-height: 1;
 }
 
 #post-menu-btn:hover {
-    color: #000;
+    color: var(--text);
 }
 
 #post-menu-dropdown {
     position: absolute;
     top: 28px;
     right: 0;
-    background: white;
-    border: 1px solid #ddd;
+    background: var(--bg);
+    border: 1px var(--border);
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     z-index: 10;
@@ -109,19 +109,19 @@
     cursor: pointer;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 14px;
-    color: #333;
+    color: var(--text-muted);
 }
 
 .post-menu-item:hover {
-    background: #f5f5f5;
+    background: var(--bg-secondary);
 }
 
 .post-menu-item.danger {
-    color: #E40032;
+    color: var(--accent);
 }
 
 .post-menu-item.danger:hover {
-    background: #fff0f3;
+    background: var(--bg-secondary);
 }
 
 /** Image layouts */
@@ -145,7 +145,7 @@
     top: 50%;
     transform: translateY(-50%);
     background: rgba(0, 0, 0, 0.4);
-    color: white;
+    color: var(--text-contrast);
     border: none;
     border-radius: 50%;
     width: 32px;
@@ -159,7 +159,7 @@
 }
 
 .media-arrow:hover {
-    background: rgba(0, 0, 0, 0.7);
+    background: var(--bg-button-hover);
 }
 
 .media-arrow-left  { left: 10px; }
@@ -178,11 +178,11 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--bg-);
 }
 
 .media-dot.active {
-    background: white;
+    background: var(--bg);
 }
 
 /** Tags */
@@ -194,8 +194,8 @@
 }
 
 .post-tag {
-    background-color: #e5e5e5;
-    color: #333333;
+    background-color: var(--bg-secondary);
+    color: var(--text);
     border-radius: 12px;
     padding: 4px 10px;
     font-size: 0.85rem;
@@ -209,8 +209,8 @@
 }
 
 .reaction-button {
-    background-color: #f0f0f0;
-    border: 1px solid #cccccc;
+    background-color: var(--bg);
+    border: 1px solid var(--border);
     border-radius: 8px;
     padding: 8px 12px;
     cursor: pointer;
@@ -218,7 +218,7 @@
 }
 
 .reaction-button.active {
-    background-color: #d9f0d9;
+    background-color: var(--bg-secondary);
     border-color: #7bc47f;
 }
 
@@ -242,7 +242,7 @@
 .comment-input {
     flex: 1;
     padding: 8px;
-    border: 1px solid #cccccc;
+    border: 1px solid var(--border);
     border-radius: 8px;
 }
 
@@ -253,8 +253,8 @@
 }
 
 .comment-item {
-    background-color: #f9f9f9;
-    border: 1px solid #e1e1e1;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
     border-radius: 10px;
     padding: 8px 10px;
     margin-left: 0;

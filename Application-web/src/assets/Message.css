@@ -1,7 +1,7 @@
 .message{
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border);
     height: 50px;
     padding: 4px 8px;
     cursor: pointer;
@@ -9,7 +9,7 @@
 }
 
 .message:hover {
-    background-color: #f5f5f5;
+    background-color: var(--bg-secondary);
 }
 
 #pfp-container{
@@ -48,7 +48,7 @@
 
 #msg{
     font-size: 11px;
-    color: #666;
+    color: var(--text-muted);
     margin: 0;
     white-space: nowrap;
     overflow: hidden;

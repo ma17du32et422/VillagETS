@@ -10,17 +10,17 @@
     margin-top: 8px;
     margin-bottom: 4px;
     padding: 6px 1%;
-    color: #111;
+    color: var(--text);
     box-sizing: border-box;
     transition: border-color 0.15s;
 }
 
 #form-title::placeholder {
-    color: #aaa;
+    color: var(--text-muted);
     font-weight: normal;
 }
 #form-title:focus {
-    border-bottom-color: #E40032;
+    border-bottom-color: var(--accent);
 }
 .post-tags-input-wrap {
     padding: 6px 1%;
@@ -29,7 +29,7 @@
 #form-tags {
     width: 100%;
     padding: 6px 10px;
-    border: 1px dashed #cccccc;
+    border: 1px dashed var(--border);
     border-radius: 12px;
     font-size: 0.85rem;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -39,13 +39,13 @@
 }
 
 #form-tags::placeholder {
-    color: #aaa;
+    color: var(--text-muted);
 }
 
 #image-drop-zone {
     cursor: pointer;
     min-height: 120px;
-    border: 2px dashed #cccccc;
+    border: 2px dashed var(--border);
     margin: 0 1% 10px;
     border-radius: 8px;
     overflow: hidden;
@@ -55,8 +55,8 @@
 }
 
 #image-drop-zone:hover {
-    border-color: #999;
-    background: #fafafa;
+    border-color: var(--border-dark);
+    background: var(--bg-secondary);
 }
 
 #drop-placeholder {
@@ -84,38 +84,58 @@
     border-color: #E40032;
 }
 #form-text::placeholder {
-    color: #aaa;
+    color: var(--text-muted);
 }
 
 #form-post {
-    background-color: #E40032;
-    color: white;
-    border-color: #E40032;
+    background-color: var(--accent);
+    color: var(--text);
+    border-color: var(--accent);
     font-weight: bold;
 }
 
 #form-post:hover {
-    background-color: #c4002a;
+    background-color: var(--accent);
 }
 
 #form-cancel:hover {
-    background-color: #e0e0e0;
+    background-color: var(--bg-secondary);
 }
 
 #form-error {
-    color: red;
+    color: var(--accent);
     font-size: 13px;
     padding: 0 1%;
     width: auto;
 }
 
 #create-post-page {
-    max-width: 700px;
-    margin: 24px auto;
-    padding: 0 16px;
+    background-color: var(--bg);
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+
+
 }
 
 #image-drop-zone.dragging {
-    border-color: #E40032;
-    background: #fff0f3;
+    border-color: var(--accent);
+    background: var(--bg-secondary);
+}
+
+
+
+#form-container {
+    width: 100%;
+    max-width: 1000px; /* Optional: keep it readable on ultra-wide monitors */
+    margin: 0 auto;
+    border: none; /* Remove borders if it looks like a card */
+    box-shadow: none;
+}
+
+#main {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: calc(100vh - 60px); /* Subtract header height if necessary */
 }

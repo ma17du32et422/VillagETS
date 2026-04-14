@@ -6,7 +6,7 @@
 #create-post, #menu{
     width: 100%;
     height: 50px;
-    background-color: #666666;
+    background-color: var(--bg-button);
 }
 
 /** Button text styling*/
@@ -14,5 +14,5 @@
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 16px;
     margin: auto;
-    color: #ffffff;
+    color: var(--text-contrast);
 }
