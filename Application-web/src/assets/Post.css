@@ -21,8 +21,11 @@
 #title {
     margin-left: 1%;
     margin-top: 1%;
+    color: var(--text)
 }
-
+#contents {
+    color: var(--text)
+}
 /** Op info */
 #op-info {
     display: flex;
@@ -182,7 +185,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--bg-);
+    background: var(--bg);
 }
 
 .media-dot.active {
