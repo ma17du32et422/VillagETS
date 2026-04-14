@@ -19,9 +19,11 @@
     color: var(--text-muted);
     font-weight: normal;
 }
+
 #form-title:focus {
     border-bottom-color: var(--accent);
 }
+
 .post-tags-input-wrap {
     padding: 6px 1%;
 }
@@ -80,9 +82,11 @@
     box-sizing: border-box;
     transition: border-color 0.15s;
 }
+
 #form-text:focus {
     border-color: #E40032;
 }
+
 #form-text::placeholder {
     color: var(--text-muted);
 }
@@ -114,16 +118,12 @@
     width: 100%;
     max-width: 100%;
     margin: 0;
-
-
 }
 
 #image-drop-zone.dragging {
     border-color: var(--accent);
     background: var(--bg-secondary);
 }
-
-
 
 #form-container {
     width: 100%;

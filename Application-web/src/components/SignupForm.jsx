@@ -10,8 +10,6 @@ function SignupForm() {
   const [username, setUsername] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [birthMonth, setBirthMonth] = useState('');
-  const [birthDay, setBirthDay] = useState('');
   const [birthYear, setBirthYear] = useState('');
   const [profilePic, setProfilePic] = useState(null);
   const [profilePicPreview, setProfilePicPreview] = useState(null);
@@ -32,12 +30,6 @@ function SignupForm() {
 
     return () => URL.revokeObjectURL(objectUrl);
   }, [profilePic]);
-
-  useEffect(() => {
-    if (!birthDay || !birthMonth) return;
-    const daysInMonth = new Date(birthYear || 2000, birthMonth, 0).getDate();
-    if (parseInt(birthDay) > daysInMonth) setBirthDay('');
-  }, [birthMonth, birthYear]);
 
   const handleProfilePicChange = (e) => {
     const file = e.target.files[0];
@@ -89,8 +81,8 @@ function SignupForm() {
       return;
     }
 
-    if (!birthMonth || !birthDay || !birthYear) {
-      setError('Please enter your date of birth.');
+    if (!birthYear) {
+      setError('Please enter your year of birth.');
       return;
     }
     try {
@@ -112,7 +104,7 @@ function SignupForm() {
           pseudo: username,
           nom: firstName,
           prenom: lastName,
-          dateNaissance: `${birthYear}-${String(birthMonth).padStart(2, '0')}-${String(birthDay).padStart(2, '0')}`,
+          dateNaissance: birthYear,
           PhotoProfil: photoUrl,
         }),
       });
@@ -173,6 +165,7 @@ function SignupForm() {
           id="signEmail"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
         />
       </div>
 
@@ -183,6 +176,7 @@ function SignupForm() {
           id="signUsername"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          placeholder="Username"
         />
       </div>
 
@@ -193,6 +187,7 @@ function SignupForm() {
           id="signFirstName"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
+          placeholder="First Name"
         />
       </div>
 
@@ -203,26 +198,12 @@ function SignupForm() {
           id="signLastName"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
+          placeholder="Last Name"
         />
       </div>
 
       <div>
         <label>Date of Birth: </label>
-        <select value={birthMonth} onChange={e => { setBirthMonth(e.target.value)}}>
-          <option value="">Month</option>
-          {["January","February","March","April","May","June",
-                "July","August","September","October","November","December"]
-              .map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
-        </select>
-
-        <select value={birthDay} onChange={e => setBirthDay(e.target.value)}>
-          <option value="">Day</option>
-          {Array.from(
-              { length: new Date(birthYear || 2000, birthMonth, 0).getDate() },
-              (_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>
-          )}
-        </select>
-
         <select value={birthYear} onChange={e => { setBirthYear(e.target.value);}}>
           <option value="">Year</option>
           {Array.from({ length: 100 }, (_, i) => {
@@ -239,6 +220,7 @@ function SignupForm() {
           id="signPassword"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
         />
       </div>
 
@@ -249,6 +231,7 @@ function SignupForm() {
           id="confirmPassword"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
+          placeholder="Confirm Password"
         />
       </div>
 

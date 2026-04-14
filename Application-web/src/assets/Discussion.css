@@ -4,7 +4,7 @@
     flex-direction: column;
     width: 82%;
     height: calc(100vh - 50px); /*this calc thing keeps the write input visible */
-    border: 2px black solid;
+    border-left: #cccccc solid 2px;
     position: relative;
 }
 

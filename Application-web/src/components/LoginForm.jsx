@@ -69,6 +69,7 @@ function LoginForm() {
           id="loginEmail"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
         />
       </div>
 
@@ -79,6 +80,7 @@ function LoginForm() {
           id="loginPassword"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
         />
       </div>
 

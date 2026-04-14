@@ -1,5 +1,4 @@
 /** Head container layout */
-/** Head container layout */
 .head-container {
     width: 100%;
     height: 60px; /* Match the header height in your main layout */
@@ -71,7 +70,6 @@
     padding: 0 14px;
     cursor: pointer;
 }
-
 
 #profile-button-pic{
     width: 32px;
