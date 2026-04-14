@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Response;
+
 public class PostDao {
     public static List<Post> getAllPosts() throws IOException, JSONException {
         try {
@@ -22,5 +24,14 @@ public class PostDao {
         }
         
         return new ArrayList<>();
+    }
+
+    public static Post createPost(Post post) throws IOException {
+        PostApi postApi = RetrofitClient.getInstance().create(PostApi.class);
+        Response<Post> response = postApi.createPost(post).execute();
+        if (response.isSuccessful()) {
+            return response.body();
+        }
+        return null;
     }
 }

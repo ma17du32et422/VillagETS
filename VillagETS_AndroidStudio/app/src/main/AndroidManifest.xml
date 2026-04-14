@@ -35,6 +35,9 @@
         <activity
             android:name=".View.MessageActivity"
             android:exported="false" />
+        <activity
+            android:name=".View.CreatePostActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

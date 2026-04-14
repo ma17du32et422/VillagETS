@@ -16,7 +16,7 @@
         app:layout_constraintBottom_toBottomOf="@id/toolbarContainer"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Toolbar Container -->
+    <!-- Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbarContainer"
         android:layout_width="match_parent"

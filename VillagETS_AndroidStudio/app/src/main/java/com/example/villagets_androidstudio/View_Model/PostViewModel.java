@@ -42,4 +42,21 @@ public class PostViewModel extends ViewModel {
             }
         });
     }
+
+    public void creerPost(Post post) {
+        executorService.execute(() -> {
+            try {
+                Post createdPost = PostDao.createPost(post);
+                if (createdPost != null) {
+                    saveSuccess.postValue(true);
+                } else {
+                    message.postValue("Erreur lors de la création du post");
+                    saveSuccess.postValue(false);
+                }
+            } catch (IOException e) {
+                message.postValue("Erreur réseau : " + e.getMessage());
+                saveSuccess.postValue(false);
+            }
+        });
+    }
 }
