@@ -124,6 +124,7 @@
             android:id="@+id/signUpButton"
             android:layout_width="match_parent"
             android:layout_height="56dp"
+            android:fontFamily="@font/delta_light"
             android:backgroundTint="@color/red_primary"
             android:text="@string/signup_button"
             android:textSize="18sp" />
@@ -132,6 +133,7 @@
             android:id="@+id/LoginLink"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/delta_light"
             android:layout_marginTop="16dp"
             android:text="@string/signup_already_registered" />
 
