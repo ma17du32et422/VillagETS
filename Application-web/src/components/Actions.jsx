@@ -18,9 +18,6 @@ export default function Actions({ onPostCreated, user }){
         <button id="create-post" type="button" onClick={() => navigate('/create')} disabled={!user}>
           <p id="create-post-text">+ New post +</p>
         </button>
-        <button id="menu" type="button">
-          <p id="menu-text">Menu (TO CHANGE LATER)</p>
-        </button>
       </div>}
     </div>
   );

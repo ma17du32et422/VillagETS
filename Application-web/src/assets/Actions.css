@@ -10,7 +10,7 @@
 }
 
 /** Button text styling*/
-#create-post-text, #menu-text{
+#create-post-text{
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 16px;
     margin: auto;
