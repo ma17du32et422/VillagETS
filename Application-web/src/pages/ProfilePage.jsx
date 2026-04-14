@@ -80,19 +80,33 @@ function ProfilePage() {
             formData.append('file', file);
             formData.append('nom', file.name);
             formData.append('type', 'pfp');
-
+ 
             const response = await fetch(`${getBaseUrl()}/upload`, {
                 method: 'POST',
                 body: formData,
             });
-
+ 
             if (!response.ok) {
                 const text = await response.text();
                 throw new Error(text || 'Upload failed');
             }
-
+ 
             const data = await response.json();
-            setProfilePicUrl(data.url || '');
+            const uploadedUrl = data.url || '';
+ 
+            const patchResponse = await fetch(`${getBaseUrl()}/user/photo`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ photoUrl: uploadedUrl }),
+            });
+ 
+            if (!patchResponse.ok) {
+                const text = await patchResponse.text();
+                throw new Error(text || 'Failed to update profile picture');
+            }
+ 
+            setProfilePicUrl(uploadedUrl);
             setUploadMessage('Profile picture uploaded successfully.');
         } catch (err) {
             console.error('Upload failed:', err);
