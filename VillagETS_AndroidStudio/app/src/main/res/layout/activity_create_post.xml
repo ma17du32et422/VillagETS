@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
+        android:layout_marginTop="32dp"
         app:layout_constraintBottom_toTopOf="@id/bottomBlackLine"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -44,7 +45,7 @@
                         android:id="@+id/userName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Charles"
+                        android:text="@string/username"
                         android:textColor="@color/white"
                         android:textSize="18sp"
                         android:textStyle="bold" />

@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         // 1. Initialisation des vues
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         ImageButton menuBtn = findViewById(R.id.menuBtn);
+        ImageButton addPostBtn = findViewById(R.id.addPostBtn);
         ShapeableImageView profileBtn = findViewById(R.id.profileBtn);
         View toolbar = findViewById(R.id.toolbar);
         
@@ -72,6 +73,11 @@ public class MainActivity extends AppCompatActivity {
             final int index = i;
             navButtons.get(i).setOnClickListener(v -> viewPager.setCurrentItem(index));
         }
+
+        addPostBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, CreatePostActivity.class);
+            startActivity(intent);
+        });
 
         profileBtn.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
