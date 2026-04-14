@@ -15,4 +15,5 @@
     <string name="signup_already_registered">Déjà inscrit? Connexion</string>
     <string name="recherche">Recherche</string>
     <string name="villagets">VillagETS</string>
+    <string name="username">Username</string>
 </resources>
