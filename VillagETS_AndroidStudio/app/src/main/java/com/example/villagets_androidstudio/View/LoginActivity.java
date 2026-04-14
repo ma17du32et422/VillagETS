@@ -39,13 +39,9 @@ public class LoginActivity extends AppCompatActivity {
                 // Fermer l'activité de login pour revenir au MainActivity
                 finish();
             }
-        });
-
-        // Observer les erreurs
+        });        // Observer les erreurs
         viewModel.getErrorMessage().observe(this, error -> {
-            if (error != null) {
-                Toast.makeText(this, error, Toast.LENGTH_LONG).show();
-            }
+
         });
 
         loginButton.setOnClickListener(v -> {

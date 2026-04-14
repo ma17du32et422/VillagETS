@@ -14,7 +14,7 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface PostApi {
-    // Tentative en POST sur la racine /feed selon vos specs
+    // Tentative en POST sur la racine
     @POST("/feed")
     Call<List<Post>> getFeed(@Body Map<String, Object> body);
 
