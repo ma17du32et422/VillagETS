@@ -148,7 +148,7 @@ namespace srv.Post
             return true;
         }
 
-        public async Task<(List<sql.Publication> posts, Dictionary<string, sql.Utilisateur> users, Dictionary<string, string?> reactions)> GetFeed(string userId, FeedQuery query)
+        public async Task<(List<sql.Publication> posts, Dictionary<string, sql.Utilisateur> users, Dictionary<string, string?> reactions)> GetFeed(string? userId, FeedQuery query)
         {
             List<string>? taggedPublicationIds = null;
             if (query.Tags is { Length: > 0 })
@@ -203,6 +203,10 @@ namespace srv.Post
 
             var postIds = posts.Select(p => p.Id).Where(id => id != null).ToList();
 
+            if (userId == null)
+            {
+                return (posts, userMap, new Dictionary<string, string?>());
+            }
             var reactions = await _supabase
                 .From<sql.ReactionPublication>()
                 .Filter("id_utilisateur", Operator.Equals, userId)

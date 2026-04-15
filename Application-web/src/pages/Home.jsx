@@ -17,12 +17,12 @@ function App(){
   useEffect(() => {
     if (authLoading) return;
 
-    if (!user) {
-      setPosts([]);
-      setError('You must be logged in to view posts.');
-      setLoading(false);
-      return;
-    }
+    //if (!user) {
+    //  setPosts([]);
+    //  setError('You must be logged in to view posts.');
+    //  setLoading(false);
+    //  return;
+    //}
 
     const fetchPosts = async () => {
       try {

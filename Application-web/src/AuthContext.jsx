@@ -38,15 +38,15 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      await fetch(`${getBaseUrl()}/logout`, {
+      await fetch(`${getBaseUrl()}/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       })
     } catch (err) {
       console.error('Logout failed:', err)
+    } finally {
+      setUser(null);
     }
-
-    setUser(null);
   }
 
   return (

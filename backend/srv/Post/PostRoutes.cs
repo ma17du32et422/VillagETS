@@ -62,9 +62,9 @@ namespace srv.Post
             app.MapPost("/feed", async ([FromBody] FeedQuery query, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetPrincipalFromContext(ctx);
-                if (principal == null) return Results.Unauthorized();
-
-                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+                string? userId = null;
+                if (principal != null) userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!
+;
 
                 var feed = await postService.GetFeed(userId, query);
 
