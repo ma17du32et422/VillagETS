@@ -2,7 +2,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, width 0.3s ease, height 0.3s ease;
 }
 
 html, body, #root {
@@ -14,7 +14,7 @@ html, body, #root {
 header {
     display: flex;
     justify-content: center;
-    height: 60px;
+    height: 56px;
     width: 100%;
 }
 

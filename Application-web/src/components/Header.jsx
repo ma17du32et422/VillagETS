@@ -22,14 +22,18 @@ export default function Header(){
       <h2 id="app-name" onClick={redirectHome}>VILLAGETS</h2>
       <input id="search" type="text" placeholder="Search"></input>
       <div id="profile-button-wrapper">
-        <img
-          id="profile-button-pic"
+        { user ? (<img
+          id="profile-button"
           src={user?.photoProfil || 'https://via.placeholder.com/34/ffffff/000000?text=U'}
           alt="Profile"
-        />
+          onClick={redirectProfilePage}
+          
+        />):(
         <button id="profile" type='button' onClick={redirectProfilePage}>
-          <p id="profile-text">{user ? 'My Profile' : 'Login'}</p>
+          <p id="profile-text">Login</p>
         </button>
+        )
+      }
       </div>
     </div>
   );
