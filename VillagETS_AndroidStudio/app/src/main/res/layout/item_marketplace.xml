@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="12dp"
+        android:background="@color/red_primary">
 
         <!-- Image -->
         <ImageButton
@@ -30,7 +31,7 @@
             android:textStyle="bold"
             android:maxLines="1"
             android:ellipsize="end"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:fontFamily="@font/delta_medium"/>
 
         <TextView
@@ -38,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="@color/white"
             android:fontFamily="@font/delta_light"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
