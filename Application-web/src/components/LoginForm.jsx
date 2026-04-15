@@ -50,6 +50,7 @@ function LoginForm() {
 
       const userData = await meRes.json();
       login(userData);
+      navigate('/');
     } catch (err) {
       console.error('Login failed:', err);
       setError(err.message ?? 'Login failed.');

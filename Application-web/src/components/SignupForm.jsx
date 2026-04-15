@@ -17,7 +17,7 @@ function SignupForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-
+  const navigate = useNavigate();
   // Handle image preview
   useEffect(() => {
     if (!profilePic) {
@@ -124,6 +124,7 @@ function SignupForm() {
 
       const userData = await meRes.json();
       login(userData);
+      navigate('/');
     } catch (err) {
       console.error('Signup failed:', err);
       setError(err.message ?? 'Signup failed.');

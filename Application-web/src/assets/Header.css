@@ -1,23 +1,25 @@
 /** Head container layout */
 .head-container {
+    position: relative;
     width: 100%;
-    height: 60px; /* Match the header height in your main layout */
+    height: 60px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 0 24px;
     background-color: var(--accent);
-    gap: 16px;
-    box-shadow: none; /* Ensure no shadow is creating a line effect */
     border-bottom: 2px solid var(--border);
 }
 
+
+
 /** Components layout */
 #search {
-    flex: 1;
-    max-width: 700px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 50rem;
     height: 36px;
-    margin: 0 auto;
     border: none;
     border-radius: 20px;
     padding: 0 16px;
@@ -26,10 +28,8 @@
     background-color: rgba(77, 77, 77, 0.4);
     color: var(--text-contrast);
     outline: none;
-    transition: background-color 0.2s;
     text-align: center;
 }
-
 #search::placeholder {
     color: rgba(255, 255, 255, 0.7);
 }
@@ -39,21 +39,18 @@
 }
 
 #app-name {
-    width: auto;
+    flex-shrink: 0;
     color: var(--text-contrast);
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 32px;
     cursor: pointer;
-    flex-shrink: 0;
-    flex: 1;
 }
 
 #profile-button-wrapper {
+    margin-left: auto;
     display: flex;
     align-items: center;
     gap: 10px;
-    flex: 1;
-    justify-content: flex-end;
 }
 
 #profile{
