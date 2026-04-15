@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Message from './subcomponents/Message';
-
+import '../assets/Messages.css'
 export default function Messages({ onSelectUser }) {
   const [users, setUsers] = useState([]);
 
@@ -47,28 +47,14 @@ export default function Messages({ onSelectUser }) {
   };
 
   return (
-    <div id="messages-sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div id="messages-sidebar">
 
       {/* Sidebar Header */}
-      <div style={{
-        padding: '15px',
-        borderBottom: '2px solid #eee',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: '#fff'
-      }}>
-        <b style={{ fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase' }}>Discussions</b>
+      <div className="sidebar-header">
+        <b className="sidebar-title">Discussions</b>
         <button
           onClick={() => setIsAdding(!isAdding)}
-          style={{
-            border: '1px solid #000',
-            background: isAdding ? '#000' : 'none',
-            color: isAdding ? '#fff' : '#000',
-            cursor: 'pointer',
-            padding: '0px 8px',
-            fontSize: '18px'
-          }}
+          className={`add-toggle-btn ${isAdding ? 'active' : ''}`}
         >
           {isAdding ? '×' : '+'}
         </button>
@@ -76,34 +62,18 @@ export default function Messages({ onSelectUser }) {
 
       {/* Manual ID Input */}
       {isAdding && (
-        <div style={{ padding: '10px', borderBottom: '1px solid #eee', backgroundColor: '#fafafa' }}>
+        <div className="add-user-section">
           <input
             autoFocus
             placeholder="Paste UserID..."
-            style={{
-              width: '100%',
-              padding: '8px',
-              border: '1px solid #ddd',
-              fontSize: '12px',
-              marginBottom: '5px',
-              outline: 'none'
-            }}
+            className="user-id-input"
             value={newUserId}
             onChange={(e) => setNewUserId(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAddUser()}
           />
           <button
             onClick={handleAddUser}
-            style={{
-              width: '100%',
-              padding: '6px',
-              backgroundColor: '#000',
-              color: '#fff',
-              fontSize: '10px',
-              fontWeight: 'bold',
-              border: 'none',
-              cursor: 'pointer'
-            }}
+            className="start-chat-btn"
           >
             START CHAT
           </button>
@@ -111,7 +81,7 @@ export default function Messages({ onSelectUser }) {
       )}
 
       {/* Dynamic List */}
-      <div style={{ flex: 1, overflowY: 'auto' }}>
+      <div className="users-list">
         {users.length > 0 ? (
           users.map((user) => (
             <Message
@@ -121,7 +91,7 @@ export default function Messages({ onSelectUser }) {
             />
           ))
         ) : (
-          <div style={{ padding: '20px', textAlign: 'center', color: '#ccc', fontSize: '12px' }}>
+          <div className="empty-list-msg">
             No conversations yet.
           </div>
         )}

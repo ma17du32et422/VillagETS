@@ -1,0 +1,74 @@
+#messages-sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.sidebar-header {
+    padding: 15px;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-secondary);
+}
+
+.sidebar-title {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.add-toggle-btn {
+    border: 1px solid var(--border-contrast);
+    background: none;
+    color: var(--text);
+    cursor: pointer;
+    padding: 0px 8px;
+    font-size: 18px;
+    transition: all 0.2s ease;
+}
+
+/* State when adding a user */
+.add-toggle-btn.active {
+    background: var(--bg-button);
+    color: var(--text-contrast);
+}
+
+.add-user-section {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    background-color: var(--bg-secondary);
+}
+
+.user-id-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    margin-bottom: 5px;
+    outline: none;
+}
+
+.start-chat-btn {
+    width: 100%;
+    padding: 6px;
+    background-color: var(--bg-dark);
+    color: var(--text-contrast);
+    font-size: 10px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+}
+
+.users-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.empty-list-msg {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-contrast);
+    font-size: 12px;
+}

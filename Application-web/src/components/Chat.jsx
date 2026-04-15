@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useChat } from '../ChatProvider';
+import '../assets/Chat.css';
 
 const Chat = ({ targetUserId }) => {
     const { lastMessage, sendMessage } = useChat();
@@ -53,19 +54,13 @@ const Chat = ({ targetUserId }) => {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div className="chat-container">
             {/* Message List */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '20px', backgroundColor: '#f9f9f9' }}>
+            <div className="message-list">
                 {messages.map((m, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px' }}>
-                        <div style={{ 
-                            padding: '8px 12px', 
-                            border: '1px solid #ddd', 
-                            backgroundColor: '#fff', 
-                            fontSize: '14px',
-                            maxWidth: '70%'
-                        }}>
-                            <small style={{ color: '#888', display: 'block' }}>
+                    <div key={i} className="message-wrapper">
+                        <div className="message-bubble">
+                            <small className="message-sender">
                                 {m.envoyeurId === targetUserId ? "Them" : "Me"}
                             </small>
                             {m.contenu}
@@ -76,17 +71,17 @@ const Chat = ({ targetUserId }) => {
             </div>
 
             {/* Entry Box */}
-            <div style={{ padding: '15px', borderTop: '1px solid #ccc', display: 'flex', gap: '10px' }}>
+            <div className="entry-box">
                 <input 
-                    style={{ flex: 1, padding: '10px', border: '1px solid #ccc' }}
+                    className="message-input"
                     value={text} 
                     onChange={(e) => setText(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                     placeholder="Type a message..."
                 />
                 <button 
+                    className="send-button"
                     onClick={handleSend}
-                    style={{ padding: '10px 20px', backgroundColor: '#000', color: '#fff', border: 'none', cursor: 'pointer' }}
                 >
                     SEND
                 </button>
