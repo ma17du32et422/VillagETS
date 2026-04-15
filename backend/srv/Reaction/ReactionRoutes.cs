@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using villagets.Auth;
 
-namespace srv
+namespace srv.Reaction
 {
     public static class ReactionRoutes
     {

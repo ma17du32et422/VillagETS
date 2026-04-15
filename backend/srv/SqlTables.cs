@@ -35,6 +35,16 @@ namespace sql
 
         [Column("photo_profil")]
         public string? PhotoProfil { get; set; }
+
+        public object ToJson() => new
+        {
+            id = Id,
+            pseudo = Pseudo,
+            nom = Nom,
+            prenom = Prenom,
+            photoProfil = PhotoProfil,
+            dateCreation = DateCreation
+        };
     }
 
     [Supabase.Postgrest.Attributes.Table("publication")]
@@ -228,5 +238,34 @@ namespace sql
 
         [Column("type")]
         public string? Type { get; set; }
+    }
+
+    [Table("conversation")]
+    public class Conversation : BaseModel
+    {
+        [PrimaryKey("id_conversation")]
+        public string? Id { get; set; }
+        [Column("user1_id")]
+        public string? User1Id { get; set; }
+        [Column("user2_id")]
+        public string? User2Id { get; set; }
+    }
+
+    [Table("message")]
+    public class ConversationMessage : BaseModel
+    {
+        [PrimaryKey("id_message")]
+        public string? Id { get; set; }
+        [Column("id_conversation")]
+        public string? ConversationId { get; set; }
+        [Column("envoyeur_id")]
+        public string? EnvoyeurId { get; set; }
+        [Column("receveur_id")]
+        public string? ReceveurId { get; set; }
+        [Column("date_msg")]
+        public DateTime? DateMsg { get; set; }
+
+        [Column("contenu")]
+        public string? Contenu { get; set; }
     }
 }

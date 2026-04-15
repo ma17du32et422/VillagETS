@@ -5,7 +5,7 @@ using Supabase.Postgrest;
 using System.Security.Claims;
 using villagets.Auth;
 using static Supabase.Postgrest.Constants;
-namespace srv
+namespace srv.Post
 {
     public class PostService
     {

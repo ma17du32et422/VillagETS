@@ -86,10 +86,6 @@ function App(){
           <div id="flux"><Flux posts={posts} loading={loading} error={error} /></div>
         </section>
 
-        <section id="messages-container">
-          <div id="messages"><Messages /></div>
-        </section>
-
       </main>
     </>
   );

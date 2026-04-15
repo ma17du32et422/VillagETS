@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using sql;
 using srv;
+using srv.Messaging;
+using srv.Post;
+using srv.Reaction;
 using Supabase;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
@@ -43,10 +46,12 @@ var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? throw new Ex
 
 villagets.Auth.AuthHelper.Initialize(jwtSecret);
 
+builder.Services.AddSingleton<MessagingService>();
 
 var app = builder.Build();
 
 app.UseCors("AllowFrontend");
+app.UseWebSockets();
 
 var url = Environment.GetEnvironmentVariable("SUPABASE_URL");
 var key = Environment.GetEnvironmentVariable("SUPABASE_KEY");
@@ -64,10 +69,12 @@ PostService postService = new PostService();
 PostRoutes.Map(app, postService);
 
 UserService userService = new UserService();
-UserRoutes.MapUserRoutes(app, userService, isDevelopment);
+srv.User.UserRoutes.MapUserRoutes(app, userService, isDevelopment);
 
 ReactionService reactionService = new ReactionService();
 ReactionRoutes.MapReactionRoutes(app, reactionService);
+
+MessagingRoutes.Map(app, app.Services.GetRequiredService<MessagingService>());
 //ROUTES
 app.MapGet("/", async () =>
 {

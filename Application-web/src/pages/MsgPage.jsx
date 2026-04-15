@@ -1,47 +1,31 @@
 import { useState } from "react";
-
-/** Component imports */
 import Header from "../components/Header";
 import Messages from "../components/Messages";
-import Discussions from "../components/Discussions";
+import Chat from "../components/Chat";
 
-/** Styling */
-import '../assets/Discussion.css'
-import '../assets/Message.css'
+function MsgPage() {
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
-
-function MsgPage(){
-
-  const [message, setMessage] = useState("");
-  const handleSend = () => {
-    if (!message.trim()) return;
-    // do something with message here
-    console.log(message);
-    setMessage("");
-  };
-
-  return(
-    <>
-      <header id="header"><Header /></header>
-
-      <main id="main">
-
-        <section id="messages-container">
-          <div id="messages"><Messages /></div>
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <Header />
+      
+      <main style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        {/* Sidebar - Left side */}
+        <section style={{ width: '300px', borderRight: '1px solid #ccc', overflowY: 'auto' }}>
+          <Messages onSelectUser={(id) => setSelectedUserId(id)} />
         </section>
 
-        <section id="discussion-container">
-          <div id="discussion"><Discussions /></div>
-          <div id="message-input-container">
-            <input id="write" type="text" placeholder="Write something"
-              value={message} 
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            />
-          </div>
+        {/* Chat Area - Right side */}
+        <section style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {selectedUserId ? (
+            <Chat targetUserId={selectedUserId} />
+          ) : (
+            <div style={{ margin: 'auto', color: '#888' }}>Select a user to start chatting</div>
+          )}
         </section>
       </main>
-    </>
+    </div>
   );
 }
 

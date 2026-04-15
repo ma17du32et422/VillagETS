@@ -1,0 +1,62 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using villagets.Auth;
+
+namespace srv.Messaging
+{
+    public static class MessagingRoutes
+    {
+        public static void Map(WebApplication app, MessagingService messagingService)
+        {
+            // 1. WebSocket Endpoint for Real-time Chat
+            app.Map("/ws/chat", async (HttpContext ctx) =>
+            {
+                if (!ctx.WebSockets.IsWebSocketRequest)
+                {
+                    ctx.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    return;
+                }
+
+                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                if (principal == null)
+                {
+                    ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    return;
+                }
+                
+
+                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+
+                using var webSocket = await ctx.WebSockets.AcceptWebSocketAsync();
+
+                // Keep the connection alive and handle incoming/outgoing messages
+                await messagingService.HandleConnectionAsync(userId, webSocket);
+            });
+
+            // 2. Get Chat History Endpoint
+            app.MapGet("/chat/history/{targetUserId}", async (string targetUserId, HttpContext ctx) =>
+            {
+                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                if (principal == null) return Results.Unauthorized();
+
+                var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+
+                var history = await messagingService.GetHistoryAsync(currentUserId, targetUserId);
+                return Results.Ok(history);
+
+            });
+
+            app.MapGet("/chat/conversations", async (HttpContext ctx) =>
+            {
+                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                if (principal == null) return Results.Unauthorized();
+
+                var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+
+
+                var conversations = await messagingService.GetAllConversationsAsync(currentUserId);
+                return Results.Ok(conversations);
+            });
+        }
+    }
+}

@@ -6,3 +6,10 @@ export const getBaseUrl = () => {
   }
   return 'https://apivillagets.lesageserveur.com';
 };
+
+export const getBaseUrlWebsocket = () => {
+    if (window.location.hostname === 'localhost') {
+    return 'ws://localhost:5000';
+  }
+  return 'ws://apivillagets.lesageserveur.com';
+};

@@ -1,6 +1,6 @@
 ﻿using static Supabase.Postgrest.Constants;
 
-namespace srv
+namespace srv.Reaction
 {
     public class ReactionService
     {

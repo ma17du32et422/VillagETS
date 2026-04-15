@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using villagets.Auth;
 
-namespace srv
+namespace srv.User
 {
     public static class UserRoutes
     {
