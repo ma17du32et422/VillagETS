@@ -1,19 +1,19 @@
 <resources>
     <string name="app_name">VillagETS_AndroidStudio</string>
-    <string name="login_title">Connexion</string>
-    <string name="login_identifier_hint">Email ou Nom d\'utilisateur</string>
-    <string name="login_password_hint">Mot de passe</string>
-    <string name="login_button">Se connecter</string>
-    <string name="login_no_account">Pas de compte? Inscription</string>
-    <string name="signup_title">S\'inscrire</string>
-    <string name="signup_email_hint">Addresse e-mail</string>
-    <string name="signup_username_hint">Nom d\'utilisateur</string>
-    <string name="signup_firstname_hint">Prénom</string>
-    <string name="signup_lastname_hint">Nom</string>
-    <string name="signup_confirm_password_hint">Confirme mot de passe</string>
-    <string name="signup_button">Créer mon compte</string>
-    <string name="signup_already_registered">Déjà inscrit? Connexion</string>
-    <string name="recherche">Recherche</string>
+    <string name="login_title">Sign in</string>
+    <string name="login_identifier_hint">Email or Username</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_button">Sign in</string>
+    <string name="login_no_account">Don\'t have an account? Sign up</string>
+    <string name="signup_title">Sign up</string>
+    <string name="signup_email_hint">Email</string>
+    <string name="signup_username_hint">Username</string>
+    <string name="signup_firstname_hint">Name</string>
+    <string name="signup_lastname_hint">Last name</string>
+    <string name="signup_confirm_password_hint">Confirm password</string>
+    <string name="signup_button">Create account</string>
+    <string name="signup_already_registered">Have an account? Sign in</string>
+    <string name="recherche">Search</string>
     <string name="villagets">VillagETS</string>
     <string name="username">Username</string>
 </resources>
