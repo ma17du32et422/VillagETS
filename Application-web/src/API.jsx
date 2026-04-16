@@ -11,5 +11,5 @@ export const getBaseUrlWebsocket = () => {
     if (window.location.hostname === 'localhost') {
     return 'ws://localhost:5000';
   }
-  return 'ws://apivillagets.lesageserveur.com';
+  return 'wss://apivillagets.lesageserveur.com';
 };
