@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getBaseUrl } from '../API';
 import Message from './subcomponents/Message';
 import '../assets/Messages.css'
 export default function Messages({ onSelectUser }) {
@@ -9,11 +10,10 @@ export default function Messages({ onSelectUser }) {
 
   useEffect(() => {
     const fetchMyConvos = async () => {
-      const res = await fetch('http://localhost:5000/chat/conversations', {
+      const res = await fetch(`${getBaseUrl()}/chat/conversations`, {
         credentials: 'include'
       });
       const data = await res.json();
-      // 'data' is now an array of { conversationId, otherUser: { pseudo, photoProfil, etc } }
       setUsers(data.map(item => ({
         id: item.otherUser.id,
         name: item.otherUser.pseudo,
@@ -26,13 +26,12 @@ export default function Messages({ onSelectUser }) {
   const handleAddUser = () => {
     if (!newUserId.trim()) return;
 
-    // Check if user already exists in our sidebar list
     const exists = users.find(u => u.id === newUserId.trim());
 
     if (!exists) {
       const newUser = {
         id: newUserId.trim(),
-        name: `User ${newUserId.substring(0, 4)}...` // Short label for the ID
+        name: `User ${newUserId.substring(0, 4)}...` 
       };
       setUsers([newUser, ...users]);
     }

@@ -34,22 +34,22 @@ namespace srv.Messaging
                     var incomingMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
                     var payload = JsonSerializer.Deserialize<WsMessagePayload>(incomingMessage);
 
-                    if (payload != null && !string.IsNullOrEmpty(payload.ReceiverId))
+                    if (payload != null && !string.IsNullOrEmpty(payload.receiverId))
                     {
-                        var savedMsg = await SaveMessageAsync(userId, payload.ReceiverId, payload.Content);
+                        var savedMsg = await SaveMessageAsync(userId, payload.receiverId, payload.contenu);
 
-                        if (savedMsg != null && _activeConnections.TryGetValue(payload.ReceiverId, out var receiverSocket))
+                        if (savedMsg != null && _activeConnections.TryGetValue(payload.receiverId, out var receiverSocket))
                         {
                             if (receiverSocket.State == WebSocketState.Open)
                             {
                                 var output = new MessageDTO
                                 {
-                                    Id = savedMsg.Id,
-                                    ConversationId = savedMsg.ConversationId,
-                                    EnvoyeurId = savedMsg.EnvoyeurId,
-                                    ReceveurId = savedMsg.ReceveurId,
-                                    Contenu = savedMsg.Contenu,
-                                    DateMsg = savedMsg.DateMsg
+                                    id = savedMsg.Id,
+                                    conversationId = savedMsg.ConversationId,
+                                    envoyeurId = savedMsg.EnvoyeurId,
+                                    receveurId = savedMsg.ReceveurId,
+                                    contenu = savedMsg.Contenu,
+                                    dateMsg = savedMsg.DateMsg
                                 };
 
                                 var outMsg = JsonSerializer.Serialize(output);
@@ -131,12 +131,12 @@ namespace srv.Messaging
 
             return result.Models.Select(m => new MessageDTO
             {
-                Id = m.Id,
-                ConversationId = m.ConversationId,
-                EnvoyeurId = m.EnvoyeurId,
-                ReceveurId = m.ReceveurId,
-                Contenu = m.Contenu,
-                DateMsg = m.DateMsg
+                id = m.Id,
+                conversationId = m.ConversationId,
+                envoyeurId = m.EnvoyeurId,
+                receveurId = m.ReceveurId,
+                contenu = m.Contenu,
+                dateMsg = m.DateMsg
             }).ToList();
         }
 
@@ -186,18 +186,18 @@ namespace srv.Messaging
     // DTOSSSSSSS FOR UHHH SENDING JSON SHOULD PROB BE IN .TOJSON() BUT WHATEVER
     public class WsMessagePayload
     {
-        public string? ReceiverId { get; set; }
-        public string? Content { get; set; }
+        public string? receiverId { get; set; }
+        public string? contenu { get; set; }
     }
 
     public class MessageDTO
     {
-        public string? Id { get; set; }
-        public string? ConversationId { get; set; }
-        public string? EnvoyeurId { get; set; }
-        public string? ReceveurId { get; set; }
-        public string? Contenu { get; set; }
-        public DateTime? DateMsg { get; set; }
+        public string? id { get; set; }
+        public string? conversationId { get; set; }
+        public string? envoyeurId { get; set; }
+        public string? receveurId { get; set; }
+        public string? contenu { get; set; }
+        public DateTime? dateMsg { get; set; }
     }
 
     public class ConversationDTO

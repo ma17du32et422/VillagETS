@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useChat } from '../ChatProvider';
+import { getBaseUrl } from '../API';
 import '../assets/Chat.css';
 
 const Chat = ({ targetUserId }) => {
@@ -12,7 +13,7 @@ const Chat = ({ targetUserId }) => {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const res = await fetch(`http://localhost:5000/chat/history/${targetUserId}`, {
+                const res = await fetch(`${getBaseUrl()}/chat/history/${targetUserId}`, {
                     method: 'GET',
                     credentials: 'include'
                 });
@@ -28,7 +29,7 @@ const Chat = ({ targetUserId }) => {
     // Listen for WebSocket updates
     useEffect(() => {
         if (lastMessage) {
-            if (lastMessage.EnvoyeurId === targetUserId || lastMessage.ReceveurId === targetUserId) {
+            if (lastMessage.envoyeurId === targetUserId || lastMessage.receveurId === targetUserId) {
                 setMessages((prev) => [...prev, lastMessage]);
             }
         }
