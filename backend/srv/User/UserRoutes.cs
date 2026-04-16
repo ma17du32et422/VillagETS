@@ -132,6 +132,19 @@ namespace srv.User
                 await userService.UpdateProfilePicture(userId, req.PhotoUrl);
                 return Results.Ok();
             });
+
+            app.MapGet("/user/search", async (string query) =>
+            {
+                if (string.IsNullOrWhiteSpace(query))
+                {
+                    return Results.BadRequest("Search query cannot be empty.");
+                }
+
+                var result = await userService.GetUserListFromPseudo(query);
+                var users = result.Select(u => u.ToJson()).ToList();
+
+                return Results.Ok(users);
+            });
         }
     }
 

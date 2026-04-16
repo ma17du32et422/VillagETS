@@ -98,5 +98,11 @@ namespace srv
             await _supabase.From<Utilisateur>().Where(u => u.Id == userId).Set(u => u.PhotoProfil!, photoUrl).Update();
             return true;
         }
+
+        public async Task<List<Utilisateur>> GetUserListFromPseudo(string query)
+        {
+            var result = await _supabase.From<Utilisateur>().Filter("pseudo", Operator.ILike, $"%{query}%").Get();
+            return result.Models.ToList();
+        }
     }
 }

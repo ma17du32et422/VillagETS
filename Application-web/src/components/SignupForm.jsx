@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getBaseUrl } from '../API';
 import { useAuth } from '../AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 /** SignupForm */
 function SignupForm() {

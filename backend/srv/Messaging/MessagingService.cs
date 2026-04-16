@@ -71,7 +71,7 @@ namespace srv.Messaging
         }
 
 
-        private async Task<ConversationMessage?> SaveMessageAsync(string senderId, string receiverId, string content)
+        private async Task<ConversationMessage?> SaveMessageAsync(string senderId, string receiverId, string? content = "")
         {
             var conversationId = await GetOrCreateConversationAsync(senderId, receiverId);
 

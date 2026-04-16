@@ -118,6 +118,9 @@ namespace sql
         [Column("parent_commentaire")]
         public string? ParentCommentaire { get; set; }
 
+        [Column("date_commentaire")]
+        public DateTime? DateCommentaire { get; set; }
+
         [Column("contenu")]
         public string? Contenu { get; set; }
 
