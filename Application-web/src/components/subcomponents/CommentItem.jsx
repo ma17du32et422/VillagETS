@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { getBaseUrl } from '../../API'
 import { useAuth } from '../../AuthContext'
-
+import '../../assets/CommentItem.css'
 export default function CommentItem({ comment, postId, onDeleted }) {
   const { user } = useAuth()
   const [repliesVisible, setRepliesVisible] = useState(false)

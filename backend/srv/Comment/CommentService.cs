@@ -50,7 +50,6 @@ namespace srv.Comment
 
             if (pubResult.Model is null) return (null, null);
 
-            // If it's a reply, ensure the parent exists and belongs to the same publication
             if (parentCommentId != null)
             {
                 var parentResult = await _supabase

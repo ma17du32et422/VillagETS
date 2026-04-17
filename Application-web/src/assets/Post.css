@@ -229,6 +229,11 @@
 .reaction-button.active {
     background-color: var(--bg-secondary);
     border-color: #7bc47f;
+    transform: scale(0.98);
+}
+
+.reaction-button:hover {
+  filter: brightness(0.9);
 }
 
 /** Comments */

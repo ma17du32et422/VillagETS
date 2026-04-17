@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { getBaseUrl } from '../../API'
 import { useAuth } from '../../AuthContext'
 import CommentItem from './CommentItem'
-
+import '../../assets/Comments.css'
 export default function Comments({ postId, initialCount }) {
   const { user } = useAuth()
   const [comments, setComments] = useState([])

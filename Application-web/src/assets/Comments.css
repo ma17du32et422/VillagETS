@@ -1,0 +1,60 @@
+/* Container Spacing */
+.comments-section {
+  max-width: 100%;
+  margin: 20px 0;
+  padding-top: 15px;
+  border-top: 1px solid var(--color-white);
+}
+
+/* Header Form Styling */
+.comment-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.comment-input-avatar img,
+.comment-input-avatar .comment-avatar-placeholder {
+  width: 40px; /* Slightly larger than reply avatars */
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Shared Input Style (reuse/override from previous) */
+.comment-input {
+  flex: 1;
+  background-color: var(--color-6);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 20px;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.comment-input:focus {
+  background-color: var(--color-5);
+  outline: none;
+  box-shadow: inset 0 0 0 1px #1877f2;
+}
+
+/* Loading & Empty States */
+.comments-loading,
+.comments-empty {
+  text-align: center;
+  color: var(--color-3);
+  font-size: 0.9rem;
+  padding: 20px 0;
+}
+
+/* List Container */
+.comments-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensuring top-level comments don't have a thread line connecting to nothing */
+.comments-list > .comment-item {
+  margin-bottom: 8px;
+}

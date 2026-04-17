@@ -1,0 +1,115 @@
+/* Container Layout */
+.comment-item {
+  display: flex;
+  gap: 12px;
+  margin-top: 1rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--color-6);
+}
+
+/* Avatar Styling */
+.comment-avatar img, 
+.comment-avatar-placeholder {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.comment-avatar-placeholder {
+  background: var(--color-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* The "Bubble" and Body */
+.comment-body {
+  flex: 1;
+}
+
+.comment-bubble {
+  background: #f0f2f5;
+  padding: 8px 12px;
+  border-radius: 18px;
+  display: inline-block; /* Makes bubble fit text width */
+  max-width: 100%;
+}
+
+.comment-pseudo {
+  display: block;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #1c1e21;
+  margin-bottom: 2px;
+}
+
+.comment-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #050505;
+}
+
+/* Actions Row */
+.comment-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+  margin-left: 8px;
+  font-size: 0.8rem;
+}
+
+.comment-date {
+  color: #65676b;
+}
+
+.comment-action-btn {
+  background: none;
+  border: none;
+  color: #65676b;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.comment-action-btn:hover {
+  text-decoration: underline;
+}
+
+.comment-action-btn.danger:hover {
+  color: #dc2626;
+}
+
+/* The Recursive Magic: Thread Lines */
+.replies-list {
+  margin-left: -2rem; /* Pulls back to align line under avatar */
+  padding-left: 2rem; 
+  border-left: 4px solid var(--color-1);
+  margin-top: 8px;
+}
+
+/* Reply Form Styling */
+.reply-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.comment-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #dddfe2;
+  border-radius: 20px;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.comment-input:focus {
+  border-color: #1877f2;
+}
