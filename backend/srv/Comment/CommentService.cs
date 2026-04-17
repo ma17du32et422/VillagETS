@@ -18,7 +18,8 @@ namespace srv.Comment
             Console.WriteLine($"Fetching top-level comments for publication {publicationId}");
             var result = await _supabase
                 .From<sql.Commentaire>()
-                .Where(c => c.PublicationId == publicationId && c.ParentCommentaire == null)
+                .Where(c => c.PublicationId == publicationId)
+                .Filter("parent_commentaire", Operator.Is, (string?)null)
                 .Order("date_commentaire", Ordering.Ascending)
                 .Get();
             Console.WriteLine($"Fetched {result.Models.Count} top-level comments for publication {publicationId}");
