@@ -1,6 +1,6 @@
 /** Post borders */
 .post {
-    border: 3px solid var(--accent);
+    border: 3px solid var(--color-1);
     margin-bottom: 25px;
     margin-left: 5%;
     margin-right: 5%;
@@ -9,7 +9,7 @@
 }
 
 #post-header {
-    background-color: var(--accent);
+    background-color: var(--color-1);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -20,12 +20,12 @@
 /** Post layouts */
 #title {
     margin: 16px 18px 10px;
-    color: var(--text)
+    color: var(--color-5)
 }
 
 #contents {
     margin: 0 18px 16px;
-    color: var(--text)
+    color: var(--color-5)
 }
 
 /** Op info */
@@ -49,7 +49,7 @@
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: var(--bg-dark);
+    background: var(--color-4);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -65,12 +65,12 @@
 #op-name {
     font-weight: 600;
     margin: 0;
-    color: var(--text-contrast)
+    color: var(--color-6)
 }
 
 #datetime {
     font-size: 12px;
-    color: var(--text-contrast);
+    color: var(--color-6);
     margin: 0;
 }
 
@@ -87,20 +87,20 @@
     font-size: 20px;
     cursor: pointer;
     padding: 0 6px;
-    color: var(--text-muted);
+    color: var(--color-4);
     line-height: 1;
 }
 
 #post-menu-btn:hover {
-    color: var(--text);
+    color: var(--color-5);
 }
 
 #post-menu-dropdown {
     position: absolute;
     top: 28px;
     right: 0;
-    background: var(--bg);
-    border: 1px var(--border);
+    background: var(--color-2);
+    border: 1px var(--color-4);
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     z-index: 10;
@@ -118,19 +118,19 @@
     cursor: pointer;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 14px;
-    color: var(--text-muted);
+    color: var(--color-4);
 }
 
 .post-menu-item:hover {
-    background: var(--bg-secondary);
+    background: var(--color-3);
 }
 
 .post-menu-item.danger {
-    color: var(--accent);
+    color: var(--color-1);
 }
 
 .post-menu-item.danger:hover {
-    background: var(--bg-secondary);
+    background: var(--color-3);
 }
 
 /** Image layouts */
@@ -154,7 +154,7 @@
     top: 50%;
     transform: translateY(-50%);
     background: rgba(0, 0, 0, 0.4);
-    color: var(--text-contrast);
+    color: var(--color-6);
     border: none;
     border-radius: 50%;
     width: 32px;
@@ -168,7 +168,7 @@
 }
 
 .media-arrow:hover {
-    background: var(--bg-button-hover);
+    background: var(--color-t-2);
 }
 
 .media-arrow-left  { left: 10px; }
@@ -187,11 +187,11 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--bg);
+    background: var(--color-2);
 }
 
 .media-dot.active {
-    background: var(--bg);
+    background: var(--color-2);
 }
 
 /** Tags */
@@ -203,8 +203,8 @@
 }
 
 .post-tag {
-    background-color: var(--bg-secondary);
-    color: var(--text);
+    background-color: var(--color-3);
+    color: var(--color-5);
     border-radius: 12px;
     padding: 4px 10px;
     font-size: 0.85rem;
@@ -218,8 +218,8 @@
 }
 
 .reaction-button {
-    background-color: var(--bg);
-    border: 1px solid var(--border);
+    background-color: var(--color-2);
+    border: 1px solid var(--color-4);
     border-radius: 8px;
     padding: 8px 12px;
     cursor: pointer;
@@ -227,7 +227,7 @@
 }
 
 .reaction-button.active {
-    background-color: var(--bg-secondary);
+    background-color: var(--color-3);
     border-color: #7bc47f;
     transform: scale(0.98);
 }
@@ -235,4 +235,5 @@
 .reaction-button:hover {
   filter: brightness(0.9);
 }
+
 

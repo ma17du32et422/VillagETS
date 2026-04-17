@@ -4,7 +4,7 @@
   gap: 12px;
   margin-top: 1rem;
   font-family: system-ui, -apple-system, sans-serif;
-  background-color: var(--color-white);
+  background-color: var(--color-2);
   border-radius: 10px;
   padding: 8px 10px;
   margin-left: 0;
@@ -103,4 +103,5 @@
   margin-top: 10px;
   align-items: center;
 }
+
 

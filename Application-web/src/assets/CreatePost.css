@@ -10,18 +10,18 @@
     margin-top: 8px;
     margin-bottom: 4px;
     padding: 6px 1%;
-    color: var(--text);
+    color: var(--color-5);
     box-sizing: border-box;
     transition: border-color 0.15s;
 }
 
 #form-title::placeholder {
-    color: var(--text-muted);
+    color: var(--color-4);
     font-weight: normal;
 }
 
 #form-title:focus {
-    border-bottom-color: var(--accent);
+    border-bottom-color: var(--color-1);
 }
 
 .post-tags-input-wrap {
@@ -31,7 +31,7 @@
 #form-tags {
     width: 100%;
     padding: 6px 10px;
-    border: 1px dashed var(--border);
+    border: 1px dashed var(--color-4);
     border-radius: 12px;
     font-size: 0.85rem;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -41,13 +41,13 @@
 }
 
 #form-tags::placeholder {
-    color: var(--text-muted);
+    color: var(--color-4);
 }
 
 #image-drop-zone {
     cursor: pointer;
     min-height: 120px;
-    border: 2px dashed var(--border);
+    border: 2px dashed var(--color-4);
     margin: 0 1% 10px;
     border-radius: 8px;
     overflow: hidden;
@@ -57,8 +57,8 @@
 }
 
 #image-drop-zone:hover {
-    border-color: var(--border-dark);
-    background: var(--bg-secondary);
+    border-color: var(--color-4);
+    background: var(--color-3);
 }
 
 #drop-placeholder {
@@ -88,41 +88,41 @@
 }
 
 #form-text::placeholder {
-    color: var(--text-muted);
+    color: var(--color-4);
 }
 
 #form-post {
-    background-color: var(--accent);
-    color: var(--text);
-    border-color: var(--accent);
+    background-color: var(--color-1);
+    color: var(--color-5);
+    border-color: var(--color-1);
     font-weight: bold;
 }
 
 #form-post:hover {
-    background-color: var(--accent);
+    background-color: var(--color-1);
 }
 
 #form-cancel:hover {
-    background-color: var(--bg-secondary);
+    background-color: var(--color-3);
 }
 
 #form-error {
-    color: var(--accent);
+    color: var(--color-1);
     font-size: 13px;
     padding: 0 1%;
     width: auto;
 }
 
 #create-post-page {
-    background-color: var(--bg);
+    background-color: var(--color-2);
     width: 100%;
     max-width: 100%;
     margin: 0;
 }
 
 #image-drop-zone.dragging {
-    border-color: var(--accent);
-    background: var(--bg-secondary);
+    border-color: var(--color-1);
+    background: var(--color-3);
 }
 
 #form-container {

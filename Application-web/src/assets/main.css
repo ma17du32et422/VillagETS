@@ -1,55 +1,23 @@
 /* LIGHT MODE COLORS */
 :root {
-    --bg: #ffffff;
-    --bg-secondary: #c9c9c9;
-    --bg-dark: #acacac;
-    --accent: hsla(349, 98%, 44%, 1);
-    --bg-button: hsla(349, 98%, 44%, 1);
-    --bg-button-2: #E40032
-    --bg-button-hover: rgba(37, 37, 37, 0.4);
-    --text: #111111;
-    --text-contrast: #eeeeee;
-    --text-muted: #666666;
-    --border: #cccccc;
-    --border-dark: #999;
-    --border-contrast: #333333;
-    --header-bg: lightgrey;
-
-    --color-1: hsla(349, 98%, 44%, 1);
-    --color-2: hsla(0, 0%, 20%, 1);
-    --color-3: hsla(0, 0%, 40%, 1);
-    --color-4: hsla(0, 0%, 83%, 1);
-    --color-5: hsla(0, 0%, 93%, 1);
-    --color-6: hsla(0, 0%, 96%, 1);
-    --color-black: hsla(0, 0%, 20%, 1);
-    --color-white: hsla(0, 0%, 100%, 1);
+    --color-1: #e40032;
+    --color-2: #ffffff;
+    --color-3: #f1f1f1;
+    --color-4: #8d8d8d;
+    --color-5: #111111;
+    --color-6: #f7f7f7;
     --color-t-1: rgba(0, 0, 0, 0.3);
     --color-t-2: rgba(0, 0, 0, 0.5);
 }
 
 /* DARK MODE COLORS */
 [data-theme="dark"] {
-    --bg: #282828;
-    --bg-secondary: #1e1e1e;
-    --accent: #E40032;
-    --bg-button: #666666;
-    --bg-button-hover: rgba(37, 37, 37, 0.4);
-    --text: #eeeeee;
-    --text-contrast: #eeeeee;
-    --text-muted: #aaaaaa;
-    --border: #333333;
-    --border-dark: #999;
-    --border-contrast: #cccccc;
-    --header-bg: #1e1e1e;
-
-
-
-    --color-1: hsla(349, 98%, 44%, 1);
-    --color-2: hsla(0, 0%, 20%, 1);
-    --color-3: hsla(0, 0%, 40%, 1);
-    --color-4: hsla(0, 0%, 83%, 1);
-    --color-5: hsla(0, 0%, 96%, 1);
-    --color-6: hsla(0, 0%, 93%, 1);
-    --color-black: hsla(0, 0%, 20%, 1);
-    --color-white: hsla(0, 0%, 100%, 1);
+    --color-1: #e40032;
+    --color-2: #1a1a1a;
+    --color-3: #242424;
+    --color-4: #8d8d8d;
+    --color-5: #eeeeee;
+    --color-6: #f7f7f7;
+    --color-t-1: rgba(0, 0, 0, 0.3);
+    --color-t-2: rgba(0, 0, 0, 0.5);
 }

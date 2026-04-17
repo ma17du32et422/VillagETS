@@ -14,7 +14,7 @@
 
 .sidebar-container {
     width: 300px;
-    border-right: 1px solid var(--border);
+    border-right: 1px solid var(--color-4);
     height: 100%;
     overflow-y: auto;
 }
@@ -30,5 +30,6 @@
 
 .placeholder-text {
     margin: auto;
-    color: var(--text-muted);
+    color: var(--color-4);
 }
+

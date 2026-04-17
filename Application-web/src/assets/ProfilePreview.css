@@ -13,7 +13,7 @@
 }
 
 .profile-avatar-trigger:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--color-1);
   outline-offset: 2px;
 }
 
@@ -23,10 +23,10 @@
   left: 0;
   width: 260px;
   padding: 14px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-4);
   border-radius: 12px;
-  background-color: var(--bg);
-  color: var(--text);
+  background-color: var(--color-2);
+  color: var(--color-5);
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.16);
   z-index: 40;
   box-sizing: border-box;
@@ -63,8 +63,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--bg-secondary);
-  color: var(--text);
+  background-color: var(--color-3);
+  color: var(--color-5);
   font-weight: 700;
   font-size: 20px;
 }
@@ -85,12 +85,12 @@
 .profile-preview-error {
   margin: 4px 0 0;
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--color-4);
   word-break: break-word;
 }
 
 .profile-preview-error {
-  color: var(--accent);
+  color: var(--color-1);
 }
 
 .profile-preview-details,
@@ -118,9 +118,9 @@
 }
 
 .profile-preview-button {
-  border: 1px solid var(--border);
-  background-color: var(--accent);
-  color: var(--text-contrast);
+  border: 1px solid var(--color-4);
+  background-color: var(--color-1);
+  color: var(--color-6);
   border-radius: 8px;
   padding: 8px 12px;
   cursor: pointer;
@@ -128,8 +128,8 @@
 }
 
 .profile-preview-button.secondary {
-  background-color: var(--bg-secondary);
-  color: var(--text);
+  background-color: var(--color-3);
+  color: var(--color-5);
 }
 
 .profile-preview-button:disabled {
@@ -141,3 +141,4 @@
   width: 100%;
   text-align: center;
 }
+

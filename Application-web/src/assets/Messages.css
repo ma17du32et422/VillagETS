@@ -6,11 +6,11 @@
 
 .sidebar-header {
     padding: 15px;
-    border-bottom: 2px solid var(--border);
+    border-bottom: 2px solid var(--color-4);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--bg-secondary);
+    background-color: var(--color-3);
 }
 
 .sidebar-title {
@@ -20,9 +20,9 @@
 }
 
 .add-toggle-btn {
-    border: 1px solid var(--border-contrast);
+    border: 1px solid var(--color-5);
     background: none;
-    color: var(--text);
+    color: var(--color-5);
     cursor: pointer;
     padding: 0px 8px;
     font-size: 18px;
@@ -31,28 +31,28 @@
 
 /* State when adding a user */
 .add-toggle-btn.active {
-    background: var(--bg-button);
-    color: var(--text-contrast);
+    background: var(--color-1);
+    color: var(--color-6);
 }
 
 .add-user-section {
     padding: 10px;
-    border-bottom: 1px solid var(--border);
-    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--color-4);
+    background-color: var(--color-3);
 }
 
 .messages-error {
     padding: 10px;
-    border-bottom: 1px solid var(--border);
-    color: var(--accent);
-    background-color: var(--bg);
+    border-bottom: 1px solid var(--color-4);
+    color: var(--color-1);
+    background-color: var(--color-2);
     font-size: 12px;
 }
 
 .user-id-input {
     width: 100%;
     padding: 8px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--color-4);
     font-size: 12px;
     margin-bottom: 5px;
     outline: none;
@@ -61,8 +61,8 @@
 .start-chat-btn {
     width: 100%;
     padding: 6px;
-    background-color: var(--bg-dark);
-    color: var(--text-contrast);
+    background-color: var(--color-4);
+    color: var(--color-6);
     font-size: 10px;
     font-weight: bold;
     border: none;
@@ -77,6 +77,7 @@
 .empty-list-msg {
     padding: 20px;
     text-align: center;
-    color: var(--text-contrast);
+    color: var(--color-6);
     font-size: 12px;
 }
+

@@ -7,7 +7,7 @@
     align-items: center;
     padding: 0 24px;
     background-color: var(--color-1);
-    border-bottom: 1px solid var(--color-2);
+    border-bottom: 1px solid var(--color-4);
 }
 
 /** Components layout */
@@ -29,7 +29,7 @@
     color: var(--color-6);
 }
 #search::placeholder {
-    color: var(--color-5);
+    color: var(--color-6);
 }
 
 #search:focus {
@@ -38,7 +38,7 @@
 
 #app-name {
     flex-shrink: 0;
-    color: var(--color-5);
+    color: var(--color-6);
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 32px;
     cursor: pointer;
@@ -61,7 +61,7 @@
     width: 7rem;
     height: 36px;
     background-color: var(--color-1);
-    color: var(--color-5);
+    color: var(--color-6);
     border: 2px solid var(--color-4);
     border-radius: 18px;
     display: flex;
@@ -89,7 +89,7 @@
     height: 2rem;
     border-radius: 50%;
     object-fit: cover;
-    outline: 3px solid var(--color-5);
+    outline: 3px solid var(--color-6);
     display: block;
 }
 #profile-button:hover {
@@ -102,8 +102,8 @@
     top: calc(100% + 12px);
     right: 0;
     min-width: 180px;
-    background-color: var(--bg);
-    border: 1px solid var(--border);
+    background-color: var(--color-2);
+    border: 1px solid var(--color-4);
     border-radius: 10px;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
     overflow: hidden;
@@ -117,19 +117,20 @@
     border: none;
     background: none;
     text-align: left;
-    color: var(--text);
+    color: var(--color-5);
     cursor: pointer;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 14px;
 }
 
 .profile-dropdown-item:hover {
-    background-color: var(--bg-secondary);
+    background-color: var(--color-3);
 }
 
 #profile-text{
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 16px;
     margin: auto;
-    color: var(--text-contrast);
+    color: var(--color-6);
 }
+

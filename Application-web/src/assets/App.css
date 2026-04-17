@@ -17,7 +17,7 @@ html, body, #root {
 body {
     overflow-x: hidden;
     overflow-y: auto;
-    background-color: var(--bg);
+    background-color: var(--color-2);
 }
 
 header {
@@ -37,7 +37,7 @@ header {
     height: calc(100vh - 56px);
     overflow: hidden;
     width: 100%;
-    background-color: var(--bg);
+    background-color: var(--color-2);
 }
 
 .home-flux-container {
@@ -61,15 +61,15 @@ header {
 .home-actions-container {
     display: block;
     flex: 0 0 var(--home-sidebar-width);
-    border-right: 2px solid var(--border);
-    background-color: var(--bg);
+    border-right: 2px solid var(--color-4);
+    background-color: var(--color-2);
 }
 
 .home-messages-container {
     display: block;
     flex: 0 0 var(--home-sidebar-width);
-    border-left: 2px solid var(--border);
-    background-color: var(--bg);
+    border-left: 2px solid var(--color-4);
+    background-color: var(--color-2);
 }
 
 .home-actions,
@@ -88,3 +88,4 @@ header {
         flex-basis: 180px;
     }
 }
+
