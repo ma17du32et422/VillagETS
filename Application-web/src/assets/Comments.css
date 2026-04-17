@@ -22,7 +22,6 @@
   object-fit: cover;
 }
 
-/* Shared Input Style (reuse/override from previous) */
 .comment-input {
   flex: 1;
   background-color: var(--color-6);

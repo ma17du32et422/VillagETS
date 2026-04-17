@@ -4,7 +4,10 @@
   gap: 12px;
   margin-top: 1rem;
   font-family: system-ui, -apple-system, sans-serif;
-  background-color: var(--color-6);
+  background-color: var(--color-white);
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-left: 0;
 }
 
 /* Avatar Styling */
@@ -35,7 +38,7 @@
   background: #f0f2f5;
   padding: 8px 12px;
   border-radius: 18px;
-  display: inline-block; /* Makes bubble fit text width */
+  display: inline-block;
   max-width: 100%;
 }
 
@@ -85,9 +88,9 @@
   color: #dc2626;
 }
 
-/* The Recursive Magic: Thread Lines */
+
 .replies-list {
-  margin-left: -2rem; /* Pulls back to align line under avatar */
+  margin-left: -2rem;
   padding-left: 2rem; 
   border-left: 4px solid var(--color-1);
   margin-top: 8px;
@@ -101,15 +104,3 @@
   align-items: center;
 }
 
-.comment-input {
-  flex: 1;
-  padding: 8px 12px;
-  border: 1px solid #dddfe2;
-  border-radius: 20px;
-  outline: none;
-  font-size: 0.9rem;
-}
-
-.comment-input:focus {
-  border-color: #1877f2;
-}

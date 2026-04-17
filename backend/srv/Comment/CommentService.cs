@@ -1,6 +1,6 @@
 ﻿using Supabase.Postgrest;
-using static Supabase.Postgrest.Constants;
 using villagets.Auth;
+using static Supabase.Postgrest.Constants;
 
 namespace srv.Comment
 {
@@ -62,28 +62,19 @@ namespace srv.Comment
                     return (null, null);
 
                 // Increment nb_reponses on the parent comment
-                var updatedParent = new sql.Commentaire
-                {
-                    Id = parent.Id,
-                    NbReponses = (parent.NbReponses ?? 0) + 1
-                };
+                parent.NbReponses = (parent.NbReponses ?? 0) + 1;
                 await _supabase
                     .From<sql.Commentaire>()
                     .Where(c => c.Id == parentCommentId)
-                    .Update(updatedParent);
+                    .Update(parent);
             }
 
             // Increment nb_commentaires on the publication
             var pub = pubResult.Model;
-            var updatedPub = new sql.Publication
+            if (pub != null)
             {
-                Id = pub.Id,
-                CommentairesCount = (pub.CommentairesCount ?? 0) + 1
-            };
-            await _supabase
-                .From<sql.Publication>()
-                .Where(p => p.Id == publicationId)
-                .Update(updatedPub);
+                IncrementPostCount(pub);
+            }
 
             var comment = new sql.Commentaire
             {
@@ -153,15 +144,11 @@ namespace srv.Comment
                 var parent = parentResult.Model;
                 if (parent != null)
                 {
-                    var updatedParent = new sql.Commentaire
-                    {
-                        Id = parent.Id,
-                        NbReponses = Math.Max((parent.NbReponses ?? 1) - 1, 0)
-                    };
+                    parent.NbReponses = Math.Max((parent.NbReponses ?? replyCount) - 1, 0);
                     await _supabase
                         .From<sql.Commentaire>()
                         .Where(c => c.Id == comment.ParentCommentaire)
-                        .Update(updatedParent);
+                        .Update(parent);
                 }
             }
 
@@ -176,16 +163,7 @@ namespace srv.Comment
                 var pub = pubResult.Model;
                 if (pub != null)
                 {
-                    var totalRemoved = 1 + replyCount;
-                    var updatedPub = new sql.Publication
-                    {
-                        Id = pub.Id,
-                        CommentairesCount = Math.Max((pub.CommentairesCount ?? totalRemoved) - totalRemoved, 0)
-                    };
-                    await _supabase
-                        .From<sql.Publication>()
-                        .Where(p => p.Id == comment.PublicationId)
-                        .Update(updatedPub);
+                    DecrementPostCount(pub);
                 }
             }
 
@@ -214,5 +192,25 @@ namespace srv.Comment
                 .Select(c => (c, userMap.TryGetValue(c.UtilisateurId ?? "", out var u) ? u : null))
                 .ToList();
         }
+
+        private async void IncrementPostCount(sql.Publication pub, int incrementBy = 1)
+        {
+            pub.CommentairesCount = (pub.CommentairesCount ?? 0) + incrementBy;
+            await _supabase
+                        .From<sql.Publication>()
+                        .Where(p => p.Id == pub.Id)
+                        .Update(pub);
+        }
+
+        private async void DecrementPostCount(sql.Publication pub, int decrementBy = 1)
+        {
+            pub.CommentairesCount = Math.Max((pub.CommentairesCount ?? decrementBy) - decrementBy, 0);
+            await _supabase
+                        .From<sql.Publication>()
+                        .Where(p => p.Id == pub.Id)
+                        .Update(pub);
+        }
+
     }
 }
+
