@@ -5,6 +5,10 @@
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, width 0.3s ease, height 0.3s ease;
 }
 
+:root {
+    --home-sidebar-width: 220px;
+}
+
 html, body, #root {
     width: 100%;
     min-height: 100%;
@@ -44,6 +48,7 @@ header {
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
+    padding-right: var(--home-sidebar-width);
 }
 
 .home-flux {
@@ -55,14 +60,14 @@ header {
 
 .home-actions-container {
     display: block;
-    flex: 0 0 220px;
+    flex: 0 0 var(--home-sidebar-width);
     border-right: 2px solid var(--border);
     background-color: var(--bg);
 }
 
 .home-messages-container {
     display: block;
-    flex: 0 0 220px;
+    flex: 0 0 var(--home-sidebar-width);
     border-left: 2px solid var(--border);
     background-color: var(--bg);
 }
@@ -72,4 +77,14 @@ header {
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+@media (max-width: 900px) {
+    .home-flux-container {
+        padding-right: 0;
+    }
+
+    .home-actions-container {
+        flex-basis: 180px;
+    }
 }
