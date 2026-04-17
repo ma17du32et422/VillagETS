@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using sql;
 using srv;
+using srv.Comment;
 using srv.Messaging;
 using srv.Post;
 using srv.Reaction;
@@ -73,6 +74,9 @@ srv.User.UserRoutes.MapUserRoutes(app, userService, isDevelopment);
 
 ReactionService reactionService = new ReactionService();
 ReactionRoutes.MapReactionRoutes(app, reactionService);
+
+CommentService commentService = new CommentService();
+CommentRoutes.Map(app, commentService);
 
 MessagingRoutes.Map(app, app.Services.GetRequiredService<MessagingService>());
 //ROUTES

@@ -8,7 +8,7 @@ namespace srv.Reaction
     {
         public static void MapReactionRoutes(this WebApplication app, ReactionService reactionService)
         {
-            app.MapPost("/post/{id}/react", async (string id, [FromBody] ReactRequest req, HttpContext ctx) =>
+            app.MapPost("/post/{id}/react", async (int id, [FromBody] ReactRequest req, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetPrincipalFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
@@ -22,7 +22,7 @@ namespace srv.Reaction
                 return Results.Ok(new { likes, dislikes, userReaction });
             });
 
-            app.MapGet("/post/{id}/react", async (string id, HttpContext ctx) =>
+            app.MapGet("/post/{id}/react", async (int id, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetPrincipalFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();

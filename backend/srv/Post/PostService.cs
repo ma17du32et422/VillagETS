@@ -16,7 +16,7 @@ namespace srv.Post
             _supabase = SupabaseService.GetClient();
         }
 
-        public async Task<(sql.Publication? publication, sql.Utilisateur? utilisateur)> GetById(string id)
+        public async Task<(sql.Publication? publication, sql.Utilisateur? utilisateur)> GetById(int id)
         {
             var result = await _supabase
                 .From<sql.Publication>()
@@ -56,10 +56,6 @@ namespace srv.Post
                     .From<sql.Fichier>()
                     .Filter("lien_fichier", Operator.In, urls)
                     .Get();
-                Console.WriteLine($"URLs searched: {string.Join(", ", urls)}");
-                Console.WriteLine($"Fichiers found: {fichiers.Models.Count}");
-                foreach (var f in fichiers.Models)
-                    Console.WriteLine($"  → Id: {f.Id}, Url: {f.LienFichier}");
 
                 var links = fichiers.Models
                     .Where(f => f.Id.HasValue)
@@ -77,7 +73,7 @@ namespace srv.Post
         }
 
 
-        public async Task<bool> Delete(string id, string userId)
+        public async Task<bool> Delete(int id, string userId)
         {
             var existing = await _supabase
                 .From<sql.Publication>()
@@ -148,31 +144,8 @@ namespace srv.Post
             return true;
         }
 
-        public async Task<(List<sql.Publication> posts, Dictionary<string, sql.Utilisateur> users, Dictionary<string, string?> reactions)> GetFeed(string? userId, FeedQuery query)
+        public async Task<(List<sql.Publication> posts, Dictionary<string, sql.Utilisateur> users, Dictionary<int, string?> reactions)> GetFeed(string? userId, FeedQuery query)
         {
-            List<string>? taggedPublicationIds = null;
-            if (query.Tags is { Length: > 0 })
-            {
-                var categories = await _supabase
-                    .From<sql.CategoriePublication>()
-                    .Filter("nom", Operator.In, query.Tags.ToList())
-                    .Get();
-
-                var categoryIds = categories.Models.Select(c => c.Id.ToString()).ToList();
-
-                if (categoryIds.Count == 0)
-                    return ([], [], []);
-
-                var catPubs = await _supabase
-                    .From<sql.CatPubPublication>()
-                    .Filter("id_categorie_publication", Operator.In, categoryIds)
-                    .Get();
-
-                taggedPublicationIds = catPubs.Models.Select(cp => cp.IdPublication).Distinct().ToList();
-
-                if (taggedPublicationIds.Count == 0)
-                    return ([], [], []);
-            }
 
             var q = _supabase.From<sql.Publication>();
 
@@ -181,9 +154,6 @@ namespace srv.Post
 
             if (!string.IsNullOrWhiteSpace(query.SearchString))
                 q = (Supabase.Interfaces.ISupabaseTable<sql.Publication, Supabase.Realtime.RealtimeChannel>)q.Filter("nom", Operator.ILike, $"%{query.SearchString}%");
-
-            if (taggedPublicationIds is not null)
-                q = (Supabase.Interfaces.ISupabaseTable<sql.Publication, Supabase.Realtime.RealtimeChannel>)q.Filter("id_publication", Operator.In, taggedPublicationIds);
 
             var result = await q
                 .Order("date_publication", Ordering.Descending)
@@ -205,7 +175,7 @@ namespace srv.Post
 
             if (userId == null)
             {
-                return (posts, userMap, new Dictionary<string, string?>());
+                return (posts, userMap, new Dictionary<int, string?>());
             }
             var reactions = await _supabase
                 .From<sql.ReactionPublication>()
@@ -214,7 +184,7 @@ namespace srv.Post
                 .Get();
 
             var reactionMap = reactions.Models
-                .ToDictionary(r => r.IdPublication!, r => r.Type);
+                .ToDictionary(r => r.IdPublication!.Value, r => r.Type);
 
             return (posts, userMap, reactionMap);
 

@@ -11,7 +11,7 @@ namespace srv.Reaction
             _supabase = SupabaseService.GetClient();
         }
 
-        private async Task UpdateCounts(string publicationId, int likeDelta, int dislikeDelta)
+        private async Task UpdateCounts(int publicationId, int likeDelta, int dislikeDelta)
         {
             var pub = await _supabase
                 .From<sql.Publication>()
@@ -29,7 +29,7 @@ namespace srv.Reaction
                 .Update();
         }
 
-        public async Task<(int likes, int dislikes, string? userReaction)> Toggle(string userId, string publicationId, string type)
+        public async Task<(int likes, int dislikes, string? userReaction)> Toggle(string userId, int publicationId, string type)
         {
             var existing = await _supabase
                 .From<sql.ReactionPublication>()
@@ -79,7 +79,7 @@ namespace srv.Reaction
             return (pub.Model?.Likes ?? 0, pub.Model?.Dislikes ?? 0, userReaction);
         }
 
-        public async Task<string?> GetUserReaction(string userId, string publicationId)
+        public async Task<string?> GetUserReaction(string userId, int publicationId)
         {
             var result = await _supabase
                 .From<sql.ReactionPublication>()

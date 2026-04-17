@@ -51,7 +51,7 @@ namespace sql
     public class Publication : BaseModel
     {
         [PrimaryKey("id_publication")]
-        public string? Id { get; set; }
+        public int? Id { get; set; }
 
         [Column("id_utilisateur")]
         public string? UtilisateurId { get; set; }
@@ -106,14 +106,14 @@ namespace sql
     [Supabase.Postgrest.Attributes.Table("commentaire")]
     public class Commentaire : BaseModel
     {
-        [PrimaryKey("id_commentaire")]
+        [PrimaryKey("id_commentaire", false)]
         public string? Id { get; set; }
 
-        [Column("utilisateurid")]
+        [Column("id_utilisateur")]
         public string? UtilisateurId { get; set; }
 
-        [Column("publicationid")]
-        public string? PublicationId { get; set; }
+        [Column("id_publication")]
+        public int? PublicationId { get; set; }
 
         [Column("parent_commentaire")]
         public string? ParentCommentaire { get; set; }
@@ -124,11 +124,23 @@ namespace sql
         [Column("contenu")]
         public string? Contenu { get; set; }
 
-        [Column("likes")]
-        public int? Likes { get; set; }
-
-        [Column("dislikes")]
-        public int? Dislikes { get; set; }
+        [Column("nb_reponses")]
+        public int? NbReponses { get; set; }
+        public object ToJson(Utilisateur? user = null) => new
+        {
+            id = Id,
+            publicationId = PublicationId,
+            parentCommentaire = ParentCommentaire,
+            dateCommentaire = DateCommentaire,
+            contenu = Contenu,
+            nbReponses = NbReponses ?? 0,
+            op = new
+            {
+                id = user?.Id,
+                pseudo = user?.Pseudo,
+                photoProfil = user?.PhotoProfil
+            }
+        };
     }
 
     [Supabase.Postgrest.Attributes.Table("categorie_publication")]
@@ -151,7 +163,7 @@ namespace sql
         public string? IdCategorie { get; set; }
 
         [PrimaryKey("publicationid_publication", false)]
-        public string? IdPublication { get; set; }
+        public int? IdPublication { get; set; }
     }
 
     [Supabase.Postgrest.Attributes.Table("fichier")]
@@ -182,7 +194,7 @@ namespace sql
 
         [PrimaryKey("id_publication", false)]
         [Column("id_publication")]
-        public string? IdPublication { get; set; }
+        public int? IdPublication { get; set; }
     }
 
     [Supabase.Postgrest.Attributes.Table("commentaire_fichier")]
@@ -237,7 +249,7 @@ namespace sql
 
         [PrimaryKey("id_publication", false)]
         [Column("id_publication")]
-        public string? IdPublication { get; set; }
+        public int? IdPublication { get; set; }
 
         [Column("type")]
         public string? Type { get; set; }

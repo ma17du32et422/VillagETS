@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import '../.././assets/Post.css'
+import Comments from './Comments'
 import { getBaseUrl } from '../../API'
 import { useAuth } from '../../AuthContext'
 
@@ -177,30 +178,18 @@ const toggleReaction = async (type) => {
         <button className={`reaction-button ${disliked ? 'active' : ''}`} type="button" onClick={() => toggleReaction('dislike')}>
           👎 {dislikes}
         </button>
-        <button className="reaction-button" type="button" onClick={toggleComments}>
-          💬 {comments.length}
+        <button
+          className="reaction-button"
+          type="button"
+          onClick={() => setCommentVisible(v => !v)}
+        >
+          💬 {post.commentaires ?? 0}
         </button>
       </div>
 
-      <div className={`comment-section ${commentVisible ? 'visible' : ''}`}>
-        <form className="comment-form" onSubmit={addComment}>
-          <input
-            className="comment-input"
-            type="text"
-            placeholder="Add a comment"
-            value={commentText}
-            onChange={(event) => setCommentText(event.target.value)}
-          />
-          <button className="reaction-button" type="submit">Add</button>
-        </form>
-        {comments.length > 0 && (
-          <div className="comment-list">
-            {comments.map((comment) => (
-              <p key={comment.id} className="comment-item">{comment.text}</p>
-            ))}
-          </div>
-        )}
-      </div>
+      {commentVisible && (
+        <Comments postId={post.id} initialCount={post.commentaires ?? 0} />
+      )}
     </article>
   )
 }

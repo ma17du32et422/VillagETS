@@ -10,7 +10,7 @@ namespace srv.Post
         {
             var supabaseClient = srv.SupabaseService.GetClient();
 
-            app.MapGet("/post/{id}", async (string id) =>
+            app.MapGet("/post/{id}", async (int id) =>
             {
                 var ret = await postService.GetById(id);
                 if (ret.publication is null) return Results.NotFound("Publication not found");
@@ -41,7 +41,7 @@ namespace srv.Post
                 });
             });
 
-            app.MapDelete("/post/{id}", async (string id, HttpContext ctx) =>
+            app.MapDelete("/post/{id}", async (int id, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetPrincipalFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
@@ -70,7 +70,7 @@ namespace srv.Post
 
                 return Results.Ok(feed.posts.Select(p => {
                     feed.users.TryGetValue(p.UtilisateurId ?? "", out var user);
-                    feed.reactions.TryGetValue(p.Id ?? "", out var reaction);
+                    feed.reactions.TryGetValue(p.Id ?? 0, out var reaction);
                     return p.ToJson(user, reaction);
                 }));
             });
