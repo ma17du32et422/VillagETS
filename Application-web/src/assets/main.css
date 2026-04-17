@@ -4,10 +4,13 @@
     --color-2: #ffffff;
     --color-3: #f1f1f1;
     --color-4: #8d8d8d;
-    --color-5: #111111;
-    --color-6: #f7f7f7;
+    --color-5: #242424;
+    --color-6: #1a1a1a;
     --color-t-1: rgba(0, 0, 0, 0.3);
     --color-t-2: rgba(0, 0, 0, 0.5);
+
+    --color-white: #ffffff;
+    --color-black: #000000;
 }
 
 /* DARK MODE COLORS */
@@ -20,4 +23,8 @@
     --color-6: #f7f7f7;
     --color-t-1: rgba(0, 0, 0, 0.3);
     --color-t-2: rgba(0, 0, 0, 0.5);
+
+    
+    --color-white: #ffffff;
+    --color-black: #000000;
 }
