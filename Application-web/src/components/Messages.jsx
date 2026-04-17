@@ -2,47 +2,71 @@ import { useEffect, useState } from 'react';
 import { getBaseUrl } from '../API';
 import Message from './subcomponents/Message';
 import '../assets/Messages.css'
-export default function Messages({ onSelectUser }) {
+export default function Messages({ selectedUserId, onSelectUser }) {
   const [users, setUsers] = useState([]);
-
   const [isAdding, setIsAdding] = useState(false);
   const [newUserId, setNewUserId] = useState("");
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchMyConvos = async () => {
+  const fetchMyConvos = async () => {
+    try {
+      setError("");
       const res = await fetch(`${getBaseUrl()}/chat/conversations`, {
         credentials: 'include'
       });
+      if (!res.ok) {
+        throw new Error('Failed to load discussions.');
+      }
       const data = await res.json();
-      setUsers(data.map(item => ({
-        id: item.otherUser.id,
-        name: item.otherUser.pseudo,
-        pfp: item.otherUser.photoProfil
-      })));
-    };
-    fetchMyConvos();
-  }, []);
-
-  const handleAddUser = () => {
-    if (!newUserId.trim()) return;
-
-    const exists = users.find(u => u.id === newUserId.trim());
-
-    if (!exists) {
-      const newUser = {
-        id: newUserId.trim(),
-        name: `User ${newUserId.substring(0, 4)}...` 
-      };
-      setUsers([newUser, ...users]);
+      setUsers(data.map(item => item.otherUser).filter(Boolean));
+    } catch (err) {
+      console.error('Failed to load discussions:', err);
+      setError(err.message ?? 'Failed to load discussions.');
     }
+  };
 
-    // Select the user and reset input
-    onSelectUser(newUserId.trim());
-    setNewUserId("");
-    setIsAdding(false);
+  useEffect(() => {
+    fetchMyConvos();
+  }, [selectedUserId]);
 
+  const handleAddUser = async () => {
+    const trimmedUserId = newUserId.trim();
+    if (!trimmedUserId) return;
 
+    setError("");
 
+    try {
+      const res = await fetch(`${getBaseUrl()}/user/${trimmedUserId}`, {
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || 'User not found.');
+      }
+
+      const data = await res.json();
+      const foundUser = {
+        id: data.userId,
+        pseudo: data.pseudo,
+        nom: data.nom,
+        prenom: data.prenom,
+        photoProfil: data.photoProfil
+      };
+
+      setUsers((currentUsers) => (
+        currentUsers.some((entry) => entry.id === foundUser.id)
+          ? currentUsers
+          : [foundUser, ...currentUsers]
+      ));
+
+      onSelectUser(foundUser.id);
+      setNewUserId("");
+      setIsAdding(false);
+    } catch (err) {
+      console.error('Failed to start discussion:', err);
+      setError(err.message ?? 'Failed to start discussion.');
+    }
   };
 
   return (
@@ -58,6 +82,12 @@ export default function Messages({ onSelectUser }) {
           {isAdding ? '×' : '+'}
         </button>
       </div>
+
+      {error && (
+        <div className="messages-error">
+          {error}
+        </div>
+      )}
 
       {/* Manual ID Input */}
       {isAdding && (
@@ -85,11 +115,12 @@ export default function Messages({ onSelectUser }) {
           users.map((user) => (
             <Message
               key={user.id}
-              name={user.name}
+              user={user}
+              selected={selectedUserId === user.id}
               onClick={() => onSelectUser(user.id)}
             />
           ))
-        ) : (
+        ) : !error && (
           <div className="empty-list-msg">
             No conversations yet.
           </div>

@@ -41,6 +41,14 @@
     background-color: var(--bg-secondary);
 }
 
+.messages-error {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--accent);
+    background-color: var(--bg);
+    font-size: 12px;
+}
+
 .user-id-input {
     width: 100%;
     padding: 8px;

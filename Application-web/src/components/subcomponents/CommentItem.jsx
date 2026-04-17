@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { getBaseUrl } from '../../API'
 import { useAuth } from '../../AuthContext'
+import ProfileAvatar from '../ProfileAvatar'
 import '../../assets/CommentItem.css'
 export default function CommentItem({ comment, postId, onDeleted }) {
   const { user } = useAuth()
@@ -81,10 +82,11 @@ export default function CommentItem({ comment, postId, onDeleted }) {
   return (
     <div className="comment-item">
       <div className="comment-avatar">
-        {comment.op?.photoProfil
-          ? <img src={comment.op.photoProfil} alt={comment.op.pseudo} />
-          : <div className="comment-avatar-placeholder">{comment.op?.pseudo?.[0]?.toUpperCase() ?? 'U'}</div>
-        }
+        <ProfileAvatar
+          user={comment.op}
+          imageProps={{}}
+          placeholderProps={{ className: 'comment-avatar-placeholder' }}
+        />
       </div>
 
       <div className="comment-body">

@@ -3,6 +3,7 @@ import '../.././assets/Post.css'
 import Comments from './Comments'
 import { getBaseUrl } from '../../API'
 import { useAuth } from '../../AuthContext'
+import ProfileAvatar from '../ProfileAvatar'
 
 export default function Post({ post, onDelete }) {
   const { user } = useAuth()
@@ -113,10 +114,11 @@ const toggleReaction = async (type) => {
     <article className="post">
       <div id="post-header">
         <div id="op-info">
-          {post.op?.photoProfil
-            ? <img id="op-avatar" src={post.op.photoProfil} alt={post.op.pseudo} />
-            : <div id="op-avatar-placeholder">{post.op?.pseudo?.[0]?.toUpperCase() ?? 'U'}</div>
-          }
+          <ProfileAvatar
+            user={post.op}
+            imageProps={{ id: 'op-avatar' }}
+            placeholderProps={{ id: 'op-avatar-placeholder' }}
+          />
           <div id="op-details">
             <p id="op-name">{post.op?.pseudo ?? 'Unknown'}</p>
             <p id="datetime">{post.datetime}</p>

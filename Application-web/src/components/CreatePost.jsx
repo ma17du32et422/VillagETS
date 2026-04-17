@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
 import { getBaseUrl } from '../API';
+import ProfileAvatar from './ProfileAvatar';
 import '../assets/CreatePost.css';
 
 export default function CreatePost({ onSuccess, onCancel }) {
@@ -88,10 +89,11 @@ export default function CreatePost({ onSuccess, onCancel }) {
 
       <div id="post-header">
         <div id="op-info">
-          {user?.photoProfil
-            ? <img id="op-avatar" src={user.photoProfil} alt={user.pseudo} />
-            : <div id="op-avatar-placeholder">{user?.pseudo?.[0]?.toUpperCase() ?? 'U'}</div>
-          }
+          <ProfileAvatar
+            user={user ? { ...user, id: user.userId } : null}
+            imageProps={{ id: 'op-avatar' }}
+            placeholderProps={{ id: 'op-avatar-placeholder' }}
+          />
           <div id="op-details">
             <p id="op-name">{user?.pseudo ?? 'You'}</p>
             <p id="datetime">Draft</p>

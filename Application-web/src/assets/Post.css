@@ -19,12 +19,12 @@
 
 /** Post layouts */
 #title {
-    margin-left: 1%;
-    margin-top: 1%;
+    margin: 16px 18px 10px;
     color: var(--text)
 }
 
 #contents {
+    margin: 0 18px 16px;
     color: var(--text)
 }
 
@@ -199,7 +199,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin: 12px 1%;
+    margin: 12px 18px;
 }
 
 .post-tag {
@@ -214,7 +214,7 @@
 .reaction-bar {
     display: flex;
     gap: 10px;
-    padding: 10px 1%;
+    padding: 10px 18px 16px;
 }
 
 .reaction-button {

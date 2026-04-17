@@ -1,0 +1,143 @@
+.profile-avatar-anchor {
+  position: relative;
+  display: inline-flex;
+}
+
+.profile-avatar-trigger {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: inline-flex;
+  border-radius: 50%;
+}
+
+.profile-avatar-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.profile-preview-card {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 260px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background-color: var(--bg);
+  color: var(--text);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.16);
+  z-index: 40;
+  box-sizing: border-box;
+}
+
+.profile-preview-card.align-right {
+  left: auto;
+  right: 0;
+}
+
+.profile-preview-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.profile-preview-avatar,
+.profile-preview-avatar-placeholder {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.profile-preview-avatar.large,
+.profile-preview-avatar-placeholder.large {
+  width: 120px;
+  height: 120px;
+}
+
+.profile-preview-avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-secondary);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.profile-preview-text {
+  min-width: 0;
+}
+
+.profile-preview-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.profile-preview-subtitle,
+.profile-preview-status,
+.profile-preview-error {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  word-break: break-word;
+}
+
+.profile-preview-error {
+  color: var(--accent);
+}
+
+.profile-preview-details,
+.profile-viewer-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.profile-preview-details {
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.profile-preview-details p,
+.profile-viewer-details p {
+  margin: 0;
+}
+
+.profile-preview-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile-preview-button {
+  border: 1px solid var(--border);
+  background-color: var(--accent);
+  color: var(--text-contrast);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.profile-preview-button.secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text);
+}
+
+.profile-preview-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.profile-viewer-card {
+  width: 100%;
+  text-align: center;
+}

@@ -1,13 +1,19 @@
-import pfp from '../../assets/images/example.jpg';
+import '../../assets/Message.css';
+import ProfileAvatar from '../ProfileAvatar';
 
-export default function Message({ name, onClick }) {
+export default function Message({ user, selected, onClick }) {
   return (
-    <div className="message" onClick={onClick} style={{ cursor: 'pointer', padding: '10px', borderBottom: '1px solid #eee' }}>
-      <div id="pfp-container">
-        <img id="pfp" src={pfp} alt="profile" style={{ width: '40px', borderRadius: '50%' }} />
+    <div className={`message ${selected ? 'selected' : ''}`.trim()} onClick={onClick}>
+      <div className="pfp-container">
+        <ProfileAvatar
+          user={user}
+          imageProps={{ className: 'pfp' }}
+          placeholderProps={{ className: 'message-avatar-placeholder' }}
+          anchorClassName="message-avatar-anchor"
+        />
       </div>
-      <div id="msg-container">
-        <b id="user">{name}</b>
+      <div className="msg-container">
+        <b className="user">{user?.pseudo ?? 'Unknown'}</b>
       </div>
     </div>
   );

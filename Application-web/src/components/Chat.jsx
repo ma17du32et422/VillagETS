@@ -7,20 +7,28 @@ const Chat = ({ targetUserId }) => {
     const { lastMessage, sendMessage } = useChat();
     const [messages, setMessages] = useState([]);
     const [text, setText] = useState("");
+    const [error, setError] = useState("");
     const scrollRef = useRef();
 
     // Load History
     useEffect(() => {
         const fetchHistory = async () => {
             try {
+                setError("");
                 const res = await fetch(`${getBaseUrl()}/chat/history/${targetUserId}`, {
                     method: 'GET',
                     credentials: 'include'
                 });
+                if (!res.ok) {
+                    const message = await res.text();
+                    throw new Error(message || 'Failed to load discussion.');
+                }
                 const data = await res.json();
                 setMessages(data || []);
             } catch (err) {
                 console.error("Failed to fetch history", err);
+                setMessages([]);
+                setError(err.message ?? 'Failed to load discussion.');
             }
         };
         fetchHistory();
@@ -58,6 +66,11 @@ const Chat = ({ targetUserId }) => {
         <div className="chat-container">
             {/* Message List */}
             <div className="message-list">
+                {error && (
+                    <div className="placeholder-text">
+                        {error}
+                    </div>
+                )}
                 {messages.map((m, i) => (
                     <div key={i} className="message-wrapper">
                         <div className="message-bubble">

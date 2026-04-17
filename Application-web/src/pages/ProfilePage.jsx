@@ -147,7 +147,7 @@ function ProfilePage() {
             <main id="profileMain">
                 <section id="profile-edit-container">
                     <div id="profile-edit">
-                        <h2>My Profile</h2>
+                        <h2>Settings</h2>
                         <p><strong>User ID:</strong> {user.userId}</p>
                         {profileUser && profileUser.pseudo && <p><strong>Username:</strong> {profileUser.pseudo}</p>}
 

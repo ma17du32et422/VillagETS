@@ -66,11 +66,14 @@ supabaseService.InitializeAsync().Wait();
 
 var supabase = SupabaseService.GetClient();
 
-PostService postService = new PostService();
-PostRoutes.Map(app, postService);
+
 
 UserService userService = new UserService();
 srv.User.UserRoutes.MapUserRoutes(app, userService, isDevelopment);
+
+
+PostService postService = new PostService();
+PostRoutes.Map(app, postService);
 
 ReactionService reactionService = new ReactionService();
 ReactionRoutes.MapReactionRoutes(app, reactionService);

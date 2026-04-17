@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import MsgPage from './pages/MsgPage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
+import UserProfilePage from './pages/UserProfilePage'
 import TestSignup from './pages/TestSignup';
 import Signup from './pages/Signup'
 import CreatePost from './pages/CreatePost'
@@ -15,9 +16,22 @@ function App(){
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
+    window.dispatchEvent(new CustomEvent('app:theme-changed', { detail: theme }));
   }, [theme]);
 
   const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light');
+
+  useEffect(() => {
+    const handleThemeToggle = () => {
+      setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+    };
+
+    window.addEventListener('app:toggle-theme', handleThemeToggle);
+
+    return () => {
+      window.removeEventListener('app:toggle-theme', handleThemeToggle);
+    };
+  }, []);
   
   // Listen for the "j" key press
   useEffect(() => {
@@ -48,7 +62,8 @@ function App(){
       <Route path="/LoginPage" element={<LoginPage />}/>
       <Route path="/Signup" element={<Signup/>}/>
       <Route path="/Create" element={<CreatePost/>}/>
-      <Route path="/ProfilePage" element={<ProfilePage />} />
+      <Route path="/SettingsPage" element={<ProfilePage />} />
+      <Route path="/ProfilePage/:userId" element={<UserProfilePage />} />
       <Route path="/test-signup" element={<TestSignup />} />
     </Routes>
   )

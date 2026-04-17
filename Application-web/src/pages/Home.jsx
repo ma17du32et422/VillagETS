@@ -76,14 +76,14 @@ function App(){
     <>
       <header id="header"><Header /></header>
 
-      <main id="main">
+      <main className="home-main">
 
-        <section id="actions-container">
-          <div id="actions"><Actions onPostCreated={handlePostCreated} user={user} /></div>
+        <section className="home-actions-container">
+          <div className="home-actions"><Actions onPostCreated={handlePostCreated} user={user} /></div>
         </section>
 
-        <section id="flux-container">
-          <div id="flux"><Flux posts={posts} loading={loading} error={error} /></div>
+        <section className="home-flux-container">
+          <div className="home-flux"><Flux posts={posts} loading={loading} error={error} /></div>
         </section>
 
       </main>

@@ -74,6 +74,21 @@ namespace srv.Post
                     return p.ToJson(user, reaction);
                 }));
             });
+
+            app.MapGet("/user/{id}/posts", async (string id, HttpContext ctx) =>
+            {
+                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                string? currentUserId = null;
+                if (principal != null) currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+
+                var feed = await postService.GetPostsByUser(currentUserId, id);
+
+                return Results.Ok(feed.posts.Select(p => {
+                    feed.users.TryGetValue(p.UtilisateurId ?? "", out var user);
+                    feed.reactions.TryGetValue(p.Id ?? 0, out var reaction);
+                    return p.ToJson(user, reaction);
+                }));
+            });
         }
     }
 };

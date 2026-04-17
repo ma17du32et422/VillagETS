@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { getBaseUrl } from '../../API'
 import { useAuth } from '../../AuthContext'
 import CommentItem from './CommentItem'
+import ProfileAvatar from '../ProfileAvatar'
 import '../../assets/Comments.css'
 export default function Comments({ postId, initialCount }) {
   const { user } = useAuth()
@@ -66,10 +67,11 @@ export default function Comments({ postId, initialCount }) {
       {user && (
         <form className="comment-form" onSubmit={submitComment}>
           <div className="comment-input-avatar">
-            {user.photoProfil
-              ? <img src={user.photoProfil} alt={user.pseudo} />
-              : <div className="comment-avatar-placeholder">{user.pseudo?.[0]?.toUpperCase() ?? 'U'}</div>
-            }
+            <ProfileAvatar
+              user={{ ...user, id: user.userId }}
+              imageProps={{}}
+              placeholderProps={{ className: 'comment-avatar-placeholder' }}
+            />
           </div>
           <input
             className="comment-input"

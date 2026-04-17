@@ -190,5 +190,50 @@ namespace srv.Post
 
         }
 
+        public async Task<(List<sql.Publication> posts, Dictionary<string, sql.Utilisateur> users, Dictionary<int, string?> reactions)> GetPostsByUser(string? currentUserId, string targetUserId)
+        {
+            var result = await _supabase
+                .From<sql.Publication>()
+                .Filter("id_utilisateur", Operator.Equals, targetUserId)
+                .Order("date_publication", Ordering.Descending)
+                .Limit(20)
+                .Get();
+
+            var posts = result.Models.ToList();
+            var userMap = new Dictionary<string, sql.Utilisateur>();
+
+            if (posts.Count > 0)
+            {
+                var users = await _supabase
+                    .From<sql.Utilisateur>()
+                    .Filter("id_utilisateur", Operator.Equals, targetUserId)
+                    .Get();
+
+                foreach (var user in users.Models)
+                {
+                    if (user.Id != null)
+                        userMap[user.Id] = user;
+                }
+            }
+
+            if (currentUserId == null || posts.Count == 0)
+            {
+                return (posts, userMap, new Dictionary<int, string?>());
+            }
+
+            var postIds = posts.Select(p => p.Id).Where(id => id != null).ToList();
+
+            var reactions = await _supabase
+                .From<sql.ReactionPublication>()
+                .Filter("id_utilisateur", Operator.Equals, currentUserId)
+                .Filter("id_publication", Operator.In, postIds)
+                .Get();
+
+            var reactionMap = reactions.Models
+                .ToDictionary(r => r.IdPublication!.Value, r => r.Type);
+
+            return (posts, userMap, reactionMap);
+        }
+
     }
 }

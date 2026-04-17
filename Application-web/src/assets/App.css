@@ -7,8 +7,13 @@
 
 html, body, #root {
     width: 100%;
-    height: 100%;
-    overflow: hidden;
+    min-height: 100%;
+}
+
+body {
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: var(--bg);
 }
 
 header {
@@ -16,55 +21,54 @@ header {
     justify-content: center;
     height: 56px;
     width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 40;
 }
 
-main {
-    position: relative;
-    height: calc(100vh - 60px);
+.home-main {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    height: calc(100vh - 56px);
+    overflow: hidden;
     width: 100%;
     background-color: var(--bg);
-    overflow: hidden;
 }
 
-#flux-container {
-    position: absolute;
-    inset: 0;
+.home-flux-container {
+    flex: 1;
     display: flex;
     justify-content: center;
+    min-width: 0;
     height: 100%;
-    width: 100%;
-}
-
-#flux {
-    width: 100%;
-    max-width: 50rem;
-    height: 100%;
-    margin: 0 auto;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
-#actions-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 10%;
-    height: 100%;
-    z-index: 10;
+.home-flux {
+    width: 100%;
+    max-width: 52rem;
+    margin: 0 auto;
+    padding: 24px 24px 40px;
+}
+
+.home-actions-container {
+    display: block;
+    flex: 0 0 220px;
     border-right: 2px solid var(--border);
+    background-color: var(--bg);
 }
 
-#messages-container {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 10%;
-    height: 100%;
-    z-index: 10;
+.home-messages-container {
+    display: block;
+    flex: 0 0 220px;
     border-left: 2px solid var(--border);
+    background-color: var(--bg);
 }
 
-#actions, #messages {
+.home-actions,
+.home-messages {
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;

@@ -1,11 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "../components/Header";
 import Messages from "../components/Messages";
 import Chat from "../components/Chat";
 import '../assets/MsgPage.css'
 
 function MsgPage() {
-  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [selectedUserId, setSelectedUserId] = useState(searchParams.get('userId'));
+
+  useEffect(() => {
+    setSelectedUserId(searchParams.get('userId'));
+  }, [searchParams]);
+
+  const handleSelectUser = (id) => {
+    setSelectedUserId(id);
+    navigate(id ? `/MsgPage?userId=${encodeURIComponent(id)}` : '/MsgPage', { replace: true });
+  };
 
   return (
     <div className="app-container">
@@ -14,7 +26,7 @@ function MsgPage() {
       <main className="main-layout">
         {/* Sidebar - Left side */}
         <section className="sidebar-container">
-          <Messages onSelectUser={(id) => setSelectedUserId(id)} />
+          <Messages selectedUserId={selectedUserId} onSelectUser={handleSelectUser} />
         </section>
 
         {/* Chat Area - Right side */}
