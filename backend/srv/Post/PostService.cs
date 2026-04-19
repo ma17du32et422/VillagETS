@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Npgsql;
+using Newtonsoft.Json;
 using Supabase.Postgrest;
 using System.Security.Claims;
 using villagets.Auth;
@@ -155,96 +156,126 @@ namespace srv.Post
             return true;
         }
 
-        public async Task<(List<sql.Publication> posts, Dictionary<string, sql.Utilisateur> users, Dictionary<int, string?> reactions)> GetFeed(string? userId, FeedQuery query)
+        public async Task<List<object>> GetFeed(string? userId, FeedQuery query)
         {
+            Guid? rpcUserId = null;
+            if (!string.IsNullOrWhiteSpace(userId) && Guid.TryParse(userId, out var parsedUserId))
+                rpcUserId = parsedUserId;
 
-            var q = _supabase.From<sql.Publication>();
-
-            if (query.IsMarketplace)
-                q = (Supabase.Interfaces.ISupabaseTable<sql.Publication, Supabase.Realtime.RealtimeChannel>)q.Filter("article_a_vendre", Operator.Equals, "true");
-
-            if (!string.IsNullOrWhiteSpace(query.SearchString))
-                q = (Supabase.Interfaces.ISupabaseTable<sql.Publication, Supabase.Realtime.RealtimeChannel>)q.Filter("nom", Operator.ILike, $"%{query.SearchString}%");
-
-            var result = await PerfLogger.TimeAsync(_logger, "PostService.GetFeed publications", () => q
-                .Order("date_publication", Ordering.Descending)
-                .Limit(20)
-                .Get());
-
-            var posts = result.Models.ToList();
-
-            var userIds = posts.Select(p => p.UtilisateurId).Distinct().Where(id => id != null).ToList();
-
-            var users = await PerfLogger.TimeAsync(_logger, "PostService.GetFeed users", () => _supabase
-                .From<sql.Utilisateur>()
-                .Filter("id_utilisateur", Operator.In, userIds)
-                .Get());
-
-            var userMap = users.Models.ToDictionary(u => u.Id!, u => u);
-
-            var postIds = posts.Select(p => p.Id).Where(id => id != null).ToList();
-
-            if (userId == null)
-            {
-                return (posts, userMap, new Dictionary<int, string?>());
-            }
-            var reactions = await PerfLogger.TimeAsync(_logger, "PostService.GetFeed reactions", () => _supabase
-                .From<sql.ReactionPublication>()
-                .Filter("id_utilisateur", Operator.Equals, userId)
-                .Filter("id_publication", Operator.In, postIds)
-                .Get());
-
-            var reactionMap = reactions.Models
-                .ToDictionary(r => r.IdPublication!.Value, r => r.Type);
-
-            return (posts, userMap, reactionMap);
-
-        }
-
-        public async Task<(List<sql.Publication> posts, Dictionary<string, sql.Utilisateur> users, Dictionary<int, string?> reactions)> GetPostsByUser(string? currentUserId, string targetUserId)
-        {
-            var result = await PerfLogger.TimeAsync(_logger, "PostService.GetPostsByUser publications", () => _supabase
-                .From<sql.Publication>()
-                .Filter("id_utilisateur", Operator.Equals, targetUserId)
-                .Order("date_publication", Ordering.Descending)
-                .Limit(20)
-                .Get());
-
-            var posts = result.Models.ToList();
-            var userMap = new Dictionary<string, sql.Utilisateur>();
-
-            if (posts.Count > 0)
-            {
-                var users = await PerfLogger.TimeAsync(_logger, "PostService.GetPostsByUser user lookup", () => _supabase
-                    .From<sql.Utilisateur>()
-                    .Filter("id_utilisateur", Operator.Equals, targetUserId)
-                    .Get());
-
-                foreach (var user in users.Models)
+            var rows = await PerfLogger.TimeAsync(_logger, "PostService.GetFeed rpc get_feed", () => _supabase.Rpc<List<FeedRpcRow>>(
+                "get_feed",
+                new Dictionary<string, object?>
                 {
-                    if (user.Id != null)
-                        userMap[user.Id] = user;
-                }
-            }
+                    { "p_user_id", rpcUserId },
+                    { "p_search_query", string.IsNullOrWhiteSpace(query.SearchString) ? null : query.SearchString },
+                    { "p_is_marketplace", query.IsMarketplace }
+                }));
 
-            if (currentUserId == null || posts.Count == 0)
+            return (rows ?? []).Select(row => (object)new
             {
-                return (posts, userMap, new Dictionary<int, string?>());
-            }
-
-            var postIds = posts.Select(p => p.Id).Where(id => id != null).ToList();
-
-            var reactions = await PerfLogger.TimeAsync(_logger, "PostService.GetPostsByUser reactions", () => _supabase
-                .From<sql.ReactionPublication>()
-                .Filter("id_utilisateur", Operator.Equals, currentUserId)
-                .Filter("id_publication", Operator.In, postIds)
-                .Get());
-
-            var reactionMap = reactions.Models
-                .ToDictionary(r => r.IdPublication!.Value, r => r.Type);
-
-            return (posts, userMap, reactionMap);
+                id = row.Id,
+                titre = row.Titre,
+                contenu = row.Contenu,
+                media = row.Media,
+                datePublication = row.DatePublication,
+                prix = row.Prix,
+                articleAVendre = row.ArticleAVendre,
+                likes = row.Likes ?? 0,
+                dislikes = row.Dislikes ?? 0,
+                commentaires = row.Commentaires ?? 0,
+                userReaction = row.UserReaction,
+                op = new
+                {
+                    id = row.OpId,
+                    pseudo = row.OpPseudo,
+                    photoProfil = row.OpPhotoProfil
+                }
+            }).ToList();
         }
 
+        public async Task<List<object>> GetPostsByUser(string? currentUserId, string targetUserId)
+        {
+            if (!Guid.TryParse(targetUserId, out var rpcTargetUserId))
+                return [];
+
+            Guid? rpcCurrentUserId = null;
+            if (!string.IsNullOrWhiteSpace(currentUserId) && Guid.TryParse(currentUserId, out var parsedCurrentUserId))
+                rpcCurrentUserId = parsedCurrentUserId;
+
+            var rows = await PerfLogger.TimeAsync(_logger, "PostService.GetPostsByUser rpc get_posts_by_user", () => _supabase.Rpc<List<FeedRpcRow>>(
+                "get_posts_by_user",
+                new Dictionary<string, object?>
+                {
+                    { "p_current_user_id", rpcCurrentUserId },
+                    { "p_target_user_id", rpcTargetUserId }
+                }));
+
+            return (rows ?? []).Select(row => (object)new
+            {
+                id = row.Id,
+                titre = row.Titre,
+                contenu = row.Contenu,
+                media = row.Media,
+                datePublication = row.DatePublication,
+                prix = row.Prix,
+                articleAVendre = row.ArticleAVendre,
+                likes = row.Likes ?? 0,
+                dislikes = row.Dislikes ?? 0,
+                commentaires = row.Commentaires ?? 0,
+                userReaction = row.UserReaction,
+                op = new
+                {
+                    id = row.OpId,
+                    pseudo = row.OpPseudo,
+                    photoProfil = row.OpPhotoProfil
+                }
+            }).ToList();
+        }
+
+    }
+
+    public class FeedRpcRow
+    {
+        [JsonProperty("id")]
+        public int? Id { get; set; }
+
+        [JsonProperty("titre")]
+        public string? Titre { get; set; }
+
+        [JsonProperty("contenu")]
+        public string? Contenu { get; set; }
+
+        [JsonProperty("media")]
+        public string[]? Media { get; set; }
+
+        [JsonProperty("date_publication")]
+        public DateTime? DatePublication { get; set; }
+
+        [JsonProperty("prix")]
+        public decimal? Prix { get; set; }
+
+        [JsonProperty("article_a_vendre")]
+        public bool? ArticleAVendre { get; set; }
+
+        [JsonProperty("likes")]
+        public int? Likes { get; set; }
+
+        [JsonProperty("dislikes")]
+        public int? Dislikes { get; set; }
+
+        [JsonProperty("commentaires")]
+        public int? Commentaires { get; set; }
+
+        [JsonProperty("op_id")]
+        public string? OpId { get; set; }
+
+        [JsonProperty("op_pseudo")]
+        public string? OpPseudo { get; set; }
+
+        [JsonProperty("op_photo_profil")]
+        public string? OpPhotoProfil { get; set; }
+
+        [JsonProperty("user_reaction")]
+        public string? UserReaction { get; set; }
     }
 }

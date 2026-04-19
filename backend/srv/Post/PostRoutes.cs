@@ -68,11 +68,7 @@ namespace srv.Post
 
                 var feed = await postService.GetFeed(userId, query);
 
-                return Results.Ok(feed.posts.Select(p => {
-                    feed.users.TryGetValue(p.UtilisateurId ?? "", out var user);
-                    feed.reactions.TryGetValue(p.Id ?? 0, out var reaction);
-                    return p.ToJson(user, reaction);
-                }));
+                return Results.Ok(feed);
             });
 
             app.MapGet("/user/{id}/posts", async (string id, HttpContext ctx) =>
@@ -83,11 +79,7 @@ namespace srv.Post
 
                 var feed = await postService.GetPostsByUser(currentUserId, id);
 
-                return Results.Ok(feed.posts.Select(p => {
-                    feed.users.TryGetValue(p.UtilisateurId ?? "", out var user);
-                    feed.reactions.TryGetValue(p.Id ?? 0, out var reaction);
-                    return p.ToJson(user, reaction);
-                }));
+                return Results.Ok(feed);
             });
         }
     }
