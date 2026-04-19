@@ -17,7 +17,7 @@ namespace srv.Messaging
                     return;
                 }
 
-                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
                 if (principal == null)
                 {
                     ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -36,7 +36,7 @@ namespace srv.Messaging
             // 2. Get Chat History Endpoint
             app.MapGet("/chat/history/{targetUserId}", async (string targetUserId, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
 
                 var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
@@ -48,7 +48,7 @@ namespace srv.Messaging
 
             app.MapGet("/chat/conversations", async (HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
 
                 var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;

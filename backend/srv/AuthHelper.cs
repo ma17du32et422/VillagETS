@@ -57,7 +57,7 @@ public static class AuthHelper
         }
         catch { return null; }
     }
-    public static ClaimsPrincipal? GetPrincipalFromContext(HttpContext ctx)
+    public static ClaimsPrincipal? GetClaimsFromContext(HttpContext ctx)
     {
         var token = ctx.Request.Cookies["token"];
         if (token == null) return null;

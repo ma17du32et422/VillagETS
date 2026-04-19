@@ -78,7 +78,7 @@ namespace srv.User
             // Update pseudo
             app.MapPatch("/user/pseudo", async ([FromBody] UpdatePseudoRequest req, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
 
@@ -94,7 +94,7 @@ namespace srv.User
             // Update password
             app.MapPatch("/user/password", async ([FromBody] UpdatePasswordRequest req, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
 
@@ -110,7 +110,7 @@ namespace srv.User
             // Update email
             app.MapPatch("/user/email", async ([FromBody] UpdateEmailRequest req, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
 
@@ -125,7 +125,7 @@ namespace srv.User
             // Update profile picture
             app.MapPatch("/user/photo", async ([FromBody] UpdatePhotoRequest req, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
 

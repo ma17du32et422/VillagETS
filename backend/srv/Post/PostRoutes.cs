@@ -20,7 +20,7 @@ namespace srv.Post
 
             app.MapPost("/post", async ([FromBody] sql.Publication publication, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
 
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
@@ -43,7 +43,7 @@ namespace srv.Post
 
             app.MapDelete("/post/{id}", async (int id, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
 
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
@@ -61,7 +61,7 @@ namespace srv.Post
 
             app.MapPost("/feed", async ([FromBody] FeedQuery query, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
                 string? userId = null;
                 if (principal != null) userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!
 ;
@@ -77,7 +77,7 @@ namespace srv.Post
 
             app.MapGet("/user/{id}/posts", async (string id, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
                 string? currentUserId = null;
                 if (principal != null) currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
 

@@ -10,7 +10,7 @@ namespace srv.Reaction
         {
             app.MapPost("/post/{id}/react", async (int id, [FromBody] ReactRequest req, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
 
@@ -24,7 +24,7 @@ namespace srv.Reaction
 
             app.MapGet("/post/{id}/react", async (int id, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
 

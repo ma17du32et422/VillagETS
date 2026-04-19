@@ -72,7 +72,10 @@ const Chat = ({ targetUserId }) => {
                     </div>
                 )}
                 {messages.map((m, i) => (
-                    <div key={i} className="message-wrapper">
+                    <div
+                        key={i}
+                        className={`message-wrapper ${m.envoyeurId === targetUserId ? 'incoming' : 'outgoing'}`}
+                    >
                         <div className="message-bubble">
                             <small className="message-sender">
                                 {m.envoyeurId === targetUserId ? "Them" : "Me"}

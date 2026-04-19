@@ -29,7 +29,7 @@ namespace srv.Comment
                 [FromBody] CreateCommentBody body,
                 HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
 
                 if (string.IsNullOrWhiteSpace(body.Contenu))
@@ -52,7 +52,7 @@ namespace srv.Comment
 
             app.MapDelete("/comment/{commentId}", async (string commentId, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetPrincipalFromContext(ctx);
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
 
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
