@@ -45,7 +45,7 @@
                         android:id="@+id/userName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/username"
+                        android:text="Username"
                         android:textColor="@color/white"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -70,41 +70,99 @@
                 android:layout_height="1dp"
                 android:background="#CCCCCC" />
 
-            <EditText
-                android:id="@+id/etPostTags"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/dashed_border"
-                android:hint="Tags (comma-separated)"
-                android:inputType="text"
-                android:padding="10dp"
-                android:textColor="@color/black"
-                android:textSize="14sp" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:weightSum="4">
 
-            <LinearLayout
+                <EditText
+                    android:id="@+id/etPostTags"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:background="@drawable/solid_border"
+                    android:hint="Tags"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:textColor="@color/black"
+                    android:textSize="14sp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Price"
+                        android:textColor="@color/black"
+                        android:textSize="14sp" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switchMarketplace"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:thumbTint="@color/red_primary"
+                        app:trackTint="@color/red_primary" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/etPostPrice"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/price_background_selector"
+                    android:hint="$"
+                    android:inputType="numberDecimal"
+                    android:padding="10dp"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    android:enabled="false"
+                    android:visibility="visible" />
+            </LinearLayout>
+
+            <FrameLayout
                 android:id="@+id/btnUploadPhotos"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="200dp"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/dashed_border"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:background="@drawable/dashed_border">
+
+                <LinearLayout
+                    android:id="@+id/uploadPlaceholder"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/add_post"
+                        app:tint="#757575" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Click or drag to add photos"
+                        android:textColor="#757575"
+                        android:textSize="14sp" />
+                </LinearLayout>
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/msg"
-                    app:tint="#757575" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Click or drag to add photos"
-                    android:textColor="#757575"
-                    android:textSize="14sp" />
-            </LinearLayout>
+                    android:id="@+id/ivPostImagePreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone" />
+            </FrameLayout>
 
             <EditText
                 android:id="@+id/etPostContent"
@@ -123,6 +181,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
+                android:gravity="end"
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatButton

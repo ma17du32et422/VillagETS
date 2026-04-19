@@ -11,7 +11,7 @@
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F5F5F5">
+        android:background="@color/background">
 
         <View
             android:id="@+id/topBarBackground"
@@ -97,7 +97,7 @@
             android:id="@+id/bottomNavContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
+            android:background="@color/surface"
             android:elevation="16dp"
             app:layout_constraintBottom_toBottomOf="parent">
 
@@ -159,6 +159,6 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@android:color/white" />
+        android:background="@color/surface" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

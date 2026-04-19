@@ -5,12 +5,14 @@
     android:layout_height="match_parent"
     app:layout_constraintDimensionRatio="2:3"
     android:layout_marginBottom="12dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    android:layout_marginHorizontal="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/surface">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -19,21 +21,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Post Title"
+            android:textColor="@color/text_primary"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:fontFamily="@font/delta_medium"/>
+
         <ImageView
             android:id="@+id/postImage"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:scaleType="centerCrop"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:src="@drawable/silicate" />
+
         <TextView
             android:id="@+id/postContent"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:layout_marginTop="8dp"
             android:text="Post content goes here..."
-            android:textSize="14sp" />
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:fontFamily="@font/delta_light"
+            android:ellipsize="end" />
 
     </LinearLayout>
 

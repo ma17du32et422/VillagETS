@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+.    <!-- Brand Colors -->
+    <color name="red_primary">#E40032</color>
+    <color name="red_dark">#B00020</color>
+
+    <!-- Light Mode Palette -->
+    <color name="background">#FFFFFF</color>
+    <color name="surface">#F5F5F5</color>
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#757575</color>
+    <color name="divider">#DDDDDD</color>
+
+    <!-- Utils -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="red_primary">#E40032</color>
     <color name="gray_inactive">#757575</color>
-    <color name="background_light">#F5F5F5</color>
 </resources>

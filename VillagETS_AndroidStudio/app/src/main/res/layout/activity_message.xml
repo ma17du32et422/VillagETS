@@ -4,7 +4,7 @@
     android:id="@+id/chatMainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/background">
 
     <!-- Red Header Background -->
     <View
@@ -67,7 +67,7 @@
         android:id="@+id/inputContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/surface"
         android:elevation="8dp"
         android:orientation="horizontal"
         android:padding="8dp"
@@ -81,6 +81,8 @@
             android:background="@android:color/transparent"
             android:fontFamily="@font/delta_light"
             android:hint="Type a message..."
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
             android:maxLines="4"
             android:padding="12dp" />
 

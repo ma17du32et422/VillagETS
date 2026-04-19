@@ -32,10 +32,10 @@ public class PostViewModel extends ViewModel {
         return saveSuccess;
     }
 
-    public void chargerPosts() {
+    public void chargerPosts(boolean isMarketplace) {
         executorService.execute(() -> {
             try {
-                List<Post> posts = PostDao.getAllPosts();
+                List<Post> posts = PostDao.getAllPosts(isMarketplace);
                 postsLiveData.postValue(posts);
             } catch (IOException | JSONException e) {
                 message.postValue("Erreur lors du chargement des posts : " + e.getMessage());
