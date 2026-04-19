@@ -28,6 +28,41 @@
     padding: 6px 1%;
 }
 
+#marketplace-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 6px 1% 12px;
+}
+
+#marketplace-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-5);
+    font-size: 0.95rem;
+}
+
+#marketplace-toggle input {
+    accent-color: var(--color-1);
+}
+
+#form-price {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--color-4);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background: transparent;
+    color: var(--color-5);
+    outline: none;
+}
+
+#form-price::placeholder {
+    color: var(--color-4);
+}
+
 #form-tags {
     width: 100%;
     padding: 6px 10px;

@@ -12,6 +12,8 @@ export default function CreatePost({ onSuccess, onCancel }) {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [tags, setTags] = useState("");
   const [textContent, setTextContent] = useState("");
+  const [isMarketplaceItem, setIsMarketplaceItem] = useState(false);
+  const [price, setPrice] = useState("");
   const [error, setError] = useState("");
   const [mediaIndex, setMediaIndex] = useState(0);
   const [dragging, setDragging] = useState(false);
@@ -37,6 +39,12 @@ export default function CreatePost({ onSuccess, onCancel }) {
     setError("");
     if (!title.trim() || !textContent.trim()) {
       setError('Title and text are required.');
+      return;
+    }
+
+    const parsedPrice = price.trim() === '' ? null : Number(price);
+    if (isMarketplaceItem && (parsedPrice == null || Number.isNaN(parsedPrice) || parsedPrice < 0)) {
+      setError('A valid price is required for items for sale.');
       return;
     }
 
@@ -68,6 +76,8 @@ export default function CreatePost({ onSuccess, onCancel }) {
           nom: title,
           contenu: textContent,
           media: mediaUrls,
+          articleAVendre: isMarketplaceItem,
+          prix: isMarketplaceItem ? parsedPrice : null,
           tags: tags.split(',').map(t => t.trim()).filter(Boolean),
         }),
       });
@@ -116,6 +126,32 @@ export default function CreatePost({ onSuccess, onCancel }) {
           value={tags}
           onChange={e => setTags(e.target.value)}
         />
+      </div>
+
+      <div id="marketplace-fields">
+        <label id="marketplace-toggle">
+          <input
+            type="checkbox"
+            checked={isMarketplaceItem}
+            onChange={(e) => {
+              setIsMarketplaceItem(e.target.checked);
+              if (!e.target.checked) setPrice("");
+            }}
+          />
+          <span>Item for sale</span>
+        </label>
+
+        {isMarketplaceItem && (
+          <input
+            id="form-price"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="Price"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+          />
+        )}
       </div>
 
       <div

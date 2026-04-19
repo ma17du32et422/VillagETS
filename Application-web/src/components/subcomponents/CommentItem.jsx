@@ -13,7 +13,7 @@ export default function CommentItem({ comment, postId, onDeleted }) {
   const [nbReponses, setNbReponses] = useState(comment.nbReponses ?? 0)
   const [loadingReplies, setLoadingReplies] = useState(false)
 
-  const isOwner = user?.userId === comment.op?.id
+  const canDelete = user?.userId === comment.op?.id || user?.mainAdmin === true
 
   const toggleReplies = async () => {
     if (!repliesLoaded) {
@@ -108,7 +108,7 @@ export default function CommentItem({ comment, postId, onDeleted }) {
               Reply
             </button>
           )}
-          {isOwner && (
+          {canDelete && (
             <button
               className="comment-action-btn danger"
               type="button"

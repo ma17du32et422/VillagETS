@@ -20,7 +20,12 @@ export default function Post({ post, onDelete }) {
 
   const media = post.media ?? []
   const tags = post.tags ?? []
-  const isOwner = user?.userId === post.op?.id
+  const canDelete = user?.userId === post.op?.id || user?.mainAdmin === true
+  const isMarketplaceItem = post.articleAVendre === true
+  const parsedPrice = post.prix == null ? null : Number(post.prix)
+  const displayPrice = parsedPrice != null && !Number.isNaN(parsedPrice)
+    ? new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(parsedPrice)
+    : null
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -129,7 +134,7 @@ const toggleReaction = async (type) => {
           <button id="post-menu-btn" type="button" onClick={() => setMenuOpen(o => !o)}>⋮</button>
           {menuOpen && (
             <div id="post-menu-dropdown">
-              {isOwner && (
+              {canDelete && (
                 <button className="post-menu-item danger" type="button" onClick={deletePost}>
                   Delete post
                 </button>
@@ -143,6 +148,10 @@ const toggleReaction = async (type) => {
       </div>
 
       <h2 id="title">{post.title ?? post.titre}</h2>
+
+      {isMarketplaceItem && displayPrice && (
+        <p id="post-price">{displayPrice}</p>
+      )}
 
       {tags.length > 0 && (
         <div className="post-tags">

@@ -101,6 +101,8 @@ function UserProfilePage() {
             datetime: post.datePublication ?? '',
             media: post.media ?? [],
             tags: post.tags ?? [],
+            prix: post.prix ?? null,
+            articleAVendre: post.articleAVendre ?? false,
             likes: post.likes ?? 0,
             dislikes: post.dislikes ?? 0,
             commentaires: post.commentaires ?? 0,

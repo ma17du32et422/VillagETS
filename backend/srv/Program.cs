@@ -14,6 +14,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+const bool EnablePerformanceLogging = true;
+const bool EnableTracing = false;
 
 //autorise les uploads à partir du site web
 var builder = WebApplication.CreateBuilder(args);
@@ -48,11 +52,62 @@ var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? throw new Ex
 villagets.Auth.AuthHelper.Initialize(jwtSecret);
 
 builder.Services.AddSingleton<MessagingService>();
+var tracingEnabled = EnableTracing;
+if (tracingEnabled)
+{
+    builder.Services.AddOpenTelemetry()
+        .ConfigureResource(resource => resource
+            .AddService(serviceName: builder.Environment.ApplicationName))
+        .WithTracing(tracing => tracing
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddConsoleExporter());
+}
+
 
 var app = builder.Build();
 
+PerfLogger.Enabled = EnablePerformanceLogging;
+
 app.UseCors("AllowFrontend");
 app.UseWebSockets();
+app.Use(async (context, next) =>
+{
+    if (!PerfLogger.Enabled || context.WebSockets.IsWebSocketRequest)
+    {
+        await next();
+        return;
+    }
+
+    var sw = System.Diagnostics.Stopwatch.StartNew();
+    try
+    {
+        await next();
+    }
+    finally
+    {
+        sw.Stop();
+        var elapsedMs = sw.ElapsedMilliseconds;
+        if (elapsedMs >= 500)
+        {
+            app.Logger.LogWarning(
+                "HTTP {Method} {Path} -> {StatusCode} in {ElapsedMs}ms",
+                context.Request.Method,
+                context.Request.Path,
+                context.Response.StatusCode,
+                elapsedMs);
+        }
+        else
+        {
+            app.Logger.LogInformation(
+                "HTTP {Method} {Path} -> {StatusCode} in {ElapsedMs}ms",
+                context.Request.Method,
+                context.Request.Path,
+                context.Response.StatusCode,
+                elapsedMs);
+        }
+    }
+});
 
 var url = Environment.GetEnvironmentVariable("SUPABASE_URL");
 var key = Environment.GetEnvironmentVariable("SUPABASE_KEY");
@@ -66,19 +121,19 @@ supabaseService.InitializeAsync().Wait();
 
 var supabase = SupabaseService.GetClient();
 
+var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
 
-
-UserService userService = new UserService();
+UserService userService = new UserService(loggerFactory.CreateLogger<UserService>());
 srv.User.UserRoutes.MapUserRoutes(app, userService, isDevelopment);
 
 
-PostService postService = new PostService();
+PostService postService = new PostService(loggerFactory.CreateLogger<PostService>());
 PostRoutes.Map(app, postService);
 
-ReactionService reactionService = new ReactionService();
+ReactionService reactionService = new ReactionService(loggerFactory.CreateLogger<ReactionService>());
 ReactionRoutes.MapReactionRoutes(app, reactionService);
 
-CommentService commentService = new CommentService();
+CommentService commentService = new CommentService(loggerFactory.CreateLogger<CommentService>());
 CommentRoutes.Map(app, commentService);
 
 MessagingRoutes.Map(app, app.Services.GetRequiredService<MessagingService>());
@@ -122,10 +177,10 @@ app.MapGet("/me", async (HttpContext ctx) =>
 
     var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-    var result = await supabase
+    var result = await PerfLogger.TimeAsync(app.Logger, "Program./me user lookup", () => supabase
         .From<sql.Utilisateur>()
         .Where(u => u.Id == userId)
-        .Get();
+        .Get());
 
     var user = result.Model;
     if (user == null) return Results.NotFound();
@@ -137,7 +192,8 @@ app.MapGet("/me", async (HttpContext ctx) =>
         nom = user.Nom,
         prenom = user.Prenom,
         email = user.Email,
-        photoProfil = user.PhotoProfil
+        photoProfil = user.PhotoProfil,
+        mainAdmin = user.MainAdmin
     });
 });
 
@@ -175,9 +231,9 @@ app.MapPost("/upload", async (HttpContext ctx) =>
             Type = type
         };
 
-        var response = await supabase
+        var response = await PerfLogger.TimeAsync(app.Logger, "Program./upload fichier insert", () => supabase
             .From<sql.Fichier>()
-            .Insert(fichier);
+            .Insert(fichier));
 
         var savedFile = response.Models.FirstOrDefault();
         if (savedFile == null)

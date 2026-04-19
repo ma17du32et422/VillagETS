@@ -432,3 +432,4 @@ FodyWeavers.xsd
 
 # JetBrains / IntelliJ / PyCharm / WebStorm project files
 .idea/
+/.dotnet-home

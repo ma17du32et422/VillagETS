@@ -11,13 +11,15 @@ namespace srv.Messaging
     public class MessagingService
     {
         private readonly Supabase.Client _supabase;
+        private readonly ILogger<MessagingService> _logger;
 
         // Keeps track of currently connected users: Key = UserId, Value = WebSocket
         private readonly ConcurrentDictionary<string, WebSocket> _activeConnections = new();
 
-        public MessagingService()
+        public MessagingService(ILogger<MessagingService> logger)
         {
             _supabase = SupabaseService.GetClient();
+            _logger = logger;
         }
 
         public async Task HandleConnectionAsync(string userId, WebSocket webSocket)
@@ -84,25 +86,25 @@ namespace srv.Messaging
                 DateMsg = DateTime.UtcNow
             };
 
-            var result = await _supabase.From<ConversationMessage>().Insert(msg);
+            var result = await PerfLogger.TimeAsync(_logger, "MessagingService.SaveMessageAsync insert message", () => _supabase.From<ConversationMessage>().Insert(msg));
             return result.Models.FirstOrDefault();
         }
 
         public async Task<string> GetOrCreateConversationAsync(string user1Id, string user2Id)
         {
             // Check if conversation exists
-            var res1 = await _supabase.From<Conversation>()
+            var res1 = await PerfLogger.TimeAsync(_logger, "MessagingService.GetOrCreateConversationAsync lookup direct", () => _supabase.From<Conversation>()
                 .Where(c => c.User1Id == user1Id && c.User2Id == user2Id)
-                .Get();
+                .Get());
 
             var existing = res1.Models.FirstOrDefault();
 
             if (existing == null)
             {
                 // Check reverse 
-                var res2 = await _supabase.From<Conversation>()
+                var res2 = await PerfLogger.TimeAsync(_logger, "MessagingService.GetOrCreateConversationAsync lookup reverse", () => _supabase.From<Conversation>()
                     .Where(c => c.User1Id == user2Id && c.User2Id == user1Id)
-                    .Get();
+                    .Get());
                 existing = res2.Models.FirstOrDefault();
             }
 
@@ -115,7 +117,7 @@ namespace srv.Messaging
                 User2Id = user2Id
             };
 
-            var insertRes = await _supabase.From<Conversation>().Insert(newConvo);
+            var insertRes = await PerfLogger.TimeAsync(_logger, "MessagingService.GetOrCreateConversationAsync insert conversation", () => _supabase.From<Conversation>().Insert(newConvo));
             return insertRes.Models.First().Id!;
         }
 
@@ -124,10 +126,10 @@ namespace srv.Messaging
 
             var conversationId = await GetOrCreateConversationAsync(userId1, userId2);
 
-            var result = await _supabase.From<ConversationMessage>()
+            var result = await PerfLogger.TimeAsync(_logger, "MessagingService.GetHistoryAsync messages", () => _supabase.From<ConversationMessage>()
                 .Where(m => m.ConversationId == conversationId)
                 .Order("date_msg", Supabase.Postgrest.Constants.Ordering.Ascending)
-                .Get();
+                .Get());
 
             return result.Models.Select(m => new MessageDTO
             {
@@ -142,9 +144,9 @@ namespace srv.Messaging
 
         public async Task<List<ConversationDTO>> GetAllConversationsAsync(string currentUserId)
         {
-            var response = await _supabase.From<Conversation>()
+            var response = await PerfLogger.TimeAsync(_logger, "MessagingService.GetAllConversationsAsync conversations", () => _supabase.From<Conversation>()
                 .Where(c => c.User1Id == currentUserId || c.User2Id == currentUserId)
-                .Get();
+                .Get());
 
             var conversations = response.Models;
             var sidebarList = new List<ConversationDTO>();
@@ -157,9 +159,9 @@ namespace srv.Messaging
                 .Distinct()
                 .ToList();
 
-            var usersResponse = await _supabase.From<Utilisateur>()
+            var usersResponse = await PerfLogger.TimeAsync(_logger, "MessagingService.GetAllConversationsAsync users", () => _supabase.From<Utilisateur>()
                 .Filter("id_utilisateur", Supabase.Postgrest.Constants.Operator.In, otherUserIds!)
-                .Get();
+                .Get());
 
             var userMap = usersResponse.Models.ToDictionary(u => u.Id!, u => u);
 
