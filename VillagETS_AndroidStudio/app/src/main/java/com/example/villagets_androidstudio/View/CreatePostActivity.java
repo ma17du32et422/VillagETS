@@ -1,13 +1,19 @@
 package com.example.villagets_androidstudio.View;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -16,22 +22,41 @@ import com.example.villagets_androidstudio.Model.Post;
 import com.example.villagets_androidstudio.Model.User;
 import com.example.villagets_androidstudio.R;
 import com.example.villagets_androidstudio.View_Model.PostViewModel;
+import com.example.villagets_androidstudio.View_Model.UserViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CreatePostActivity extends AppCompatActivity {
 
     private EditText etTitle, etTags, etContent, etPrice;
     private SwitchCompat switchMarketplace;
     private Button btnPost, btnCancel;
-    private LinearLayout btnUploadPhotos;
+    private LinearLayout uploadPlaceholder;
+    private FrameLayout btnUploadPhotos;
+    private ImageView ivPostImagePreview;
     private TextView tvUserName;
-    private PostViewModel viewModel;
+    private PostViewModel postViewModel;
+    private UserViewModel userViewModel;
+    private Uri selectedImageUri;
+
+    private final ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                if (uri != null) {
+                    selectedImageUri = uri;
+                    ivPostImagePreview.setImageURI(uri);
+                    ivPostImagePreview.setVisibility(View.VISIBLE);
+                    uploadPlaceholder.setVisibility(View.GONE);
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_post);
 
-        viewModel = new ViewModelProvider(this).get(PostViewModel.class);
+        postViewModel = new ViewModelProvider(this).get(PostViewModel.class);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         etTitle = findViewById(R.id.etPostTitle);
         etTags = findViewById(R.id.etPostTags);
@@ -41,12 +66,20 @@ public class CreatePostActivity extends AppCompatActivity {
         btnPost = findViewById(R.id.btnPost);
         btnCancel = findViewById(R.id.btnCancel);
         btnUploadPhotos = findViewById(R.id.btnUploadPhotos);
+        uploadPlaceholder = findViewById(R.id.uploadPlaceholder);
+        ivPostImagePreview = findViewById(R.id.ivPostImagePreview);
         tvUserName = findViewById(R.id.userName);
 
         User currentUser = User.loadUser(this);
-        if (currentUser != null && currentUser.getPseudo() != null) {
-            tvUserName.setText(currentUser.getPseudo());
+        if (currentUser != null && currentUser.getEmail() != null) {
+            userViewModel.fetchUser(currentUser.getEmail());
         }
+
+        userViewModel.getUserLiveData().observe(this, user -> {
+            if (user != null && user.getPseudo() != null) {
+                tvUserName.setText(user.getPseudo());
+            }
+        });
 
         switchMarketplace.setOnCheckedChangeListener((buttonView, isChecked) -> {
             etPrice.setEnabled(isChecked);
@@ -57,15 +90,16 @@ public class CreatePostActivity extends AppCompatActivity {
 
         btnCancel.setOnClickListener(v -> finish());
 
-        btnUploadPhotos.setOnClickListener(v ->
-            Toast.makeText(this, "Photo upload coming soon!", Toast.LENGTH_SHORT).show()
-        );
+        btnUploadPhotos.setOnClickListener(v -> pickMedia.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                .build()));
 
         btnPost.setOnClickListener(v -> {
             String title = etTitle.getText().toString().trim();
             String content = etContent.getText().toString().trim();
             boolean isMarketplace = switchMarketplace.isChecked();
             String priceStr = etPrice.getText().toString().trim();
+            String tagsStr = etTags.getText().toString().trim();
             
             if (title.isEmpty() || content.isEmpty()) {
                 Toast.makeText(this, "Please fill in title and content", Toast.LENGTH_SHORT).show();
@@ -81,7 +115,20 @@ public class CreatePostActivity extends AppCompatActivity {
             newPost.setTitre(title);
             newPost.setContenu(content);
             newPost.setArticleAVendre(isMarketplace);
-            
+
+            // Gérer les médias (simulé pour l'instant avec l'URI locale)
+            if (selectedImageUri != null) {
+                newPost.setMedia(new String[]{selectedImageUri.toString()});
+            } else {
+                newPost.setMedia(new String[]{});
+            }
+
+            // Gérer la catégorie/tags (basé sur le premier tag si présent)
+            if (!tagsStr.isEmpty()) {
+                String[] parts = tagsStr.split(",");
+                newPost.setCategorie(parts[0].trim());
+            }
+
             if (isMarketplace) {
                 try {
                     newPost.setPrix(Double.parseDouble(priceStr));
@@ -89,19 +136,21 @@ public class CreatePostActivity extends AppCompatActivity {
                     Toast.makeText(this, "Invalid price format", Toast.LENGTH_SHORT).show();
                     return;
                 }
+            } else {
+                newPost.setPrix(0.0);
             }
 
-            viewModel.creerPost(newPost);
+            postViewModel.creerPost(newPost);
         });
 
-        viewModel.getSaveSuccess().observe(this, success -> {
+        postViewModel.getSaveSuccess().observe(this, success -> {
             if (success != null && success) {
                 Toast.makeText(this, "Post published successfully!", Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
 
-        viewModel.getMessage().observe(this, msg -> {
+        postViewModel.getMessage().observe(this, msg -> {
             if (msg != null && !msg.isEmpty()) {
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
             }

@@ -45,7 +45,7 @@
                         android:id="@+id/userName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/username"
+                        android:text="Username"
                         android:textColor="@color/white"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -127,29 +127,42 @@
                     android:visibility="visible" />
             </LinearLayout>
 
-            <LinearLayout
+            <FrameLayout
                 android:id="@+id/btnUploadPhotos"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="200dp"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/dashed_border"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:background="@drawable/dashed_border">
+
+                <LinearLayout
+                    android:id="@+id/uploadPlaceholder"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/add_post"
+                        app:tint="#757575" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Click or drag to add photos"
+                        android:textColor="#757575"
+                        android:textSize="14sp" />
+                </LinearLayout>
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/add_post"
-                    app:tint="#757575" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Click or drag to add photos"
-                    android:textColor="#757575"
-                    android:textSize="14sp" />
-            </LinearLayout>
+                    android:id="@+id/ivPostImagePreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone" />
+            </FrameLayout>
 
             <EditText
                 android:id="@+id/etPostContent"

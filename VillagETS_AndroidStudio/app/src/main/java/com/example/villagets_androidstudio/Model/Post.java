@@ -1,19 +1,25 @@
 package com.example.villagets_androidstudio.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Post {
     private String id;
+    
+    @JsonProperty("nom")
+    @JsonAlias({"titre", "title"})
     private String titre;
+    
     private String contenu;
+    private String categorie;
     private String[] media;
     private String datePublication;
     private Double prix;
     private boolean articleAVendre;
     private Author op;
 
-    // Classe interne pour l'auteur (op)
     public static class Author {
         private String id;
         private String pseudo;
@@ -31,7 +37,6 @@ public class Post {
 
     public Post() {}
 
-    // Getters et Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -40,6 +45,9 @@ public class Post {
 
     public String getContenu() { return contenu; }
     public void setContenu(String contenu) { this.contenu = contenu; }
+
+    public String getCategorie() { return categorie; }
+    public void setCategorie(String categorie) { this.categorie = categorie; }
 
     public String[] getMedia() { return media; }
     public void setMedia(String[] media) { this.media = media; }

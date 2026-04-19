@@ -38,6 +38,9 @@
         <activity
             android:name=".View.CreatePostActivity"
             android:exported="false" />
+        <activity
+            android:name=".View.ItemDetailsActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

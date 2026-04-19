@@ -57,7 +57,7 @@ public class FeedFragment extends Fragment {
         // Recharger les posts à chaque fois que le fragment devient visible
         // (Utile après un login ou un retour sur l'app)
         if (viewModel != null) {
-            viewModel.chargerPosts();
+            viewModel.chargerPosts(false);
         }
     }
 }

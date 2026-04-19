@@ -11,11 +11,10 @@ import java.util.List;
 import retrofit2.Response;
 
 public class PostDao {
-    public static List<Post> getAllPosts() throws IOException, JSONException {
+    public static List<Post> getAllPosts(boolean isMarketplace) throws IOException, JSONException {
         try {
             HttpJsonService service = new HttpJsonService();
-            // Appel à la route /feed via getFeed (searchString=null, tags=null, isMarketplace=false)
-            List<Post> feed = service.getFeed(null, null, false);
+            List<Post> feed = service.getFeed(null, null, isMarketplace);
             if (feed != null) {
                 return feed;
             }

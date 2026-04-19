@@ -1,6 +1,7 @@
 package com.example.villagets_androidstudio.View;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,14 +45,27 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         holder.title.setText(post.getTitre());
         holder.content.setText(post.getContenu());
 
-        if (post.getMedia() != null && post.getMedia().length > 0) {
+        String imageUrl = (post.getMedia() != null && post.getMedia().length > 0) ? post.getMedia()[0] : null;
+
+        if (imageUrl != null) {
             holder.image.setVisibility(View.VISIBLE);
+            String displayUrl = imageUrl.replace("localhost", "10.0.2.2");
             Glide.with(holder.itemView.getContext())
-                    .load(post.getMedia()[0])
+                    .load(displayUrl)
+                    .placeholder(R.drawable.silicate)
                     .into(holder.image);
         } else {
             holder.image.setVisibility(View.GONE);
         }
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), ItemDetailsActivity.class);
+            intent.putExtra("title", post.getTitre());
+            intent.putExtra("description", post.getContenu());
+            intent.putExtra("price", post.getPrix() != null ? String.format("%.2f$", post.getPrix()) : "");
+            intent.putExtra("imageUrl", imageUrl);
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override

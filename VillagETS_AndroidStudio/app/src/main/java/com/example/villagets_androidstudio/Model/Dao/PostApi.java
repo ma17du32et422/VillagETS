@@ -18,7 +18,7 @@ public interface PostApi {
     @POST("/feed")
     Call<List<Post>> getFeed(@Body Map<String, Object> body);
 
-    @POST("/posts")
+    @POST("/post")
     Call<Post> createPost(@Body Post post);
 
     @PUT("/posts/{id}")
