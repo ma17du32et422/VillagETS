@@ -13,6 +13,7 @@ export default function Header(){
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false)
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') ?? 'light')
+  const [searchInput, setSearchInput] = useState('')
   const menuRef = useRef(null)
 
 
@@ -25,6 +26,13 @@ export default function Header(){
     }
     navigate(`/ProfilePage/${user.userId}`)
   };
+
+  const handleSearch = (e) => {
+    if (e.key === 'Enter' && searchInput.trim()) {
+      navigate(`/Search?query=${encodeURIComponent(searchInput)}`)
+      setSearchInput('')
+    }
+  }
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -60,7 +68,14 @@ export default function Header(){
   return(
     <div className="head-container">
       <h2 id="app-name" onClick={redirectHome}>VILLAGETS</h2>
-      <input id="search" type="text" placeholder="Search"></input>
+      <input 
+        id="search" 
+        type="text" 
+        placeholder="Search"
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)}
+        onKeyDown={handleSearch}
+      ></input>
       <div id="profile-button-wrapper">
         { user ? (
         <div id="profile-menu-wrap" ref={menuRef}>
