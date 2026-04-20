@@ -1,6 +1,6 @@
 .actions{
     width: 100%;
-    padding: 24px 16px;
+    padding: 16px 10px;
 }
 
 /** Button styling */
@@ -10,13 +10,30 @@
     background-color: var(--color-1);
     border:none;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 14px;
+    padding: 0 14px;
 }
 
 /** Button text styling*/
-#create-post-text{
+.create-post-icon{
     font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: 16px;
-    margin: auto;
+    font-size: 24px;
+    line-height: 1;
     color: var(--color-6);
+}
+
+.create-post-label{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 15px;
+    color: var(--color-6);
+    white-space: nowrap;
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-width 0.2s ease, opacity 0.2s ease;
 }
 

@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
-import Header from '../components/Header.jsx';
 import UsernameForm from '../components/UsernameForm';
 import PasswordForm from '../components/PasswordForm';
 import { getBaseUrl } from '../API';
@@ -117,33 +116,23 @@ function ProfilePage() {
     };
 
     if (loading) {
-        return (
-            <>
-                <header><Header /></header>
-                <main id="profileMain"><p>Loading profile...</p></main>
-            </>
-        );
+        return <main id="profileMain"><p>Loading profile...</p></main>;
     }
 
     if (!user) {
         return (
-            <>
-                <header><Header /></header>
-                <main id="profileMain">
-                    <section id="profile-edit-container">
-                        <div id="profile-edit">
-                            <h2>Please log in to access your profile</h2>
-                            <button type="button" onClick={() => navigate('/LoginPage')}>Go to Login</button>
-                        </div>
-                    </section>
-                </main>
-            </>
+            <main id="profileMain">
+                <section id="profile-edit-container">
+                    <div id="profile-edit">
+                        <h2>Please log in to access your profile</h2>
+                        <button type="button" onClick={() => navigate('/LoginPage')}>Go to Login</button>
+                    </div>
+                </section>
+            </main>
         );
     }
 
     return (
-        <>
-            <header><Header /></header>
             <main id="profileMain">
                 <section id="profile-edit-container">
                     <div id="profile-edit">
@@ -179,7 +168,6 @@ function ProfilePage() {
                     </div>
                 </section>
             </main>
-        </>
     );
 }
 

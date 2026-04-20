@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../AuthContext';
-import Header from "../components/Header";
-import Actions from "../components/Actions";
 import Flux from "../components/Flux";
-import Messages from "../components/Messages";
 import { getBaseUrl } from '../API';
 
 import '../assets/App.css'
@@ -75,21 +72,11 @@ function App(){
   };
 
   return(
-    <>
-      <header id="header"><Header /></header>
-
-      <main className="home-main">
-
-        <section className="home-actions-container">
-          <div className="home-actions"><Actions onPostCreated={handlePostCreated} user={user} /></div>
-        </section>
-
-        <section className="home-flux-container">
-          <div className="home-flux"><Flux posts={posts} loading={loading} error={error} /></div>
-        </section>
-
-      </main>
-    </>
+    <main className="home-main">
+      <section className="home-flux-container">
+        <div className="home-flux"><Flux posts={posts} loading={loading} error={error} /></div>
+      </section>
+    </main>
   );
 }
 

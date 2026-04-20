@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import Header from '../components/Header'
 import { getBaseUrl } from '../API'
 import { useAuth } from '../AuthContext'
 import { beginDiscussion } from '../utils/discussion'
@@ -144,8 +143,6 @@ function UserProfilePage() {
   }
 
   return (
-    <>
-      <header><Header /></header>
       <main className="user-profile-page">
         <section className="user-profile-hero">
           <div className="user-profile-shell user-profile-head">
@@ -205,7 +202,6 @@ function UserProfilePage() {
           </div>
         </section>
       </main>
-    </>
   )
 }
 

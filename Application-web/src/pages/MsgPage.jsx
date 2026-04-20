@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import Header from "../components/Header";
 import Messages from "../components/Messages";
 import Chat from "../components/Chat";
 import '../assets/MsgPage.css'
@@ -21,8 +20,6 @@ function MsgPage() {
 
   return (
     <div className="app-container">
-      <Header />
-      
       <main className="main-layout">
         {/* Sidebar - Left side */}
         <section className="sidebar-container">

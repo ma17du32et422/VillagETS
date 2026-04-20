@@ -32,9 +32,8 @@ header {
 
 .home-main {
     display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    height: calc(100vh - 56px);
+    flex: 1;
+    min-height: 0;
     overflow: hidden;
     width: 100%;
     background-color: var(--color-2);
@@ -48,7 +47,6 @@ header {
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
-    padding-right: var(--home-sidebar-width);
 }
 
 .home-flux {
@@ -56,13 +54,6 @@ header {
     max-width: 52rem;
     margin: 0 auto;
     padding: 24px 24px 40px;
-}
-
-.home-actions-container {
-    display: block;
-    flex: 0 0 var(--home-sidebar-width);
-    border-right: 2px solid var(--color-4);
-    background-color: var(--color-2);
 }
 
 .home-messages-container {
@@ -80,12 +71,9 @@ header {
 }
 
 @media (max-width: 900px) {
-    .home-flux-container {
-        padding-right: 0;
-    }
-
-    .home-actions-container {
-        flex-basis: 180px;
+    .home-flux {
+        padding-left: 16px;
+        padding-right: 16px;
     }
 }
 

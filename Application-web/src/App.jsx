@@ -8,6 +8,7 @@ import TestSignup from './pages/TestSignup';
 import Signup from './pages/Signup'
 import CreatePost from './pages/CreatePost'
 import { useEffect, useState } from 'react'
+import WebsiteLayout from './components/WebsiteLayout'
 
 
 function App(){
@@ -57,13 +58,15 @@ function App(){
   return (
     /** Import all pages created here */
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/MsgPage" element={<MsgPage />} />
+      <Route element={<WebsiteLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/MsgPage" element={<MsgPage />} />
+        <Route path="/Create" element={<CreatePost/>}/>
+        <Route path="/SettingsPage" element={<ProfilePage />} />
+        <Route path="/ProfilePage/:userId" element={<UserProfilePage />} />
+      </Route>
       <Route path="/LoginPage" element={<LoginPage />}/>
       <Route path="/Signup" element={<Signup/>}/>
-      <Route path="/Create" element={<CreatePost/>}/>
-      <Route path="/SettingsPage" element={<ProfilePage />} />
-      <Route path="/ProfilePage/:userId" element={<UserProfilePage />} />
       <Route path="/test-signup" element={<TestSignup />} />
     </Routes>
   )
