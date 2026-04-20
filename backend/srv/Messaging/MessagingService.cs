@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using sql;
 using Supabase.Postgrest;
 using System.Buffers;
@@ -75,6 +75,14 @@ namespace srv.Messaging
 
                     if (payload != null && !string.IsNullOrWhiteSpace(payload.receiverId))
                     {
+                        if (IsRateLimited(userId))
+                        {
+                            var errorMsg = JsonSerializer.Serialize(new { error = "rate_limited", message = "Trop de messages, réessayez dans une minute." });
+                            var errorBytes = Encoding.UTF8.GetBytes(errorMsg);
+                            await webSocket.SendAsync(new ArraySegment<byte>(errorBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+                            continue;
+                        }
+
                         var savedMsg = await SaveMessageAsync(userId, payload.receiverId, payload.contenu?.Trim());
 
                         if (savedMsg != null && _activeConnections.TryGetValue(payload.receiverId, out var receiverSocket))
@@ -268,5 +276,26 @@ namespace srv.Messaging
     {
         public string? ConversationId { get; set; }
         public object? OtherUser { get; set; }
+    }
+
+    private readonly ConcurrentDictionary<string, Queue<DateTime>> _rateLimits = new();
+    private readonly object _rateLock = new();
+    private const int MaxMessagesPerMinute = 10;
+
+    private bool IsRateLimited(string userId)
+    {
+        var now = DateTime.UtcNow;
+        lock (_rateLock)
+        {
+            var queue = _rateLimits.GetOrAdd(userId, _ => new Queue<DateTime>());
+
+            while (queue.Count > 0 && now - queue.Peek() > TimeSpan.FromMinutes(1))
+                queue.Dequeue();
+
+            if (queue.Count >= MaxMessagesPerMinute) return true;
+
+            queue.Enqueue(now);
+            return false;
+        }
     }
 }

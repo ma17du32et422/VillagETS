@@ -23,6 +23,12 @@ export const ChatProvider = ({ children }) => {
 
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
+
+            if (data.error === 'rate_limited') {
+                console.warn(data.message);
+                return;
+            }
+
             console.log(data);
             setLastMessage(data);
             setLastActivity({
