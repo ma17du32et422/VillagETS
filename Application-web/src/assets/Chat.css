@@ -67,3 +67,26 @@
 .send-button:hover {
     background-color: var(--color-t-2);
 }
+
+.rate-limit-counter {
+    font-size: 0.75rem;
+    color: #888;
+    text-align: right;
+    padding: 0.125rem 0.75rem;
+    transition: color 0.3s;
+}
+
+.rate-limit-counter.warning {
+    color: #e0a800;
+    font-weight: 500;
+}
+
+.rate-limit-counter.blocked {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.send-button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
