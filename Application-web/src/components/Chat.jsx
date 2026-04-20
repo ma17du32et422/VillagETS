@@ -129,7 +129,7 @@ const Chat = ({ targetUserId }) => {
     // Label du bouton selon l'état
     const buttonLabel = rateLimitInfo.blocked
         ? `${rateLimitInfo.secondsLeft}s`
-        : 'SEND';
+        : 'ENVOYER';
 
     // Label du compteur
     const counterLabel = rateLimitInfo.blocked
@@ -158,7 +158,7 @@ const Chat = ({ targetUserId }) => {
                     >
                         <div className="message-bubble">
                             <small className="message-sender">
-                                {m.envoyeurId === targetUserId ? "Them" : "Me"}
+                                {m.envoyeurId === targetUserId ? "Them" : "Moi"}
                             </small>
                             {m.contenu}
                         </div>
