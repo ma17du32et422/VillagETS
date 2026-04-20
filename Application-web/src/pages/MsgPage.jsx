@@ -22,7 +22,7 @@ function MsgPage() {
     <div className="app-container">
       <main className="main-layout">
         {/* Sidebar - Left side */}
-        <section className="sidebar-container">
+        <section className="msg-sidebar-container">
           <Messages selectedUserId={selectedUserId} onSelectUser={handleSelectUser} />
         </section>
 

@@ -12,9 +12,10 @@
     overflow: hidden;
 }
 
-.sidebar-container {
+.msg-sidebar-container {
     width: 300px;
     border-right: 1px solid var(--color-4);
+    border-left: 1px solid var(--color-4);
     height: 100%;
     overflow-y: auto;
 }

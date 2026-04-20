@@ -11,6 +11,8 @@
 
     --color-white: #ffffff;
     --color-black: #000000;
+    --sidebar-width-collapsed: 64px;
+    --sidebar-width-expanded: 200px;
 }
 
 /* DARK MODE COLORS */
