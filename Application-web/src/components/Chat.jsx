@@ -105,13 +105,18 @@ const Chat = ({ targetUserId }) => {
         return true;
     }, [startCountdown]);
 
-    const handleSend = () => {
+    const isSendingRef = useRef(false);
+
+    const handleSend = useCallback(() => {
         if (!text.trim()) return;
-        if (!checkRateLimit()) return; // bloqué
+        if (isSendingRef.current) return; // guard synchrone
+        if (!checkRateLimit()) return;
+
+        isSendingRef.current = true;
+        setTimeout(() => { isSendingRef.current = false; }, 100);
 
         sendMessage(targetUserId, text);
 
-        // Optimistic update
         const myMessage = {
             envoyeurId: "ME",
             contenu: text,
@@ -119,7 +124,7 @@ const Chat = ({ targetUserId }) => {
         };
         setMessages((prev) => [...prev, myMessage]);
         setText("");
-    };
+    }, [text, checkRateLimit, sendMessage, targetUserId]);
 
     // Label du bouton selon l'état
     const buttonLabel = rateLimitInfo.blocked
@@ -174,7 +179,7 @@ const Chat = ({ targetUserId }) => {
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                    placeholder={rateLimitInfo.blocked ? "Limite atteinte..." : "Type a message..."}
+                    placeholder={rateLimitInfo.blocked ? "Limite atteinte..." : `Envoyer un message (${rateLimitInfo.remaining}/${MAX_MESSAGES})`}
                     disabled={rateLimitInfo.blocked}
                 />
                 <button
