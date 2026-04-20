@@ -25,20 +25,27 @@ namespace srv.Post
 
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
 
-                var created = await postService.Create(publication, userId);
-                if (created is null) return Results.BadRequest("Failed to create post");
-
-                return Results.Ok(new
+                try
                 {
-                    id = created.Id,
-                    titre = created.Nom,
-                    contenu = created.Contenu,
-                    media = created.Media,
-                    utilisateurId = created.UtilisateurId,
-                    datePublication = created.DatePublication,
-                    prix = created.Prix,
-                    articleAVendre = created.ArticleAVendre
-                });
+                    var created = await postService.Create(publication, userId);
+                    if (created is null) return Results.BadRequest("Failed to create post");
+
+                    return Results.Ok(new
+                    {
+                        id = created.Id,
+                        titre = created.Nom,
+                        contenu = created.Contenu,
+                        media = created.Media,
+                        utilisateurId = created.UtilisateurId,
+                        datePublication = created.DatePublication,
+                        prix = created.Prix,
+                        articleAVendre = created.ArticleAVendre
+                    });
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(ex.Message);
+                }
             });
 
             app.MapDelete("/post/{id}", async (int id, HttpContext ctx) =>

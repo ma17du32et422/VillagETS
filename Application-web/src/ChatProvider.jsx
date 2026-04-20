@@ -8,6 +8,7 @@ export const ChatProvider = ({ children }) => {
     const { user, loading } = useAuth();
     const [socket, setSocket] = useState(null);
     const [lastMessage, setLastMessage] = useState(null); // The most recent message received
+    const [lastActivity, setLastActivity] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
 
     const connect = useCallback(() => {
@@ -24,6 +25,11 @@ export const ChatProvider = ({ children }) => {
             const data = JSON.parse(event.data);
             console.log(data);
             setLastMessage(data);
+            setLastActivity({
+                type: 'received',
+                message: data,
+                at: Date.now()
+            });
         };
 
         ws.onclose = () => {
@@ -44,11 +50,19 @@ export const ChatProvider = ({ children }) => {
     const sendMessage = (receiverId, content) => {
         if (socket && isConnected) {
             socket.send(JSON.stringify({ receiverId: receiverId, contenu: content }));
+            setLastActivity({
+                type: 'sent',
+                message: {
+                    receiverId,
+                    contenu: content
+                },
+                at: Date.now()
+            });
         }
     };
 
     return (
-        <ChatContext.Provider value={{ isConnected, lastMessage, sendMessage }}>
+        <ChatContext.Provider value={{ isConnected, lastMessage, lastActivity, sendMessage }}>
             {children}
         </ChatContext.Provider>
     );

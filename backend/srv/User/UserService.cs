@@ -15,11 +15,20 @@ namespace srv
 
         public async Task<Utilisateur?> Register(string email, string password, string pseudo, string nom, string prenom, string photoProfil)
         {
+            email = email.Trim();
+            pseudo = pseudo.Trim();
+            nom = nom.Trim();
+            prenom = prenom.Trim();
+
+            if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("Email is required");
             if (pseudo.Length < 3) throw new ArgumentException("Username must be at least 3 characters");
             if (password.Length < 8) throw new ArgumentException("Password must be at least 8 characters");
 
-            var existing = await PerfLogger.TimeAsync(_logger, "UserService.Register existing user lookup", () => _supabase.From<Utilisateur>().Where(u => u.Email == email).Get());
-            if (existing.Models.Count > 0) throw new InvalidOperationException("Email already in use");
+            var existingEmail = await PerfLogger.TimeAsync(_logger, "UserService.Register existing email lookup", () => _supabase.From<Utilisateur>().Where(u => u.Email == email).Get());
+            if (existingEmail.Models.Count > 0) throw new InvalidOperationException("Email already in use");
+
+            var existingPseudo = await PerfLogger.TimeAsync(_logger, "UserService.Register existing pseudo lookup", () => _supabase.From<Utilisateur>().Where(u => u.Pseudo == pseudo).Get());
+            if (existingPseudo.Models.Count > 0) throw new InvalidOperationException("Username already taken");
 
             var user = new Utilisateur
             {
@@ -62,10 +71,15 @@ namespace srv
 
         public async Task<bool> UpdatePseudo(string userId, string pseudo)
         {
-            if (pseudo.Trim().Length < 3) throw new ArgumentException("Username must be at least 3 characters");
+            pseudo = pseudo.Trim();
+            if (pseudo.Length < 3) throw new ArgumentException("Username must be at least 3 characters");
+
+            var currentUser = await GetRequiredUser(userId);
+            if (string.Equals(currentUser.Pseudo, pseudo, StringComparison.Ordinal))
+                return true;
 
             var existing = await PerfLogger.TimeAsync(_logger, "UserService.UpdatePseudo pseudo lookup", () => _supabase.From<Utilisateur>().Filter("pseudo", Operator.Equals, pseudo).Get());
-            if (existing.Models.Count > 0) throw new InvalidOperationException("Username already taken");
+            if (existing.Models.Any(u => u.Id != userId)) throw new InvalidOperationException("Username already taken");
 
             await PerfLogger.TimeAsync(_logger, "UserService.UpdatePseudo update pseudo", () => _supabase.From<Utilisateur>().Where(u => u.Id == userId).Set(u => u.Pseudo!, pseudo).Update());
             return true;
@@ -88,8 +102,15 @@ namespace srv
 
         public async Task<bool> UpdateEmail(string userId, string email)
         {
+            email = email.Trim();
+            if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("Email is required");
+
+            var currentUser = await GetRequiredUser(userId);
+            if (string.Equals(currentUser.Email, email, StringComparison.OrdinalIgnoreCase))
+                return true;
+
             var existing = await PerfLogger.TimeAsync(_logger, "UserService.UpdateEmail email lookup", () => _supabase.From<Utilisateur>().Where(u => u.Email == email).Get());
-            if (existing.Models.Count > 0) throw new InvalidOperationException("Email already in use");
+            if (existing.Models.Any(u => u.Id != userId)) throw new InvalidOperationException("Email already in use");
 
             await PerfLogger.TimeAsync(_logger, "UserService.UpdateEmail update email", () => _supabase.From<Utilisateur>().Where(u => u.Id == userId).Set(u => u.Email!, email).Update());
             return true;
@@ -105,6 +126,16 @@ namespace srv
         {
             var result = await PerfLogger.TimeAsync(_logger, "UserService.GetUserListFromPseudo user search", () => _supabase.From<Utilisateur>().Filter("pseudo", Operator.ILike, $"%{query}%").Get());
             return result.Models.ToList();
+        }
+
+        private async Task<Utilisateur> GetRequiredUser(string userId)
+        {
+            var result = await PerfLogger.TimeAsync(_logger, "UserService.GetRequiredUser user lookup", () => _supabase
+                .From<Utilisateur>()
+                .Where(u => u.Id == userId)
+                .Get());
+
+            return result.Model ?? throw new KeyNotFoundException("User not found");
         }
     }
 }

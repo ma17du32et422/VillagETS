@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using villagets.Auth;
 
@@ -28,7 +28,13 @@ namespace srv.User
                 }
                 catch (ArgumentException ex) { return Results.BadRequest(ex.Message); }
                 catch (InvalidOperationException ex) { return Results.BadRequest(ex.Message); }
-                catch (Exception ex) { return Results.BadRequest(ex.Message); }
+                catch (Exception ex)
+                {
+                    if (IsUniqueConstraint(ex))
+                        return Results.BadRequest("Email or username already in use");
+
+                    return Results.BadRequest(ex.Message);
+                }
             });
 
             app.MapPost("/auth/login", async ([FromBody] LoginRequest req, HttpContext ctx) =>
@@ -59,7 +65,6 @@ namespace srv.User
                 return Results.Ok();
             });
 
-            // Get any user's public info by ID
             app.MapGet("/user/{id}", async (string id) =>
             {
                 var user = await userService.GetById(id);
@@ -75,7 +80,6 @@ namespace srv.User
                 });
             });
 
-            // Update pseudo
             app.MapPatch("/user/pseudo", async ([FromBody] UpdatePseudoRequest req, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetClaimsFromContext(ctx);
@@ -89,9 +93,9 @@ namespace srv.User
                 }
                 catch (ArgumentException ex) { return Results.BadRequest(ex.Message); }
                 catch (InvalidOperationException ex) { return Results.BadRequest(ex.Message); }
+                catch (KeyNotFoundException ex) { return Results.NotFound(ex.Message); }
             });
 
-            // Update password
             app.MapPatch("/user/password", async ([FromBody] UpdatePasswordRequest req, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetClaimsFromContext(ctx);
@@ -105,9 +109,9 @@ namespace srv.User
                 }
                 catch (ArgumentException ex) { return Results.BadRequest(ex.Message); }
                 catch (UnauthorizedAccessException ex) { return Results.BadRequest(ex.Message); }
+                catch (KeyNotFoundException ex) { return Results.NotFound(ex.Message); }
             });
 
-            // Update email
             app.MapPatch("/user/email", async ([FromBody] UpdateEmailRequest req, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetClaimsFromContext(ctx);
@@ -119,10 +123,11 @@ namespace srv.User
                     await userService.UpdateEmail(userId, req.Email);
                     return Results.Ok();
                 }
+                catch (ArgumentException ex) { return Results.BadRequest(ex.Message); }
                 catch (InvalidOperationException ex) { return Results.BadRequest(ex.Message); }
+                catch (KeyNotFoundException ex) { return Results.NotFound(ex.Message); }
             });
 
-            // Update profile picture
             app.MapPatch("/user/photo", async ([FromBody] UpdatePhotoRequest req, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetClaimsFromContext(ctx);
@@ -146,6 +151,11 @@ namespace srv.User
                 return Results.Ok(users);
             });
         }
+
+        private static bool IsUniqueConstraint(Exception ex) =>
+            ex.Message.Contains("23505", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("duplicate key", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("unique constraint", StringComparison.OrdinalIgnoreCase);
     }
 
     record UpdatePseudoRequest(string Pseudo);

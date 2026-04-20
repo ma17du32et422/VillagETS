@@ -3,7 +3,7 @@ import { getBaseUrl } from '../../API'
 import { useAuth } from '../../AuthContext'
 import ProfileAvatar from '../ProfileAvatar'
 import '../../assets/CommentItem.css'
-export default function CommentItem({ comment, postId, onDeleted }) {
+export default function CommentItem({ comment, postId, onDeleted, onCountChange }) {
   const { user } = useAuth()
   const [repliesVisible, setRepliesVisible] = useState(false)
   const [replies, setReplies] = useState([])
@@ -55,6 +55,7 @@ export default function CommentItem({ comment, postId, onDeleted }) {
       setRepliesLoaded(true)
       setRepliesVisible(true)
       setNbReponses(n => n + 1)
+      onCountChange?.(1)
       setReplyText('')
       setReplyFormVisible(false)
     } catch (err) {
@@ -68,7 +69,18 @@ export default function CommentItem({ comment, postId, onDeleted }) {
         method: 'DELETE',
         credentials: 'include',
       })
-      if (res.ok) onDeleted?.(comment.id)
+      if (res.ok) {
+        let deletedCount = 1
+        try {
+          const data = await res.json()
+          deletedCount = Math.max(1, Number(data?.deletedCount) || 1)
+        } catch {
+          deletedCount = 1
+        }
+
+        onDeleted?.(comment.id, deletedCount)
+        onCountChange?.(-deletedCount)
+      }
     } catch (err) {
       console.error('Failed to delete comment:', err)
     }
@@ -162,6 +174,7 @@ export default function CommentItem({ comment, postId, onDeleted }) {
                 comment={reply}
                 postId={postId}
                 onDeleted={handleReplyDeleted}
+                onCountChange={onCountChange}
               />
             ))}
           </div>

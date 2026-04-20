@@ -8,6 +8,10 @@ namespace srv
 
         public SupabaseService(string url, string? key, Supabase.SupabaseOptions options)
         {
+            if (string.IsNullOrWhiteSpace(url))
+                throw new ArgumentException("Supabase URL is required.", nameof(url));
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("Supabase key is required.", nameof(key));
 
             _client = new Supabase.Client(url, key, options);
         }

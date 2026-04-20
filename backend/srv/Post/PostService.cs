@@ -3,8 +3,6 @@ using Microsoft.Extensions.Configuration.UserSecrets;
 using Npgsql;
 using Newtonsoft.Json;
 using Supabase.Postgrest;
-using System.Security.Claims;
-using villagets.Auth;
 using static Supabase.Postgrest.Constants;
 namespace srv.Post
 {
@@ -44,20 +42,36 @@ namespace srv.Post
         }
         public async Task<sql.Publication?> Create(sql.Publication publication, string userId)
         {
-            publication.UtilisateurId = userId;
-            publication.DatePublication = DateTime.UtcNow;
-            var result = await PerfLogger.TimeAsync(_logger, "PostService.Create insert publication", () => _supabase.From<sql.Publication>().Insert(publication));
+            var sanitized = new sql.Publication
+            {
+                UtilisateurId = userId,
+                Nom = publication.Nom?.Trim(),
+                Contenu = publication.Contenu?.Trim(),
+                Media = publication.Media?.Where(m => !string.IsNullOrWhiteSpace(m)).Distinct().ToArray(),
+                DatePublication = DateTime.UtcNow,
+                Prix = publication.Prix,
+                ArticleAVendre = publication.ArticleAVendre
+            };
+
+            if (string.IsNullOrWhiteSpace(sanitized.Nom))
+                throw new ArgumentException("Post title is required");
+
+            if (string.IsNullOrWhiteSpace(sanitized.Contenu))
+                throw new ArgumentException("Post content is required");
+
+            var result = await PerfLogger.TimeAsync(_logger, "PostService.Create insert publication", () => _supabase.From<sql.Publication>().Insert(sanitized));
             var saved = result.Model;
             if (saved is null) return null;
 
-            saved.Media = publication.Media;
+            saved.Media = sanitized.Media;
 
-            var urls = publication.Media?.Where(u => u != null).ToList();
+            var urls = sanitized.Media?.Where(u => !string.IsNullOrWhiteSpace(u)).ToList();
             if (urls is { Count: > 0 })
             {
                 var fichiers = await PerfLogger.TimeAsync(_logger, "PostService.Create fichier lookup", () => _supabase
                     .From<sql.Fichier>()
                     .Filter("lien_fichier", Operator.In, urls)
+                    .Filter("id_proprietaire", Operator.Equals, userId)
                     .Get());
 
                 var links = fichiers.Models
@@ -67,7 +81,6 @@ namespace srv.Post
                         IdFichier = f.Id!.Value.ToString("D"),
                         IdPublication = saved.Id
                     }).ToList();
-                Console.WriteLine($"Links to insert: {links.Count}");
                 if (links.Count > 0)
                     await PerfLogger.TimeAsync(_logger, "PostService.Create insert publication fichiers", () => _supabase.From<sql.PublicationFichier>().Insert(links));
             }

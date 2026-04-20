@@ -88,11 +88,6 @@ function SignupForm() {
     }
     try {
       setSubmitting(true);
-      let photoUrl = null;
-      if (profilePic) {
-        const uploaded = await uploadFile(profilePic);
-        photoUrl = uploaded.url;
-      }
       const res = await fetch(`${getBaseUrl()}/auth/signup`, {
         method: 'POST',
         headers: {
@@ -106,13 +101,34 @@ function SignupForm() {
           nom: firstName,
           prenom: lastName,
           dateNaissance: birthYear,
-          PhotoProfil: photoUrl,
+          PhotoProfil: null,
         }),
       });
 
       if (!res.ok) {
         const message = await res.text();
         throw new Error(message || 'Signup failed');
+      }
+
+      if (profilePic) {
+        try {
+          const uploaded = await uploadFile(profilePic);
+          const patchRes = await fetch(`${getBaseUrl()}/user/photo`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ photoUrl: uploaded.url }),
+          });
+
+          if (!patchRes.ok) {
+            const message = await patchRes.text();
+            throw new Error(message || 'Profile photo update failed');
+          }
+        } catch (uploadErr) {
+          console.error('Profile photo upload skipped:', uploadErr);
+        }
       }
 
       const meRes = await fetch(`${getBaseUrl()}/me`, {

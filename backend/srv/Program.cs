@@ -18,10 +18,26 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 const bool EnablePerformanceLogging = true;
 const bool EnableTracing = false;
+const long MaxUploadBytes = 10 * 1024 * 1024;
 
 //autorise les uploads à partir du site web
 var builder = WebApplication.CreateBuilder(args);
 var isDevelopment = builder.Environment.IsDevelopment();
+var allowedUploadContentTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+{
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif"
+};
+var allowedUploadExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+{
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".webp",
+    ".gif"
+};
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -110,14 +126,19 @@ app.Use(async (context, next) =>
 });
 
 var url = Environment.GetEnvironmentVariable("SUPABASE_URL");
+if (string.IsNullOrWhiteSpace(url))
+    throw new Exception("SUPABASE_URL environment variable is not set");
+
 var key = Environment.GetEnvironmentVariable("SUPABASE_KEY");
+if (string.IsNullOrWhiteSpace(key))
+    throw new Exception("SUPABASE_KEY environment variable is not set");
 var options = new Supabase.SupabaseOptions
 {
     AutoConnectRealtime = true
 };
 
 SupabaseService supabaseService = new(url, key, options);
-supabaseService.InitializeAsync().Wait();
+await supabaseService.InitializeAsync();
 
 var supabase = SupabaseService.GetClient();
 
@@ -140,31 +161,29 @@ MessagingRoutes.Map(app, app.Services.GetRequiredService<MessagingService>());
 //ROUTES
 app.MapGet("/", async () =>
 {
-    var result = await supabase
-        .From<sql.CategoriePublication>()
-        .Get();
-
-    return $"Count: {result.Models.Count} | Raw: {result.Content}";
+    return Results.Ok(new { status = "ok" });
 });
 
-app.MapGet("/Categorie", async () =>
+if (isDevelopment)
 {
-    var result = await supabase
-        .From<sql.CategoriePublication>()
-        .Get();
+    app.MapGet("/Categorie", async () =>
+    {
+        var result = await supabase
+            .From<sql.CategoriePublication>()
+            .Get();
 
-    return $"Count: {result.Models.Count} | Raw: {result.Content}";
-});
-// à tester
+        return Results.Ok(result.Models);
+    });
 
-app.MapPost("/addCategorie", async (sql.CategoriePublication categorie) =>
-{
-    var response = await supabase
-        .From<sql.CategoriePublication>()
-        .Insert(categorie);
+    app.MapPost("/addCategorie", async (sql.CategoriePublication categorie) =>
+    {
+        var response = await supabase
+            .From<sql.CategoriePublication>()
+            .Insert(categorie);
 
-    return Results.Ok(response);
-});
+        return Results.Ok(response.Models.FirstOrDefault());
+    });
+}
 
 
 app.MapGet("/me", async (HttpContext ctx) =>
@@ -204,19 +223,36 @@ Directory.CreateDirectory(uploadFolder);
 
 app.MapPost("/upload", async (HttpContext ctx) =>
 {
+    string? filePath = null;
     try
     {
+        var principal = villagets.Auth.AuthHelper.GetClaimsFromContext(ctx);
+        if (principal == null)
+            return Results.Unauthorized();
+
+        var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrWhiteSpace(userId))
+            return Results.Unauthorized();
+
+        if (!ctx.Request.HasFormContentType)
+            return Results.BadRequest(new { error = "Le formulaire d'envoi est invalide." });
+
         var form = await ctx.Request.ReadFormAsync();
         var file = form.Files["file"];
-        var nom = form["nom"].ToString();
-        var type = form["type"].ToString();
 
         if (file is null || file.Length == 0)
             return Results.BadRequest(new { error = "Aucun fichier fourni." });
 
+        if (file.Length > MaxUploadBytes)
+            return Results.BadRequest(new { error = "Le fichier dépasse la taille maximale autorisée de 10 Mo." });
+
         var extension = Path.GetExtension(file.FileName);
+        if (!allowedUploadExtensions.Contains(extension) || !allowedUploadContentTypes.Contains(file.ContentType))
+            return Results.BadRequest(new { error = "Seuls les fichiers image JPG, PNG, WEBP et GIF sont acceptés." });
+
+        var nom = Path.GetFileName(string.IsNullOrWhiteSpace(form["nom"]) ? file.FileName : form["nom"].ToString());
         var uniqueName = $"{Guid.NewGuid()}{extension}";
-        var filePath = Path.Combine(uploadFolder, uniqueName);
+        filePath = Path.Combine(uploadFolder, uniqueName);
 
         using var stream = File.Create(filePath);
         await file.CopyToAsync(stream);
@@ -228,7 +264,8 @@ app.MapPost("/upload", async (HttpContext ctx) =>
         {
             Nom = nom,
             LienFichier = fileUrl,
-            Type = type
+            Type = file.ContentType,
+            IdProprietaire = Guid.TryParse(userId, out var ownerId) ? ownerId : null
         };
 
         var response = await PerfLogger.TimeAsync(app.Logger, "Program./upload fichier insert", () => supabase
@@ -237,7 +274,11 @@ app.MapPost("/upload", async (HttpContext ctx) =>
 
         var savedFile = response.Models.FirstOrDefault();
         if (savedFile == null)
+        {
+            if (File.Exists(filePath))
+                File.Delete(filePath);
             return Results.BadRequest(new { error = "Impossible d'enregistrer le fichier." });
+        }
 
         return Results.Json(new
         {
@@ -246,7 +287,11 @@ app.MapPost("/upload", async (HttpContext ctx) =>
     }
     catch (Exception ex)
     {
-        return Results.BadRequest(new { error = ex.Message });
+        if (filePath != null && File.Exists(filePath))
+            File.Delete(filePath);
+
+        app.Logger.LogError(ex, "Upload failed");
+        return Results.BadRequest(new { error = "Le téléversement a échoué." });
     }
 });
 

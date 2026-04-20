@@ -1,6 +1,6 @@
-﻿using Supabase.Postgrest;
-using villagets.Auth;
+using Supabase.Postgrest;
 using static Supabase.Postgrest.Constants;
+using System.Collections.Concurrent;
 
 namespace srv.Comment
 {
@@ -8,6 +8,7 @@ namespace srv.Comment
     {
         private readonly Supabase.Client _supabase;
         private readonly ILogger<CommentService> _logger;
+        private readonly ConcurrentDictionary<int, SemaphoreSlim> _publicationLocks = new();
 
         public CommentService(ILogger<CommentService> logger)
         {
@@ -17,21 +18,21 @@ namespace srv.Comment
 
         public async Task<List<(sql.Commentaire comment, sql.Utilisateur? user)>> GetByPublication(int publicationId)
         {
-            Console.WriteLine($"Fetching top-level comments for publication {publicationId}");
             var result = await PerfLogger.TimeAsync(_logger, "CommentService.GetByPublication comments", () => _supabase
                 .From<sql.Commentaire>()
                 .Where(c => c.PublicationId == publicationId)
                 .Filter("parent_commentaire", Operator.Is, (string?)null)
                 .Order("date_commentaire", Ordering.Ascending)
                 .Get());
-            Console.WriteLine($"Fetched {result.Models.Count} top-level comments for publication {publicationId}");
+
             return await EnrichWithUsers(result.Models.ToList());
         }
 
         public async Task<List<(sql.Commentaire comment, sql.Utilisateur? user)>> GetReplies(string parentCommentId)
         {
             var result = await PerfLogger.TimeAsync(_logger, "CommentService.GetReplies replies", () => _supabase
-                .From<sql.Commentaire>().Where(c => c.ParentCommentaire == parentCommentId)
+                .From<sql.Commentaire>()
+                .Where(c => c.ParentCommentaire == parentCommentId)
                 .Order("date_commentaire", Ordering.Ascending)
                 .Get());
 
@@ -44,56 +45,56 @@ namespace srv.Comment
             string contenu,
             string? parentCommentId = null)
         {
-            // Ensure the publication exists
-            var pubResult = await PerfLogger.TimeAsync(_logger, "CommentService.Create publication lookup", () => _supabase
-                .From<sql.Publication>()
-                .Where(p => p.Id == publicationId)
-                .Get());
+            sql.Commentaire? saved = null;
 
-            if (pubResult.Model is null) return (null, null);
-
-            if (parentCommentId != null)
+            await WithPublicationLock(publicationId, async () =>
             {
-                var parentResult = await PerfLogger.TimeAsync(_logger, "CommentService.Create parent lookup", () => _supabase
-                    .From<sql.Commentaire>()
-                    .Where(c => c.Id == parentCommentId)
+                var pubResult = await PerfLogger.TimeAsync(_logger, "CommentService.Create publication lookup", () => _supabase
+                    .From<sql.Publication>()
+                    .Where(p => p.Id == publicationId)
                     .Get());
 
-                var parent = parentResult.Model;
-                if (parent is null || parent.PublicationId != publicationId)
-                    return (null, null);
+                if (pubResult.Model is null)
+                    return;
 
-                // Increment nb_reponses on the parent comment
-                parent.NbReponses = (parent.NbReponses ?? 0) + 1;
-                await PerfLogger.TimeAsync(_logger, "CommentService.Create update parent reply count", () => _supabase
+                if (parentCommentId != null)
+                {
+                    var parentResult = await PerfLogger.TimeAsync(_logger, "CommentService.Create parent lookup", () => _supabase
+                        .From<sql.Commentaire>()
+                        .Where(c => c.Id == parentCommentId)
+                        .Get());
+
+                    var parent = parentResult.Model;
+                    if (parent is null || parent.PublicationId != publicationId)
+                        return;
+                }
+
+                var comment = new sql.Commentaire
+                {
+                    UtilisateurId = userId,
+                    PublicationId = publicationId,
+                    ParentCommentaire = parentCommentId,
+                    DateCommentaire = DateTime.UtcNow,
+                    Contenu = contenu,
+                    NbReponses = 0
+                };
+
+                var insertResult = await PerfLogger.TimeAsync(_logger, "CommentService.Create insert comment", () => _supabase
                     .From<sql.Commentaire>()
-                    .Where(c => c.Id == parentCommentId)
-                    .Update(parent));
-            }
+                    .Insert(comment));
 
-            // Increment nb_commentaires on the publication
-            var pub = pubResult.Model;
-            if (pub != null)
-            {
-                await IncrementPostCount(pub);
-            }
+                saved = insertResult.Model;
+                if (saved is null)
+                    return;
 
-            var comment = new sql.Commentaire
-            {
-                UtilisateurId = userId,
-                PublicationId = publicationId,
-                ParentCommentaire = parentCommentId,
-                DateCommentaire = DateTime.UtcNow,
-                Contenu = contenu,
-                NbReponses = 0
-            };
+                if (parentCommentId != null)
+                    await RefreshReplyCount(parentCommentId);
 
-            var insertResult = await PerfLogger.TimeAsync(_logger, "CommentService.Create insert comment", () => _supabase
-                .From<sql.Commentaire>()
-                .Insert(comment));
+                await RefreshPublicationCommentCount(publicationId);
+            });
 
-            var saved = insertResult.Model;
-            if (saved is null) return (null, null);
+            if (saved is null)
+                return (null, null);
 
             var userResult = await PerfLogger.TimeAsync(_logger, "CommentService.Create user lookup", () => _supabase
                 .From<sql.Utilisateur>()
@@ -103,84 +104,48 @@ namespace srv.Comment
             return (saved, userResult.Model);
         }
 
-        public async Task<bool> Delete(string commentId, string userId)
+        public async Task<int> Delete(string commentId, string userId)
         {
-            var result = await PerfLogger.TimeAsync(_logger, "CommentService.Delete comment lookup", () => _supabase
+            var initialResult = await PerfLogger.TimeAsync(_logger, "CommentService.Delete comment lookup", () => _supabase
                 .From<sql.Commentaire>()
                 .Where(c => c.Id == commentId)
                 .Get());
 
-            var comment = result.Model;
-            if (comment is null) return false;
+            var initialComment = initialResult.Model;
+            if (initialComment?.PublicationId == null)
+                return 0;
 
-            var userResult = await PerfLogger.TimeAsync(_logger, "CommentService.Delete user lookup", () => _supabase
-                .From<sql.Utilisateur>()
-                .Where(u => u.Id == userId)
-                .Get());
-
-            var currentUser = userResult.Model;
-            var isAdmin = currentUser?.MainAdmin == true;
-
-            if (comment.UtilisateurId != userId && !isAdmin)
-                throw new UnauthorizedAccessException();
-
-            // Count direct replies so we can adjust the publication's comment count
-            var repliesResult = await PerfLogger.TimeAsync(_logger, "CommentService.Delete replies lookup", () => _supabase
-                .From<sql.Commentaire>()
-                .Where(c => c.ParentCommentaire == commentId)
-                .Get());
-
-            var replyCount = repliesResult.Models.Count;
-
-            // Delete all direct replies
-            await PerfLogger.TimeAsync(_logger, "CommentService.Delete delete replies", () => _supabase
-                .From<sql.Commentaire>()
-                .Where(c => c.ParentCommentaire == commentId)
-                .Delete());
-
-            // Delete the comment itself
-            await PerfLogger.TimeAsync(_logger, "CommentService.Delete delete comment", () => _supabase
-                .From<sql.Commentaire>()
-                .Where(c => c.Id == commentId)
-                .Delete());
-
-            // If this was a reply, decrement the parent's nb_reponses
-            if (comment.ParentCommentaire != null)
+            return await WithPublicationLock(initialComment.PublicationId.Value, async () =>
             {
-                var parentResult = await PerfLogger.TimeAsync(_logger, "CommentService.Delete parent lookup", () => _supabase
+                var result = await PerfLogger.TimeAsync(_logger, "CommentService.Delete locked comment lookup", () => _supabase
                     .From<sql.Commentaire>()
-                    .Where(c => c.Id == comment.ParentCommentaire)
+                    .Where(c => c.Id == commentId)
                     .Get());
 
-                var parent = parentResult.Model;
-                if (parent != null)
-                {
-                    parent.NbReponses = Math.Max((parent.NbReponses ?? replyCount) - 1, 0);
-                    await PerfLogger.TimeAsync(_logger, "CommentService.Delete update parent reply count", () => _supabase
-                        .From<sql.Commentaire>()
-                        .Where(c => c.Id == comment.ParentCommentaire)
-                        .Update(parent));
-                }
-            }
+                var comment = result.Model;
+                if (comment?.PublicationId == null)
+                    return 0;
 
-            // Decrement nb_commentaires on the publication (comment + its replies)
-            if (comment.PublicationId != null)
-            {
-                var pubResult = await PerfLogger.TimeAsync(_logger, "CommentService.Delete publication lookup", () => _supabase
-                    .From<sql.Publication>()
-                    .Where(p => p.Id == comment.PublicationId)
+                var userResult = await PerfLogger.TimeAsync(_logger, "CommentService.Delete user lookup", () => _supabase
+                    .From<sql.Utilisateur>()
+                    .Where(u => u.Id == userId)
                     .Get());
 
-                var pub = pubResult.Model;
-                if (pub != null)
-                {
-                    await DecrementPostCount(pub);
-                }
-            }
+                var currentUser = userResult.Model;
+                var isAdmin = currentUser?.MainAdmin == true;
 
-            return true;
+                if (comment.UtilisateurId != userId && !isAdmin)
+                    throw new UnauthorizedAccessException();
+
+                var deletedCount = await DeleteCommentTree(commentId);
+
+                if (comment.ParentCommentaire != null)
+                    await RefreshReplyCount(comment.ParentCommentaire);
+
+                await RefreshPublicationCommentCount(comment.PublicationId.Value);
+                return deletedCount;
+            });
         }
-
 
         private async Task<List<(sql.Commentaire, sql.Utilisateur?)>> EnrichWithUsers(List<sql.Commentaire> comments)
         {
@@ -204,24 +169,82 @@ namespace srv.Comment
                 .ToList();
         }
 
-        private async Task IncrementPostCount(sql.Publication pub, int incrementBy = 1)
+        private SemaphoreSlim GetPublicationLock(int publicationId) =>
+            _publicationLocks.GetOrAdd(publicationId, _ => new SemaphoreSlim(1, 1));
+
+        private async Task WithPublicationLock(int publicationId, Func<Task> action)
         {
-            pub.CommentairesCount = (pub.CommentairesCount ?? 0) + incrementBy;
-            await PerfLogger.TimeAsync(_logger, "CommentService.IncrementPostCount update publication", () => _supabase
-                .From<sql.Publication>()
-                .Where(p => p.Id == pub.Id)
-                .Update(pub));
+            var gate = GetPublicationLock(publicationId);
+            await gate.WaitAsync();
+            try
+            {
+                await action();
+            }
+            finally
+            {
+                gate.Release();
+            }
         }
 
-        private async Task DecrementPostCount(sql.Publication pub, int decrementBy = 1)
+        private async Task<T> WithPublicationLock<T>(int publicationId, Func<Task<T>> action)
         {
-            pub.CommentairesCount = Math.Max((pub.CommentairesCount ?? decrementBy) - decrementBy, 0);
-            await PerfLogger.TimeAsync(_logger, "CommentService.DecrementPostCount update publication", () => _supabase
-                .From<sql.Publication>()
-                .Where(p => p.Id == pub.Id)
-                .Update(pub));
+            var gate = GetPublicationLock(publicationId);
+            await gate.WaitAsync();
+            try
+            {
+                return await action();
+            }
+            finally
+            {
+                gate.Release();
+            }
         }
 
+        private async Task RefreshPublicationCommentCount(int publicationId)
+        {
+            var comments = await PerfLogger.TimeAsync(_logger, "CommentService.RefreshPublicationCommentCount comments", () => _supabase
+                .From<sql.Commentaire>()
+                .Filter("id_publication", Operator.Equals, publicationId)
+                .Get());
+
+            await PerfLogger.TimeAsync(_logger, "CommentService.RefreshPublicationCommentCount update publication", () => _supabase
+                .From<sql.Publication>()
+                .Filter("id_publication", Operator.Equals, publicationId)
+                .Set(p => p.CommentairesCount!, comments.Models.Count)
+                .Update());
+        }
+
+        private async Task RefreshReplyCount(string parentCommentId)
+        {
+            var replies = await PerfLogger.TimeAsync(_logger, "CommentService.RefreshReplyCount replies", () => _supabase
+                .From<sql.Commentaire>()
+                .Filter("parent_commentaire", Operator.Equals, parentCommentId)
+                .Get());
+
+            await PerfLogger.TimeAsync(_logger, "CommentService.RefreshReplyCount update parent", () => _supabase
+                .From<sql.Commentaire>()
+                .Filter("id_commentaire", Operator.Equals, parentCommentId)
+                .Set(c => c.NbReponses!, replies.Models.Count)
+                .Update());
+        }
+
+        private async Task<int> DeleteCommentTree(string commentId)
+        {
+            var repliesResult = await PerfLogger.TimeAsync(_logger, "CommentService.DeleteCommentTree replies lookup", () => _supabase
+                .From<sql.Commentaire>()
+                .Where(c => c.ParentCommentaire == commentId)
+                .Get());
+
+            var deletedCount = 1;
+            foreach (var reply in repliesResult.Models.Where(r => !string.IsNullOrWhiteSpace(r.Id)))
+                deletedCount += await DeleteCommentTree(reply.Id!);
+
+            await PerfLogger.TimeAsync(_logger, "CommentService.DeleteCommentTree delete comment", () => _supabase
+                .From<sql.Commentaire>()
+                .Where(c => c.Id == commentId)
+                .Delete());
+
+            return deletedCount;
+        }
     }
 }
-

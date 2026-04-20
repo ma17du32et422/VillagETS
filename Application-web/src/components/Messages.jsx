@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import { getBaseUrl } from '../API';
+import { useAuth } from '../AuthContext';
+import { useChat } from '../ChatProvider';
 import Message from './subcomponents/Message';
 import '../assets/Messages.css'
 export default function Messages({ selectedUserId, onSelectUser }) {
+  const { user } = useAuth();
+  const { lastMessage, lastActivity } = useChat();
   const [users, setUsers] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
   const [newUserId, setNewUserId] = useState("");
@@ -27,7 +31,43 @@ export default function Messages({ selectedUserId, onSelectUser }) {
 
   useEffect(() => {
     fetchMyConvos();
-  }, [selectedUserId]);
+  }, []);
+
+  const upsertUser = (foundUser) => {
+    if (!foundUser?.id) return;
+
+    setUsers((currentUsers) => {
+      const existingIndex = currentUsers.findIndex((entry) => entry.id === foundUser.id);
+      if (existingIndex === 0) return currentUsers;
+      if (existingIndex > 0) {
+        const next = [...currentUsers];
+        const [existing] = next.splice(existingIndex, 1);
+        next.unshift({ ...existing, ...foundUser });
+        return next;
+      }
+      return [foundUser, ...currentUsers];
+    });
+  };
+
+  const fetchUserSummary = async (userId) => {
+    const res = await fetch(`${getBaseUrl()}/user/${userId}`, {
+      credentials: 'include'
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || 'User not found.');
+    }
+
+    const data = await res.json();
+    return {
+      id: data.userId,
+      pseudo: data.pseudo,
+      nom: data.nom,
+      prenom: data.prenom,
+      photoProfil: data.photoProfil
+    };
+  };
 
   const handleAddUser = async () => {
     const trimmedUserId = newUserId.trim();
@@ -36,29 +76,8 @@ export default function Messages({ selectedUserId, onSelectUser }) {
     setError("");
 
     try {
-      const res = await fetch(`${getBaseUrl()}/user/${trimmedUserId}`, {
-        credentials: 'include'
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || 'User not found.');
-      }
-
-      const data = await res.json();
-      const foundUser = {
-        id: data.userId,
-        pseudo: data.pseudo,
-        nom: data.nom,
-        prenom: data.prenom,
-        photoProfil: data.photoProfil
-      };
-
-      setUsers((currentUsers) => (
-        currentUsers.some((entry) => entry.id === foundUser.id)
-          ? currentUsers
-          : [foundUser, ...currentUsers]
-      ));
+      const foundUser = await fetchUserSummary(trimmedUserId);
+      upsertUser(foundUser);
 
       onSelectUser(foundUser.id);
       setNewUserId("");
@@ -68,6 +87,66 @@ export default function Messages({ selectedUserId, onSelectUser }) {
       setError(err.message ?? 'Failed to start discussion.');
     }
   };
+
+  useEffect(() => {
+    if (!user?.userId || !lastActivity) return;
+
+    let partnerUserId = null;
+    if (lastActivity.type === 'sent') {
+      partnerUserId = lastActivity.message?.receiverId ?? null;
+    } else if (lastActivity.type === 'received') {
+      const incoming = lastActivity.message;
+      if (incoming?.envoyeurId === user.userId) {
+        partnerUserId = incoming.receveurId ?? null;
+      } else if (incoming?.receveurId === user.userId) {
+        partnerUserId = incoming.envoyeurId ?? null;
+      }
+    }
+
+    if (!partnerUserId || partnerUserId === user.userId) return;
+
+    const existingIndex = users.findIndex((entry) => entry.id === partnerUserId);
+    if (existingIndex === 0) {
+      return;
+    }
+
+    if (existingIndex > 0) {
+      setUsers((currentUsers) => {
+        const target = currentUsers.find((entry) => entry.id === partnerUserId);
+        if (!target) return currentUsers;
+        const remaining = currentUsers.filter((entry) => entry.id !== partnerUserId);
+        return [target, ...remaining];
+      });
+      return;
+    }
+
+    let cancelled = false;
+    fetchUserSummary(partnerUserId)
+      .then((foundUser) => {
+        if (!cancelled) upsertUser(foundUser);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          console.error('Failed to refresh conversation partner:', err);
+          fetchMyConvos();
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [lastActivity, user?.userId, users]);
+
+  useEffect(() => {
+    if (!user?.userId || !lastMessage) return;
+
+    const isRelevant =
+      lastMessage.envoyeurId === user.userId ||
+      lastMessage.receveurId === user.userId;
+
+    if (!isRelevant) return;
+    fetchMyConvos();
+  }, [lastMessage, user?.userId]);
 
   return (
     <div id="messages-sidebar">

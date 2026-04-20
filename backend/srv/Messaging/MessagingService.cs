@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using sql;
 using Supabase.Postgrest;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
@@ -12,6 +13,8 @@ namespace srv.Messaging
     {
         private readonly Supabase.Client _supabase;
         private readonly ILogger<MessagingService> _logger;
+        private const int ReceiveBufferSize = 4 * 1024;
+        private const int MaxMessageBytes = 64 * 1024;
 
         // Keeps track of currently connected users: Key = UserId, Value = WebSocket
         private readonly ConcurrentDictionary<string, WebSocket> _activeConnections = new();
@@ -26,19 +29,53 @@ namespace srv.Messaging
         {
             _activeConnections.AddOrUpdate(userId, webSocket, (key, oldValue) => webSocket);
 
-            var buffer = new byte[1024 * 4];
             try
             {
-                var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-
-                while (!result.CloseStatus.HasValue)
+                while (webSocket.State == WebSocketState.Open)
                 {
-                    var incomingMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    var payload = JsonSerializer.Deserialize<WsMessagePayload>(incomingMessage);
-
-                    if (payload != null && !string.IsNullOrEmpty(payload.receiverId))
+                    string? incomingMessage;
+                    WebSocketReceiveResult receiveResult;
+                    try
                     {
-                        var savedMsg = await SaveMessageAsync(userId, payload.receiverId, payload.contenu);
+                        (incomingMessage, receiveResult) = await ReceiveTextMessageAsync(webSocket, CancellationToken.None);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        _logger.LogWarning(ex, "Closing websocket for user {UserId}: invalid message payload", userId);
+                        if (webSocket.State == WebSocketState.Open)
+                            await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, ex.Message, CancellationToken.None);
+                        break;
+                    }
+
+                    if (receiveResult.MessageType == WebSocketMessageType.Close || receiveResult.CloseStatus.HasValue)
+                    {
+                        if (webSocket.State == WebSocketState.Open || webSocket.State == WebSocketState.CloseReceived)
+                        {
+                            await webSocket.CloseAsync(
+                                receiveResult.CloseStatus ?? WebSocketCloseStatus.NormalClosure,
+                                receiveResult.CloseStatusDescription,
+                                CancellationToken.None);
+                        }
+                        break;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(incomingMessage))
+                        continue;
+
+                    WsMessagePayload? payload;
+                    try
+                    {
+                        payload = JsonSerializer.Deserialize<WsMessagePayload>(incomingMessage);
+                    }
+                    catch (JsonException ex)
+                    {
+                        _logger.LogWarning(ex, "Ignoring malformed websocket payload from user {UserId}", userId);
+                        continue;
+                    }
+
+                    if (payload != null && !string.IsNullOrWhiteSpace(payload.receiverId))
+                    {
+                        var savedMsg = await SaveMessageAsync(userId, payload.receiverId, payload.contenu?.Trim());
 
                         if (savedMsg != null && _activeConnections.TryGetValue(payload.receiverId, out var receiverSocket))
                         {
@@ -60,11 +97,7 @@ namespace srv.Messaging
                             }
                         }
                     }
-
-                    result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                 }
-
-                await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
             }
             finally
             {
@@ -72,6 +105,31 @@ namespace srv.Messaging
             }
         }
 
+        private async Task<(string? message, WebSocketReceiveResult result)> ReceiveTextMessageAsync(WebSocket webSocket, CancellationToken cancellationToken)
+        {
+            var buffer = ArrayPool<byte>.Shared.Rent(ReceiveBufferSize);
+            try
+            {
+                using var stream = new MemoryStream();
+                while (true)
+                {
+                    var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+                    if (result.MessageType == WebSocketMessageType.Close)
+                        return (null, result);
+
+                    stream.Write(buffer, 0, result.Count);
+                    if (stream.Length > MaxMessageBytes)
+                        throw new InvalidOperationException("Message exceeds the 64 KB limit.");
+
+                    if (result.EndOfMessage)
+                        return (Encoding.UTF8.GetString(stream.ToArray()), result);
+                }
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
+        }
 
         private async Task<ConversationMessage?> SaveMessageAsync(string senderId, string receiverId, string? content = "")
         {
@@ -90,10 +148,9 @@ namespace srv.Messaging
             return result.Models.FirstOrDefault();
         }
 
-        public async Task<string> GetOrCreateConversationAsync(string user1Id, string user2Id)
+        public async Task<string?> FindConversationIdAsync(string user1Id, string user2Id)
         {
-            // Check if conversation exists
-            var res1 = await PerfLogger.TimeAsync(_logger, "MessagingService.GetOrCreateConversationAsync lookup direct", () => _supabase.From<Conversation>()
+            var res1 = await PerfLogger.TimeAsync(_logger, "MessagingService.FindConversationIdAsync lookup direct", () => _supabase.From<Conversation>()
                 .Where(c => c.User1Id == user1Id && c.User2Id == user2Id)
                 .Get());
 
@@ -101,14 +158,20 @@ namespace srv.Messaging
 
             if (existing == null)
             {
-                // Check reverse 
-                var res2 = await PerfLogger.TimeAsync(_logger, "MessagingService.GetOrCreateConversationAsync lookup reverse", () => _supabase.From<Conversation>()
+                var res2 = await PerfLogger.TimeAsync(_logger, "MessagingService.FindConversationIdAsync lookup reverse", () => _supabase.From<Conversation>()
                     .Where(c => c.User1Id == user2Id && c.User2Id == user1Id)
                     .Get());
                 existing = res2.Models.FirstOrDefault();
             }
 
-            if (existing != null) return existing.Id!;
+            return existing?.Id;
+        }
+
+        public async Task<string> GetOrCreateConversationAsync(string user1Id, string user2Id)
+        {
+            var existingId = await FindConversationIdAsync(user1Id, user2Id);
+            if (!string.IsNullOrWhiteSpace(existingId))
+                return existingId;
 
             // Create new if none exists
             var newConvo = new Conversation
@@ -123,8 +186,9 @@ namespace srv.Messaging
 
         public async Task<List<MessageDTO>> GetHistoryAsync(string userId1, string userId2)
         {
-
-            var conversationId = await GetOrCreateConversationAsync(userId1, userId2);
+            var conversationId = await FindConversationIdAsync(userId1, userId2);
+            if (string.IsNullOrWhiteSpace(conversationId))
+                return [];
 
             var result = await PerfLogger.TimeAsync(_logger, "MessagingService.GetHistoryAsync messages", () => _supabase.From<ConversationMessage>()
                 .Where(m => m.ConversationId == conversationId)
@@ -181,8 +245,6 @@ namespace srv.Messaging
 
             return sidebarList;
         }
-
-
     }
 
     // DTOSSSSSSS FOR UHHH SENDING JSON SHOULD PROB BE IN .TOJSON() BUT WHATEVER
