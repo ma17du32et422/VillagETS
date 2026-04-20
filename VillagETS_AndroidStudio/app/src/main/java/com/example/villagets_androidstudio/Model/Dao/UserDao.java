@@ -22,7 +22,6 @@ public class UserDao {
         return null;
     }
 
-
     public User getUserByEmail(String email) throws IOException {
         Response<User> response = api.getUserByEmail(email).execute();
         if (response.isSuccessful()) {
@@ -33,6 +32,22 @@ public class UserDao {
 
     public User login(User user) throws IOException {
         Response<User> response = api.login(user).execute();
+        if (response.isSuccessful()) {
+            return response.body();
+        }
+        return null;
+    }
+
+    public User signup(User user) throws IOException {
+        Response<User> response = api.signup(user).execute();
+        if (response.isSuccessful()) {
+            return response.body();
+        }
+        return null;
+    }
+
+    public User getMe() throws IOException {
+        Response<User> response = api.getMe().execute();
         if (response.isSuccessful()) {
             return response.body();
         }

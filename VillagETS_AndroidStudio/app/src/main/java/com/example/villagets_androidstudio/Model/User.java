@@ -2,18 +2,24 @@ package com.example.villagets_androidstudio.Model;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@JsonPropertyOrder({ "email", "password", "pseudo", "nom", "prenom", "dateNaissance" })
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({ "userId", "email", "password", "pseudo", "nom", "prenom", "dateNaissance", "photoProfil" })
 public class User {
+    private String userId;
     private String email;
     private String password;
     private String pseudo;
     private String nom;
     private String prenom;
     private String dateNaissance;
+    private String photoProfil;
 
     public User() {
     }
@@ -28,6 +34,9 @@ public class User {
     }
 
     // Getters et Setters
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
+
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
@@ -45,6 +54,9 @@ public class User {
 
     public String getDateNaissance() { return dateNaissance; }
     public void setDateNaissance(String dateNaissance) { this.dateNaissance = dateNaissance; }
+
+    public String getPhotoProfil() { return photoProfil; }
+    public void setPhotoProfil(String photoProfil) { this.photoProfil = photoProfil; }
 
     public void saveUser(Context context) {
         SharedPreferences prefs = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);

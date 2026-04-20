@@ -18,7 +18,8 @@ public interface UserApi {
 
     @POST("/users")
     Call<User> createUser(@Body User user);
-    @POST("auth/signup")
+    
+    @POST("/auth/signup")
     Call<User> signup(@Body User user);
 
     @PUT("/users/{email}")
@@ -32,4 +33,7 @@ public interface UserApi {
 
     @POST("/auth/login")
     Call<User> login(@Body User user);
+
+    @GET("/auth/me")
+    Call<User> getMe();
 }

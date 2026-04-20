@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.villagets_androidstudio.Model.Dao.RetrofitClient;
 import com.example.villagets_androidstudio.R;
 import com.example.villagets_androidstudio.View_Model.UserViewModel;
 import com.google.android.material.textfield.TextInputEditText;
@@ -23,6 +24,10 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Initialiser Retrofit avant d'instancier le ViewModel qui utilise UserDao
+        RetrofitClient.getInstance(getApplicationContext());
+        
         setContentView(R.layout.activity_login);
 
         viewModel = new ViewModelProvider(this).get(UserViewModel.class);
@@ -32,16 +37,20 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.loginButton);
         signupLink = findViewById(R.id.signUpLink);
 
-        // Observer le succès de la connexion
         viewModel.getUserLiveData().observe(this, user -> {
             if (user != null) {
+                user.saveUser(getApplicationContext());
                 Toast.makeText(this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
-                // Fermer l'activité de login pour revenir au MainActivity
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
                 finish();
             }
-        });        // Observer les erreurs
-        viewModel.getErrorMessage().observe(this, error -> {
+        });
 
+        viewModel.getErrorMessage().observe(this, error -> {
+            if (error != null) {
+                Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+            }
         });
 
         loginButton.setOnClickListener(v -> {
@@ -51,9 +60,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         signupLink.setOnClickListener(v -> {
-            // Naviguer vers l'activité de signup
             startActivity(new Intent(this, SignupActivity.class));
-
         });
     }
 }

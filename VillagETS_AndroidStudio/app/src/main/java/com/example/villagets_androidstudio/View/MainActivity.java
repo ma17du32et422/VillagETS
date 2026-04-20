@@ -17,6 +17,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.villagets_androidstudio.Model.Dao.RetrofitClient;
+import com.example.villagets_androidstudio.Model.SessionManager;
 import com.example.villagets_androidstudio.R;
 import com.google.android.material.imageview.ShapeableImageView;
 
@@ -31,6 +32,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // 0. Vérification de la session
+        SessionManager sessionManager = new SessionManager(this);
+        if (!sessionManager.isLoggedIn()) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
@@ -80,12 +91,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         profileBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
             startActivity(intent);
         });
 
         // 5. Gestion des Insets (EdgeToEdge support)
-        // On applique le padding seulement au toolbar pour qu'il soit sous la barre de statut
         if (toolbar != null) {
             ViewCompat.setOnApplyWindowInsetsListener(toolbar, (v, insets) -> {
                 Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
