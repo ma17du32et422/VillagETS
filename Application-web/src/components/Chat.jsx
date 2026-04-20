@@ -88,11 +88,9 @@ const Chat = ({ targetUserId }) => {
     const checkRateLimit = useCallback(() => {
         const now = Date.now();
 
-        // Purger les timestamps hors fenêtre
         timestampsRef.current = timestampsRef.current.filter(t => now - t < WINDOW_MS);
 
         if (timestampsRef.current.length >= MAX_MESSAGES) {
-            // Calculer le temps avant que le plus vieux expire
             const oldest = timestampsRef.current[0];
             const secondsLeft = Math.ceil((oldest + WINDOW_MS - now) / 1000);
             startCountdown(secondsLeft);
@@ -133,8 +131,8 @@ const Chat = ({ targetUserId }) => {
 
     // Label du compteur
     const counterLabel = rateLimitInfo.blocked
-        ? `Limite atteinte — réessayez dans ${rateLimitInfo.secondsLeft}s`
-        : `${rateLimitInfo.remaining}/${MAX_MESSAGES} messages restants`;
+        ? `Limite de messages atteinte — réessayez dans ${rateLimitInfo.secondsLeft}s`
+        : ` `;
 
     const counterClass = rateLimitInfo.blocked
         ? 'rate-limit-counter blocked'
@@ -179,7 +177,9 @@ const Chat = ({ targetUserId }) => {
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                    placeholder={rateLimitInfo.blocked ? "Limite atteinte..." : `Envoyer un message (${rateLimitInfo.remaining}/${MAX_MESSAGES})`}
+                    placeholder={rateLimitInfo.blocked || rateLimitInfo.remaining === 0
+                        ? "Limite atteinte..."
+                        : `Envoyer un message (${rateLimitInfo.remaining}/${MAX_MESSAGES})`}
                     disabled={rateLimitInfo.blocked}
                 />
                 <button
