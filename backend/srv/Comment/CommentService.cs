@@ -1,6 +1,6 @@
+using Newtonsoft.Json;
 using Supabase.Postgrest;
 using static Supabase.Postgrest.Constants;
-using System.Collections.Concurrent;
 
 namespace srv.Comment
 {
@@ -8,7 +8,6 @@ namespace srv.Comment
     {
         private readonly Supabase.Client _supabase;
         private readonly ILogger<CommentService> _logger;
-        private readonly ConcurrentDictionary<int, SemaphoreSlim> _publicationLocks = new();
 
         public CommentService(ILogger<CommentService> logger)
         {
@@ -45,106 +44,74 @@ namespace srv.Comment
             string contenu,
             string? parentCommentId = null)
         {
-            sql.Commentaire? saved = null;
+            if (!Guid.TryParse(userId, out var rpcUserId))
+                throw new ArgumentException("Invalid user id.", nameof(userId));
 
-            await WithPublicationLock(publicationId, async () =>
+            Guid? rpcParentCommentId = null;
+            if (!string.IsNullOrWhiteSpace(parentCommentId))
             {
-                var pubResult = await PerfLogger.TimeAsync(_logger, "CommentService.Create publication lookup", () => _supabase
-                    .From<sql.Publication>()
-                    .Where(p => p.Id == publicationId)
-                    .Get());
+                if (!Guid.TryParse(parentCommentId, out var parsedParentCommentId))
+                    throw new ArgumentException("Invalid parent comment id.", nameof(parentCommentId));
 
-                if (pubResult.Model is null)
-                    return;
+                rpcParentCommentId = parsedParentCommentId;
+            }
 
-                if (parentCommentId != null)
-                {
-                    var parentResult = await PerfLogger.TimeAsync(_logger, "CommentService.Create parent lookup", () => _supabase
-                        .From<sql.Commentaire>()
-                        .Where(c => c.Id == parentCommentId)
-                        .Get());
-
-                    var parent = parentResult.Model;
-                    if (parent is null || parent.PublicationId != publicationId)
-                        return;
-                }
-
-                var comment = new sql.Commentaire
-                {
-                    UtilisateurId = userId,
-                    PublicationId = publicationId,
-                    ParentCommentaire = parentCommentId,
-                    DateCommentaire = DateTime.UtcNow,
-                    Contenu = contenu,
-                    NbReponses = 0
-                };
-
-                var insertResult = await PerfLogger.TimeAsync(_logger, "CommentService.Create insert comment", () => _supabase
-                    .From<sql.Commentaire>()
-                    .Insert(comment));
-
-                saved = insertResult.Model;
-                if (saved is null)
-                    return;
-
-                if (parentCommentId != null)
-                    await RefreshReplyCount(parentCommentId);
-
-                await RefreshPublicationCommentCount(publicationId);
-            });
-
-            if (saved is null)
-                return (null, null);
-
-            var userResult = await PerfLogger.TimeAsync(_logger, "CommentService.Create user lookup", () => _supabase
-                .From<sql.Utilisateur>()
-                .Where(u => u.Id == userId)
-                .Get());
-
-            return (saved, userResult.Model);
-        }
-
-        public async Task<int> Delete(string commentId, string userId)
-        {
-            var initialResult = await PerfLogger.TimeAsync(_logger, "CommentService.Delete comment lookup", () => _supabase
-                .From<sql.Commentaire>()
-                .Where(c => c.Id == commentId)
-                .Get());
-
-            var initialComment = initialResult.Model;
-            if (initialComment?.PublicationId == null)
-                return 0;
-
-            return await WithPublicationLock(initialComment.PublicationId.Value, async () =>
+            try
             {
-                var result = await PerfLogger.TimeAsync(_logger, "CommentService.Delete locked comment lookup", () => _supabase
-                    .From<sql.Commentaire>()
-                    .Where(c => c.Id == commentId)
-                    .Get());
+                var rows = await PerfLogger.TimeAsync(_logger, "CommentService.Create rpc add_comment", () => _supabase.Rpc<List<AddCommentRpcRow>>(
+                    "add_comment",
+                    new Dictionary<string, object?>
+                    {
+                        { "p_publication_id", publicationId },
+                        { "p_user_id", rpcUserId },
+                        { "p_contenu", contenu },
+                        { "p_parent_commentaire", rpcParentCommentId }
+                    }));
 
-                var comment = result.Model;
-                if (comment?.PublicationId == null)
-                    return 0;
+                var saved = rows?.FirstOrDefault();
+                if (saved == null)
+                    return (null, null);
 
-                var userResult = await PerfLogger.TimeAsync(_logger, "CommentService.Delete user lookup", () => _supabase
+                var userResult = await PerfLogger.TimeAsync(_logger, "CommentService.Create user lookup", () => _supabase
                     .From<sql.Utilisateur>()
                     .Where(u => u.Id == userId)
                     .Get());
 
-                var currentUser = userResult.Model;
-                var isAdmin = currentUser?.MainAdmin == true;
+                return (saved.ToCommentaire(), userResult.Model);
+            }
+            catch (Exception ex) when (
+                ex.Message.Contains("Publication introuvable", StringComparison.OrdinalIgnoreCase) ||
+                ex.Message.Contains("Commentaire parent introuvable", StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogWarning(ex, "Comment creation failed for publication {PublicationId}", publicationId);
+                return (null, null);
+            }
+        }
 
-                if (comment.UtilisateurId != userId && !isAdmin)
-                    throw new UnauthorizedAccessException();
+        public async Task<int> Delete(string commentId, string userId)
+        {
+            if (!Guid.TryParse(commentId, out var rpcCommentId))
+                return 0;
 
-                var deletedCount = await DeleteCommentTree(commentId);
+            if (!Guid.TryParse(userId, out var rpcUserId))
+                throw new ArgumentException("Invalid user id.", nameof(userId));
 
-                if (comment.ParentCommentaire != null)
-                    await RefreshReplyCount(comment.ParentCommentaire);
+            try
+            {
+                var rows = await PerfLogger.TimeAsync(_logger, "CommentService.Delete rpc delete_comment", () => _supabase.Rpc<List<DeleteCommentRpcRow>>(
+                    "delete_comment",
+                    new Dictionary<string, object?>
+                    {
+                        { "p_comment_id", rpcCommentId },
+                        { "p_request_user_id", rpcUserId }
+                    }));
 
-                await RefreshPublicationCommentCount(comment.PublicationId.Value);
-                return deletedCount;
-            });
+                return rows?.FirstOrDefault()?.DeletedCount ?? 0;
+            }
+            catch (Exception ex) when (ex.Message.Contains("Suppression non autorisee", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new UnauthorizedAccessException("Suppression non autorisee.", ex);
+            }
         }
 
         private async Task<List<(sql.Commentaire, sql.Utilisateur?)>> EnrichWithUsers(List<sql.Commentaire> comments)
@@ -168,83 +135,52 @@ namespace srv.Comment
                 .Select(c => (c, userMap.TryGetValue(c.UtilisateurId ?? "", out var u) ? u : null))
                 .ToList();
         }
+    }
 
-        private SemaphoreSlim GetPublicationLock(int publicationId) =>
-            _publicationLocks.GetOrAdd(publicationId, _ => new SemaphoreSlim(1, 1));
+    public class AddCommentRpcRow
+    {
+        [JsonProperty("id_commentaire")]
+        public string? IdCommentaire { get; set; }
 
-        private async Task WithPublicationLock(int publicationId, Func<Task> action)
+        [JsonProperty("id_utilisateur")]
+        public string? UtilisateurId { get; set; }
+
+        [JsonProperty("id_publication")]
+        public int? PublicationId { get; set; }
+
+        [JsonProperty("parent_commentaire")]
+        public string? ParentCommentaire { get; set; }
+
+        [JsonProperty("date_commentaire")]
+        public DateTime? DateCommentaire { get; set; }
+
+        [JsonProperty("contenu")]
+        public string? Contenu { get; set; }
+
+        [JsonProperty("nb_reponses")]
+        public int? NbReponses { get; set; }
+
+        public sql.Commentaire ToCommentaire() => new()
         {
-            var gate = GetPublicationLock(publicationId);
-            await gate.WaitAsync();
-            try
-            {
-                await action();
-            }
-            finally
-            {
-                gate.Release();
-            }
-        }
+            Id = IdCommentaire,
+            UtilisateurId = UtilisateurId,
+            PublicationId = PublicationId,
+            ParentCommentaire = ParentCommentaire,
+            DateCommentaire = DateCommentaire,
+            Contenu = Contenu,
+            NbReponses = NbReponses
+        };
+    }
 
-        private async Task<T> WithPublicationLock<T>(int publicationId, Func<Task<T>> action)
-        {
-            var gate = GetPublicationLock(publicationId);
-            await gate.WaitAsync();
-            try
-            {
-                return await action();
-            }
-            finally
-            {
-                gate.Release();
-            }
-        }
+    public class DeleteCommentRpcRow
+    {
+        [JsonProperty("deleted_count")]
+        public int? DeletedCount { get; set; }
 
-        private async Task RefreshPublicationCommentCount(int publicationId)
-        {
-            var comments = await PerfLogger.TimeAsync(_logger, "CommentService.RefreshPublicationCommentCount comments", () => _supabase
-                .From<sql.Commentaire>()
-                .Filter("id_publication", Operator.Equals, publicationId)
-                .Get());
+        [JsonProperty("publication_id")]
+        public int? PublicationId { get; set; }
 
-            await PerfLogger.TimeAsync(_logger, "CommentService.RefreshPublicationCommentCount update publication", () => _supabase
-                .From<sql.Publication>()
-                .Filter("id_publication", Operator.Equals, publicationId)
-                .Set(p => p.CommentairesCount!, comments.Models.Count)
-                .Update());
-        }
-
-        private async Task RefreshReplyCount(string parentCommentId)
-        {
-            var replies = await PerfLogger.TimeAsync(_logger, "CommentService.RefreshReplyCount replies", () => _supabase
-                .From<sql.Commentaire>()
-                .Filter("parent_commentaire", Operator.Equals, parentCommentId)
-                .Get());
-
-            await PerfLogger.TimeAsync(_logger, "CommentService.RefreshReplyCount update parent", () => _supabase
-                .From<sql.Commentaire>()
-                .Filter("id_commentaire", Operator.Equals, parentCommentId)
-                .Set(c => c.NbReponses!, replies.Models.Count)
-                .Update());
-        }
-
-        private async Task<int> DeleteCommentTree(string commentId)
-        {
-            var repliesResult = await PerfLogger.TimeAsync(_logger, "CommentService.DeleteCommentTree replies lookup", () => _supabase
-                .From<sql.Commentaire>()
-                .Where(c => c.ParentCommentaire == commentId)
-                .Get());
-
-            var deletedCount = 1;
-            foreach (var reply in repliesResult.Models.Where(r => !string.IsNullOrWhiteSpace(r.Id)))
-                deletedCount += await DeleteCommentTree(reply.Id!);
-
-            await PerfLogger.TimeAsync(_logger, "CommentService.DeleteCommentTree delete comment", () => _supabase
-                .From<sql.Commentaire>()
-                .Where(c => c.Id == commentId)
-                .Delete());
-
-            return deletedCount;
-        }
+        [JsonProperty("parent_commentaire")]
+        public string? ParentCommentaire { get; set; }
     }
 }
