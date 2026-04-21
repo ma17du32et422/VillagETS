@@ -10,6 +10,7 @@ export const ChatProvider = ({ children }) => {
     const [lastMessage, setLastMessage] = useState(null); // The most recent message received
     const [lastActivity, setLastActivity] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
+    const [isRateLimited, setIsRateLimited] = useState(false);
 
     const connect = useCallback(() => {
         if(user == null) return;
@@ -25,17 +26,15 @@ export const ChatProvider = ({ children }) => {
             const data = JSON.parse(event.data);
 
             if (data.error === 'rate_limited') {
-                console.warn(data.message);
+                setIsRateLimited(true);
+                setTimeout(() => setIsRateLimited(false), 60000);
+                console.log("limite de message atteinte");
                 return;
             }
 
-            console.log(data);
+            setIsRateLimited(false);
             setLastMessage(data);
-            setLastActivity({
-                type: 'received',
-                message: data,
-                at: Date.now()
-            });
+            setLastActivity({ type: 'received', message: data, at: Date.now() });
         };
 
         ws.onclose = () => {
@@ -68,7 +67,7 @@ export const ChatProvider = ({ children }) => {
     };
 
     return (
-        <ChatContext.Provider value={{ isConnected, lastMessage, lastActivity, sendMessage }}>
+        <ChatContext.Provider value={{ isConnected, lastMessage, lastActivity, sendMessage, isRateLimited }}>
             {children}
         </ChatContext.Provider>
     );

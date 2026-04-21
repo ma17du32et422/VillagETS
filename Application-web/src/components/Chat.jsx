@@ -7,7 +7,7 @@ const MAX_MESSAGES = 10;
 const WINDOW_MS = 60 * 1000; // 1 minute
 
 const Chat = ({ targetUserId }) => {
-    const { lastMessage, sendMessage } = useChat();
+    const { lastMessage, sendMessage, isRateLimited: backendLimited } = useChat();
     const [messages, setMessages] = useState([]);
     const [text, setText] = useState("");
     const [error, setError] = useState("");
@@ -15,6 +15,7 @@ const Chat = ({ targetUserId }) => {
     const scrollRef = useRef();
     const timestampsRef = useRef([]); // historique des envois
     const countdownRef = useRef(null);
+    const isBlocked = rateLimitInfo.blocked || rateLimitInfo.remaining === 0 || backendLimited;
 
     // Load History
     useEffect(() => {
@@ -107,7 +108,8 @@ const Chat = ({ targetUserId }) => {
 
     const handleSend = useCallback(() => {
         if (!text.trim()) return;
-        if (isSendingRef.current) return; // guard synchrone
+        if (isSendingRef.current) return;
+        if (isBlocked) return;
         if (!checkRateLimit()) return;
 
         isSendingRef.current = true;
@@ -176,18 +178,16 @@ const Chat = ({ targetUserId }) => {
                     className="message-input"
                     value={text}
                     onChange={(e) => setText(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                    placeholder={rateLimitInfo.blocked || rateLimitInfo.remaining === 0
-                        ? "Limite atteinte..."
-                        : `Envoyer un message (${rateLimitInfo.remaining}/${MAX_MESSAGES})`}
-                    disabled={rateLimitInfo.blocked}
+                    disabled={isBlocked}
+                    placeholder={isBlocked ? "Limite atteinte..." : `Envoyer un message (${rateLimitInfo.remaining}/${MAX_MESSAGES})`}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && !e.repeat && !isBlocked) handleSend(); }}
                 />
                 <button
-                    className={`send-button ${rateLimitInfo.blocked ? 'disabled' : ''}`}
+                    className={`send-button ${isBlocked ? 'disabled' : ''}`}
                     onClick={handleSend}
-                    disabled={rateLimitInfo.blocked}
+                    disabled={isBlocked}
                 >
-                    {buttonLabel}
+                    {isBlocked ? `${rateLimitInfo.secondsLeft}s` : 'ENVOYER'}
                 </button>
             </div>
         </div>
