@@ -8,7 +8,10 @@ export const ChatProvider = ({ children }) => {
     const { user, loading } = useAuth();
     const [socket, setSocket] = useState(null);
     const [lastMessage, setLastMessage] = useState(null); // The most recent message received
+    const [lastDeletedMessage, setLastDeletedMessage] = useState(null);
+    const [lastActivity, setLastActivity] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
+    const [isRateLimited, setIsRateLimited] = useState(false);
 
     const connect = useCallback(() => {
         if(user == null) return;
@@ -22,8 +25,22 @@ export const ChatProvider = ({ children }) => {
 
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log(data);
+
+            if (data.error === 'rate_limited') {
+                setIsRateLimited(true);
+                setTimeout(() => setIsRateLimited(false), 60000);
+                console.log("limite de message atteinte");
+                return;
+            }
+
+            if (data.type === 'message_deleted') {
+                setLastDeletedMessage(data);
+                return;
+            }
+
+            setIsRateLimited(false);
             setLastMessage(data);
+            setLastActivity({ type: 'received', message: data, at: Date.now() });
         };
 
         ws.onclose = () => {
@@ -41,14 +58,26 @@ export const ChatProvider = ({ children }) => {
         return () => socket?.close();
     }, [connect, loading]);
 
-    const sendMessage = (receiverId, content) => {
-        if (socket && isConnected) {
-            socket.send(JSON.stringify({ receiverId: receiverId, contenu: content }));
+    const sendMessage = (receiverId, content, media = []) => {
+        if (!(socket && isConnected)) {
+            return false;
         }
+
+        socket.send(JSON.stringify({ receiverId, contenu: content, media }));
+        setLastActivity({
+            type: 'sent',
+            message: {
+                receiverId,
+                contenu: content,
+                media
+            },
+            at: Date.now()
+        });
+        return true;
     };
 
     return (
-        <ChatContext.Provider value={{ isConnected, lastMessage, sendMessage }}>
+        <ChatContext.Provider value={{ isConnected, lastMessage, lastDeletedMessage, lastActivity, sendMessage, isRateLimited }}>
             {children}
         </ChatContext.Provider>
     );

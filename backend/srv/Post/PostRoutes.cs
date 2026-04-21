@@ -13,32 +13,39 @@ namespace srv.Post
             app.MapGet("/post/{id}", async (int id) =>
             {
                 var ret = await postService.GetById(id);
-                if (ret.publication is null) return Results.NotFound("Publication not found");
+                if (ret is null) return Results.NotFound("Publication not found");
 
-                return Results.Ok(ret.publication.ToJson(ret.utilisateur));
+                return Results.Ok(ret);
             });
 
-            app.MapPost("/post", async ([FromBody] sql.Publication publication, HttpContext ctx) =>
+            app.MapPost("/post", async ([FromBody] PostCreateRequest publication, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetClaimsFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();
 
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
 
-                var created = await postService.Create(publication, userId);
-                if (created is null) return Results.BadRequest("Failed to create post");
-
-                return Results.Ok(new
+                try
                 {
-                    id = created.Id,
-                    titre = created.Nom,
-                    contenu = created.Contenu,
-                    media = created.Media,
-                    utilisateurId = created.UtilisateurId,
-                    datePublication = created.DatePublication,
-                    prix = created.Prix,
-                    articleAVendre = created.ArticleAVendre
-                });
+                    var created = await postService.Create(publication, userId);
+                    if (created is null) return Results.BadRequest("Failed to create post");
+
+                    return Results.Ok(new
+                    {
+                        id = created.Id,
+                        titre = created.Nom,
+                        contenu = created.Contenu,
+                        media = created.Media,
+                        utilisateurId = created.UtilisateurId,
+                        datePublication = created.DatePublication,
+                        prix = created.Prix,
+                        articleAVendre = created.ArticleAVendre
+                    });
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(ex.Message);
+                }
             });
 
             app.MapDelete("/post/{id}", async (int id, HttpContext ctx) =>

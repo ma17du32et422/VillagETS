@@ -7,6 +7,7 @@
 .message-list {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 20px;
     background-color: var(--color-2);
 }
@@ -15,10 +16,21 @@
     display: flex;
     justify-content: flex-start;
     margin-bottom: 10px;
+    position: relative;
 }
 
 .message-wrapper.outgoing {
     justify-content: flex-end;
+}
+
+.message-wrapper.outgoing::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -28px;
+    bottom: 0;
+    width: 40px;
+    pointer-events: none;
 }
 
 .message-wrapper.incoming {
@@ -35,6 +47,8 @@
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     word-break: break-word;
+    position: relative;
+    transition: transform 0.15s ease;
 }
 
 .message-sender {
@@ -43,17 +57,119 @@
     display: block;
 }
 
+.message-text {
+    margin-top: 4px;
+}
+
+.message-attachments {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.message-image-link {
+    display: block;
+}
+
+.message-image {
+    display: block;
+    max-width: 220px;
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--color-4);
+}
+
+.message-file-link {
+    display: inline-block;
+    color: var(--color-1);
+    text-decoration: underline;
+}
+
+.message-delete-button {
+    position: absolute;
+    top: 50%;
+    right: -12px;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 999px;
+    background-color: rgba(0, 0, 0, 0.12);
+    color: inherit;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-size: 14px;
+    z-index: 1;
+}
+
+.message-wrapper.outgoing:hover .message-delete-button,
+.message-delete-button:focus-visible {
+    display: inline-flex;
+}
+
+.message-wrapper.outgoing:hover .message-bubble {
+    transform: translateX(-12px);
+}
+
 .entry-box {
     padding: 15px;
     border-top: 1px solid var(--color-4);
     display: flex;
     gap: 10px;
+    min-width: 0;
+    align-items: center;
+}
+
+.attach-button {
+    padding: 10px 14px;
+    border: 1px solid var(--color-4);
+    background-color: var(--color-3);
+    color: inherit;
+    cursor: pointer;
+    flex: 0 1 auto;
+    white-space: nowrap;
+}
+
+.chat-file-input {
+    display: none;
+}
+
+.selected-files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 15px 0;
+}
+
+.selected-file-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border: 1px solid var(--color-4);
+    background-color: var(--color-3);
+    font-size: 0.85rem;
+}
+
+.selected-file-remove {
+    border: none;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    font-size: 0.95rem;
 }
 
 .message-input {
     flex: 1;
     padding: 10px;
     border: 1px solid var(--color-4);
+    min-width: 0;
 }
 
 .send-button {
@@ -62,8 +178,69 @@
     color: var(--color-6);
     border: none;
     cursor: pointer;
+    flex: 0 1 auto;
+    white-space: nowrap;
 }
 
 .send-button:hover {
     background-color: var(--color-t-2);
+}
+
+.rate-limit-counter {
+    font-size: 0.75rem;
+    color: #888;
+    text-align: right;
+    padding: 0.125rem 0.75rem;
+    transition: color 0.3s;
+}
+
+.rate-limit-counter.warning {
+    color: #e0a800;
+    font-weight: 500;
+}
+
+.rate-limit-counter.blocked {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.send-button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+    .entry-box {
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .attach-button,
+    .send-button {
+        padding: 9px 12px;
+        font-size: 0.85rem;
+    }
+
+    .message-input {
+        padding: 9px;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 700px) {
+    .entry-box {
+        gap: 6px;
+        padding: 10px;
+    }
+
+    .attach-button,
+    .send-button {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+
+    .message-input {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
 }

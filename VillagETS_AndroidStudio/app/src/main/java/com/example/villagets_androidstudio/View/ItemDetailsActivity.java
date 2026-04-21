@@ -34,18 +34,27 @@ public class ItemDetailsActivity extends AppCompatActivity {
         String description = getIntent().getStringExtra("description");
         String price = getIntent().getStringExtra("price");
         String imageUrl = getIntent().getStringExtra("imageUrl");
-
-        Log.d("ItemDetails", "Loading title: " + title);
-        Log.d("ItemDetails", "Loading image URL: " + imageUrl);
+        String posterName = getIntent().getStringExtra("posterName");
+        String posterAvatarUrl = getIntent().getStringExtra("posterAvatarUrl");
 
         TextView tvTitle = findViewById(R.id.tvItemTitle);
-        TextView tvDescription = findViewById(R.id.tvItemDescription);
+        TextView tvDescriptionContent = findViewById(R.id.tvItemDescriptionContent);
         TextView tvPrice = findViewById(R.id.tvItemPrice);
         ImageView ivPhoto = findViewById(R.id.ivItemPhoto);
+        TextView tvPosterName = findViewById(R.id.tvPosterName);
+        ImageView ivPosterAvatar = findViewById(R.id.ivPosterAvatar);
 
         tvTitle.setText(title);
-        tvDescription.setText(description);
+        tvDescriptionContent.setText(description);
         tvPrice.setText(price);
+        tvPosterName.setText(posterName != null ? posterName : "User Name");
+
+        if (posterAvatarUrl != null && !posterAvatarUrl.isEmpty()) {
+            String avatarUrl = posterAvatarUrl.replace("localhost", "10.0.2.2");
+            Glide.with(this).load(avatarUrl).into(ivPosterAvatar);
+        } else {
+            ivPosterAvatar.setImageDrawable(null);
+        }
 
         if (imageUrl != null && !imageUrl.isEmpty()) {
             String finalUrl = imageUrl;
@@ -55,11 +64,9 @@ public class ItemDetailsActivity extends AppCompatActivity {
             
             Glide.with(this)
                     .load(finalUrl)
-                    .placeholder(R.drawable.silicate)
-                    .error(R.drawable.silicate)
                     .into(ivPhoto);
         } else {
-            ivPhoto.setImageResource(R.drawable.silicate);
+            ivPhoto.setImageDrawable(null);
         }
     }
 }

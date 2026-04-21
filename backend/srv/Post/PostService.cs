@@ -2,9 +2,8 @@
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Npgsql;
 using Newtonsoft.Json;
+using srv.Upload;
 using Supabase.Postgrest;
-using System.Security.Claims;
-using villagets.Auth;
 using static Supabase.Postgrest.Constants;
 namespace srv.Post
 {
@@ -12,29 +11,47 @@ namespace srv.Post
     {
         private readonly Supabase.Client _supabase;
         private readonly ILogger<PostService> _logger;
+        private readonly UploadService _uploadService;
 
-        public PostService(ILogger<PostService> logger)
+        public PostService(ILogger<PostService> logger, UploadService uploadService)
         {
             _supabase = SupabaseService.GetClient();
             _logger = logger;
+            _uploadService = uploadService;
         }
 
-        public async Task<(sql.Publication? publication, sql.Utilisateur? utilisateur)> GetById(int id)
+        public async Task<object?> GetById(int id)
         {
-            var result = await PerfLogger.TimeAsync(_logger, "PostService.GetById publication lookup", () => _supabase
-                .From<sql.Publication>()
-                .Where(p => p.Id == id)
-                .Get());
+            var rows = await PerfLogger.TimeAsync(_logger, "PostService.GetById rpc get_post_by_id", () => _supabase.Rpc<List<PostDetailRpcRow>>(
+                "get_post_by_id",
+                new Dictionary<string, object?>
+                {
+                    { "p_publication_id", id }
+                }));
 
-            var post = result.Model;
-            if (post == null) return (null, null);
+            var row = rows?.FirstOrDefault();
+            if (row == null)
+                return null;
 
-            var userResult = await PerfLogger.TimeAsync(_logger, "PostService.GetById user lookup", () => _supabase
-                .From<sql.Utilisateur>()
-                .Where(u => u.Id == post.UtilisateurId)
-                .Get());
-
-            return (post, userResult.Model);
+            return new
+            {
+                id = row.Id,
+                titre = row.Titre,
+                contenu = row.Contenu,
+                media = row.Media ?? [],
+                datePublication = row.DatePublication,
+                prix = row.Prix,
+                articleAVendre = row.ArticleAVendre,
+                likes = row.Likes ?? 0,
+                dislikes = row.Dislikes ?? 0,
+                commentaires = row.Commentaires ?? 0,
+                op = new
+                {
+                    id = row.OpId,
+                    pseudo = row.OpPseudo,
+                    photoProfil = row.OpPhotoProfil
+                }
+            };
         }
         public async Task<List<sql.Publication>> GetFeed(string userId)
         {
@@ -42,37 +59,62 @@ namespace srv.Post
 
             return result.Models.ToList();
         }
-        public async Task<sql.Publication?> Create(sql.Publication publication, string userId)
+        public async Task<PostCreateResult?> Create(PostCreateRequest publication, string userId)
         {
-            publication.UtilisateurId = userId;
-            publication.DatePublication = DateTime.UtcNow;
-            var result = await PerfLogger.TimeAsync(_logger, "PostService.Create insert publication", () => _supabase.From<sql.Publication>().Insert(publication));
+            var mediaUrls = publication.Media?
+                .Where(m => !string.IsNullOrWhiteSpace(m))
+                .Select(m => m.Trim())
+                .Distinct()
+                .ToList() ?? [];
+
+            var fichiers = await ResolveOwnedFilesByUrlsAsync(userId, mediaUrls, "PostService.Create fichier lookup");
+            if (fichiers.Count != mediaUrls.Count)
+                throw new ArgumentException("One or more post media uploads are invalid");
+
+            var sanitized = new sql.Publication
+            {
+                UtilisateurId = userId,
+                Nom = publication.Nom?.Trim(),
+                Contenu = publication.Contenu?.Trim(),
+                DatePublication = DateTime.UtcNow,
+                Prix = publication.Prix,
+                ArticleAVendre = publication.ArticleAVendre
+            };
+
+            if (string.IsNullOrWhiteSpace(sanitized.Nom))
+                throw new ArgumentException("Post title is required");
+
+            if (string.IsNullOrWhiteSpace(sanitized.Contenu))
+                throw new ArgumentException("Post content is required");
+
+            var result = await PerfLogger.TimeAsync(_logger, "PostService.Create insert publication", () => _supabase.From<sql.Publication>().Insert(sanitized));
             var saved = result.Model;
             if (saved is null) return null;
 
-            saved.Media = publication.Media;
-
-            var urls = publication.Media?.Where(u => u != null).ToList();
-            if (urls is { Count: > 0 })
+            if (fichiers.Count > 0)
             {
-                var fichiers = await PerfLogger.TimeAsync(_logger, "PostService.Create fichier lookup", () => _supabase
-                    .From<sql.Fichier>()
-                    .Filter("lien_fichier", Operator.In, urls)
-                    .Get());
-
-                var links = fichiers.Models
+                var links = fichiers
                     .Where(f => f.Id.HasValue)
                     .Select(f => new sql.PublicationFichier
                     {
                         IdFichier = f.Id!.Value.ToString("D"),
                         IdPublication = saved.Id
                     }).ToList();
-                Console.WriteLine($"Links to insert: {links.Count}");
                 if (links.Count > 0)
                     await PerfLogger.TimeAsync(_logger, "PostService.Create insert publication fichiers", () => _supabase.From<sql.PublicationFichier>().Insert(links));
             }
 
-            return saved;
+            return new PostCreateResult
+            {
+                Id = saved.Id,
+                UtilisateurId = saved.UtilisateurId,
+                Nom = saved.Nom,
+                Contenu = saved.Contenu,
+                Media = mediaUrls.ToArray(),
+                DatePublication = saved.DatePublication,
+                Prix = saved.Prix,
+                ArticleAVendre = saved.ArticleAVendre
+            };
         }
 
 
@@ -97,61 +139,14 @@ namespace srv.Post
             if (publication.UtilisateurId != userId && !isAdmin)
                 throw new UnauthorizedAccessException();
 
-            // Get all fichier links for this publication
-            var pubFichiers = await PerfLogger.TimeAsync(_logger, "PostService.Delete publication fichier lookup", () => _supabase
-                .From<sql.PublicationFichier>()
-                .Filter("id_publication", Operator.Equals, id)
-                .Get());
-
-            var fichierIds = pubFichiers.Models
-                .Where(pf => pf.IdFichier != null)
-                .Select(pf => pf.IdFichier!)
-                .ToList();
-
-            if (fichierIds.Count > 0)
-            {
-                // Get the actual fichier records to find file paths
-                var fichiers = await PerfLogger.TimeAsync(_logger, "PostService.Delete fichier lookup", () => _supabase
-                    .From<sql.Fichier>()
-                    .Filter("id_fichier", Operator.In, fichierIds)
-                    .Get());
-
-                // Delete physical files from disk
-                var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-                foreach (var fichier in fichiers.Models)
+            var deletedFiles = await PerfLogger.TimeAsync(_logger, "PostService.Delete rpc delete_publication_with_files", () => _supabase.Rpc<List<DeletedFileRpcRow>>(
+                "delete_publication_with_files",
+                new Dictionary<string, object?>
                 {
-                    if (fichier.LienFichier == null) continue;
-                    var fileName = Path.GetFileName(fichier.LienFichier);
-                    var filePath = Path.Combine(uploadFolder, fileName);
-                    if (File.Exists(filePath))
-                        File.Delete(filePath);
-                }
-                // Delete publication_fichier links
-                await PerfLogger.TimeAsync(_logger, "PostService.Delete delete publication fichiers", () => _supabase
-                    .From<sql.PublicationFichier>()
-                    .Filter("id_publication", Operator.Equals, id)
-                    .Delete());
+                    { "p_publication_id", id }
+                }));
 
-                // Delete fichier records from DB
-                await PerfLogger.TimeAsync(_logger, "PostService.Delete delete fichiers", () => _supabase
-                    .From<sql.Fichier>()
-                    .Filter("id_fichier", Operator.In, fichierIds)
-                    .Delete());
-
-
-            }
-
-            // Delete reactions
-            await PerfLogger.TimeAsync(_logger, "PostService.Delete delete reactions", () => _supabase
-                .From<sql.ReactionPublication>()
-                .Filter("id_publication", Operator.Equals, id)
-                .Delete());
-
-            // Delete the publication itself
-            await PerfLogger.TimeAsync(_logger, "PostService.Delete delete publication", () => _supabase
-                .From<sql.Publication>()
-                .Where(p => p.Id == id)
-                .Delete());
+            _uploadService.DeleteLocalFiles((deletedFiles ?? []).Select(file => file.LienFichier));
 
             return true;
         }
@@ -176,7 +171,7 @@ namespace srv.Post
                 id = row.Id,
                 titre = row.Titre,
                 contenu = row.Contenu,
-                media = row.Media,
+                media = row.Media ?? [],
                 datePublication = row.DatePublication,
                 prix = row.Prix,
                 articleAVendre = row.ArticleAVendre,
@@ -215,7 +210,7 @@ namespace srv.Post
                 id = row.Id,
                 titre = row.Titre,
                 contenu = row.Contenu,
-                media = row.Media,
+                media = row.Media ?? [],
                 datePublication = row.DatePublication,
                 prix = row.Prix,
                 articleAVendre = row.ArticleAVendre,
@@ -230,6 +225,20 @@ namespace srv.Post
                     photoProfil = row.OpPhotoProfil
                 }
             }).ToList();
+        }
+
+        private async Task<List<sql.Fichier>> ResolveOwnedFilesByUrlsAsync(string userId, IReadOnlyCollection<string> urls, string perfLabel)
+        {
+            if (urls.Count == 0)
+                return [];
+
+            var response = await PerfLogger.TimeAsync(_logger, perfLabel, () => _supabase
+                .From<sql.Fichier>()
+                .Filter("lien_fichier", Operator.In, urls.ToList())
+                .Filter("id_proprietaire", Operator.Equals, userId)
+                .Get());
+
+            return response.Models.ToList();
         }
 
     }
@@ -277,5 +286,39 @@ namespace srv.Post
 
         [JsonProperty("user_reaction")]
         public string? UserReaction { get; set; }
+    }
+
+    public class PostDetailRpcRow : FeedRpcRow
+    {
+    }
+
+    public class PostCreateRequest
+    {
+        public string? Nom { get; set; }
+        public string? Contenu { get; set; }
+        public string[]? Media { get; set; }
+        public decimal? Prix { get; set; }
+        public bool? ArticleAVendre { get; set; }
+    }
+
+    public class PostCreateResult
+    {
+        public int? Id { get; set; }
+        public string? UtilisateurId { get; set; }
+        public string? Nom { get; set; }
+        public string? Contenu { get; set; }
+        public string[] Media { get; set; } = [];
+        public DateTime? DatePublication { get; set; }
+        public decimal? Prix { get; set; }
+        public bool? ArticleAVendre { get; set; }
+    }
+
+    public class DeletedFileRpcRow
+    {
+        [JsonProperty("id_fichier")]
+        public Guid? IdFichier { get; set; }
+
+        [JsonProperty("lien_fichier")]
+        public string? LienFichier { get; set; }
     }
 }

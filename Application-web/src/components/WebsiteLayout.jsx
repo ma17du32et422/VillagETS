@@ -7,33 +7,35 @@ import '../assets/WebsiteLayout.css'
 
 export default function WebsiteLayout() {
   const { user } = useAuth()
-  const [sidebarExpanded, setSidebarExpanded] = useState(() => localStorage.getItem('website-sidebar-expanded') === 'true')
-
+  const [sidebarExpanded, setSidebarExpanded] = useState(() => localStorage.getItem('sidebar-expanded') === 'true')
+  
   useEffect(() => {
-    localStorage.setItem('website-sidebar-expanded', String(sidebarExpanded))
+    localStorage.setItem('sidebar-expanded', String(sidebarExpanded))
   }, [sidebarExpanded])
 
   return (
     <>
       <header id="header"><Header /></header>
-      <main className="website-main">
-        <aside className="website-sidebar-container">
-          <div className={`website-sidebar ${sidebarExpanded ? 'expanded' : 'collapsed'}`}>
-            <div className="website-sidebar-content">
+      <main className="main-page">
+        <aside className="sidebar-container">
+          <div className={`sidebar ${sidebarExpanded ? 'expanded' : 'collapsed'}`}>
+            <div className="sidebar-content">
               <Actions user={user} />
             </div>
             <button
-              className="website-sidebar-toggle"
+              className="sidebar-toggle"
               type="button"
               onClick={() => setSidebarExpanded((current) => !current)}
               aria-expanded={sidebarExpanded}
             >
-              <span className="website-sidebar-toggle-icon">{sidebarExpanded ? '<' : '>'}</span>
-              <span className="website-sidebar-toggle-label">{sidebarExpanded ? 'Collapse' : 'Expand'}</span>
+              <span className="sidebar-toggle-icon-wrap">
+                <span className="sidebar-toggle-icon" aria-hidden="true" />
+              </span>
+              <span className="sidebar-toggle-label">{sidebarExpanded ? 'Collapse' : 'Expand'}</span>
             </button>
           </div>
         </aside>
-        <section className="website-page">
+        <section className="page">
           <Outlet />
         </section>
       </main>

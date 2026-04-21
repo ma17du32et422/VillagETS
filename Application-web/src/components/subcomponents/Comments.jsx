@@ -4,7 +4,7 @@ import { useAuth } from '../../AuthContext'
 import CommentItem from './CommentItem'
 import ProfileAvatar from '../ProfileAvatar'
 import '../../assets/Comments.css'
-export default function Comments({ postId, initialCount }) {
+export default function Comments({ postId, initialCount, onCountChange }) {
   const { user } = useAuth()
   const [comments, setComments] = useState([])
   const [commentText, setCommentText] = useState('')
@@ -15,6 +15,10 @@ export default function Comments({ postId, initialCount }) {
   useEffect(() => {
     fetchComments()
   }, [postId])
+
+  useEffect(() => {
+    setCount(initialCount ?? 0)
+  }, [initialCount])
 
   const fetchComments = async () => {
     setLoading(true)
@@ -51,15 +55,16 @@ export default function Comments({ postId, initialCount }) {
       const newComment = await res.json()
       setComments(c => [newComment, ...c])
       setCount(n => n + 1)
+      onCountChange?.(1)
       setCommentText('')
     } catch (err) {
       console.error('Failed to post comment:', err)
     }
   }
 
-  const handleDeleted = (deletedId) => {
+  const handleDeleted = (deletedId, deletedCount = 1) => {
     setComments(c => c.filter(c => c.id !== deletedId))
-    setCount(n => Math.max(0, n - 1))
+    setCount(n => Math.max(0, n - deletedCount))
   }
 
   return (
@@ -97,6 +102,7 @@ export default function Comments({ postId, initialCount }) {
             comment={comment}
             postId={postId}
             onDeleted={handleDeleted}
+            onCountChange={onCountChange}
           />
         ))}
       </div>

@@ -9,6 +9,7 @@ export default function Post({ post, onDelete }) {
   const { user } = useAuth()
   const [likes, setLikes] = useState(post.likes ?? 0)
   const [dislikes, setDislikes] = useState(post.dislikes ?? 0)
+  const [commentCount, setCommentCount] = useState(post.commentaires ?? 0)
   const [liked, setLiked] = useState(post.userReaction === 'like')
   const [disliked, setDisliked] = useState(post.userReaction === 'dislike')
   const [comments, setComments] = useState(post.comments ?? [])
@@ -36,6 +37,10 @@ export default function Post({ post, onDelete }) {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  useEffect(() => {
+    setCommentCount(post.commentaires ?? 0)
+  }, [post.commentaires])
 
   const deletePost = async () => {
     setMenuOpen(false)
@@ -194,12 +199,16 @@ const toggleReaction = async (type) => {
           type="button"
           onClick={() => setCommentVisible(v => !v)}
         >
-          💬 {post.commentaires ?? 0}
+          💬 {commentCount}
         </button>
       </div>
 
       {commentVisible && (
-        <Comments postId={post.id} initialCount={post.commentaires ?? 0} />
+        <Comments
+          postId={post.id}
+          initialCount={commentCount}
+          onCountChange={(delta) => setCommentCount((current) => Math.max(0, current + delta))}
+        />
       )}
     </article>
   )

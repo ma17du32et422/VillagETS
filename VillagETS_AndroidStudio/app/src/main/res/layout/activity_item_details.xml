@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <!-- Red Header Background -->
     <View
         android:id="@+id/headerBackground"
         android:layout_width="match_parent"
@@ -16,7 +15,6 @@
         app:layout_constraintBottom_toBottomOf="@id/toolbarContainer"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Toolbar Container -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbarContainer"
         android:layout_width="match_parent"
@@ -42,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/delta_medium"
-            android:text="Détails"
+            android:text="Details"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -77,13 +75,38 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/red_primary"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/ivPosterAvatar"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:padding="2dp"
+                            android:background="@color/white"
+                            android:scaleType="centerCrop"
+                            app:shapeAppearanceOverlay="@style/CircleImageAppearance" />
+                        <TextView
+                            android:id="@+id/tvPosterName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="Username"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
                     <ImageView
                         android:id="@+id/ivItemPhoto"
                         android:layout_width="match_parent"
                         android:layout_height="300dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/silicate" />
-
+                        android:scaleType="centerCrop" />
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -118,6 +141,7 @@
                             android:background="@color/divider" />
 
                         <TextView
+                            android:id="@+id/tvItemDescription"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/delta_medium"
@@ -127,7 +151,7 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/tvItemDescription"
+                            android:id="@+id/tvItemDescriptionContent"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
@@ -146,7 +170,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:background="@drawable/rounded_red_header"
-                android:text="Contacter le vendeur"
+                android:text="Contact"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="16sp"

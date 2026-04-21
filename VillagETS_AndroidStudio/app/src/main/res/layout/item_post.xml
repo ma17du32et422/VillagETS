@@ -13,38 +13,89 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/postTitle"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Post Title"
-            android:textColor="@color/text_primary"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:fontFamily="@font/delta_medium"/>
+            android:background="@color/red_primary"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="8dp">
 
-        <ImageView
-            android:id="@+id/postImage"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:layout_marginTop="8dp"
-            android:src="@drawable/silicate" />
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/postUserAvatar"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="2dp"
+                android:background="@color/white"
+                android:scaleType="centerCrop"
+                app:shapeAppearanceOverlay="@style/CircleImageAppearance" />
 
-        <TextView
-            android:id="@+id/postContent"
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/postUserName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="User Name"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/postTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2024-01-01"
+                    android:textColor="#EEEEEE"
+                    android:textSize="10sp" />
+            </LinearLayout>
+            
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="8dp"
-            android:text="Post content goes here..."
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp"
-            android:fontFamily="@font/delta_light"
-            android:ellipsize="end" />
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/postTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Post Title"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/delta_medium"/>
+
+            <ImageView
+                android:id="@+id/postImage"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/postContent"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginTop="8dp"
+                android:text="Post content goes here..."
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:fontFamily="@font/delta_light"
+                android:ellipsize="end" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

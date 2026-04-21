@@ -15,6 +15,7 @@ public class UserViewModel extends ViewModel {
     private final MutableLiveData<User> userLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<Boolean> signupSuccess = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> updateSuccess = new MutableLiveData<>();
     private final UserDao userDao = new UserDao();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -34,6 +35,10 @@ public class UserViewModel extends ViewModel {
         return signupSuccess;
     }
 
+    public LiveData<Boolean> getUpdateSuccess() {
+        return updateSuccess;
+    }
+
     public void login(String email, String password) {
         executorService.execute(() -> {
             try {
@@ -44,11 +49,9 @@ public class UserViewModel extends ViewModel {
                 if (loggedInUser != null) {
                     userLiveData.postValue(loggedInUser);
                 } else {
-                    errorMessage.postValue("Échec de la connexion");
+                    errorMessage.postValue("Échec de la connexion (401)");
                 }
             } catch (IOException e) {
-                // If there's an error like unrecognized field, it won't be suppressed here yet
-                // but by adding @JsonIgnoreProperties in the User model, this exception should be avoided entirely.
                 errorMessage.postValue("Erreur réseau : " + e.getMessage());
             }
         });
@@ -69,26 +72,81 @@ public class UserViewModel extends ViewModel {
         });
     }
 
-    public void fetchUser(String email) {
-        executorService.execute(() -> {
-            try {
-                User user = userDao.getUserByEmail(email);
-                userLiveData.postValue(user);
-            } catch (IOException e) {
-                errorMessage.postValue("Erreur lors de la récupération : " + e.getMessage());
-            }
-        });
-    }
-
-    public void fetchCurrentUser() {
+    public void fetchUser() {
         executorService.execute(() -> {
             try {
                 User user = userDao.getMe();
                 if (user != null) {
                     userLiveData.postValue(user);
                 } else {
+                    errorMessage.postValue("401: Session expirée ou invalide");
+                }
+            } catch (IOException e) {
+                errorMessage.postValue("Erreur de récupération : " + e.getMessage());
+            }
+        });
+    }
+
+    public void fetchUser(String email) {
+        executorService.execute(() -> {
+            try {
+                User user = userDao.getUserByEmail(email);
+                if (user != null) {
+                    userLiveData.postValue(user);
+                } else {
                     errorMessage.postValue("Utilisateur non trouvé");
                 }
+            } catch (IOException e) {
+                errorMessage.postValue("Erreur de récupération : " + e.getMessage());
+            }
+        });
+    }
+
+    public void fetchUserById(String userId) {
+        executorService.execute(() -> {
+            try {
+                User user = userDao.getUserById(userId);
+                if (user != null) {
+                    userLiveData.postValue(user);
+                } else {
+                    errorMessage.postValue("Utilisateur non trouvé");
+                }
+            } catch (IOException e) {
+                errorMessage.postValue("Erreur de récupération : " + e.getMessage());
+            }
+        });
+    }
+
+    public void updatePseudo(String pseudo) {
+        executorService.execute(() -> {
+            try {
+                boolean success = userDao.updatePseudo(pseudo);
+                updateSuccess.postValue(success);
+                if (!success) errorMessage.postValue("Erreur lors de la mise à jour du pseudo");
+            } catch (IOException e) {
+                errorMessage.postValue("Erreur réseau : " + e.getMessage());
+            }
+        });
+    }
+
+    public void updatePassword(String currentPassword, String newPassword) {
+        executorService.execute(() -> {
+            try {
+                boolean success = userDao.updatePassword(currentPassword, newPassword);
+                updateSuccess.postValue(success);
+                if (!success) errorMessage.postValue("Erreur lors de la mise à jour du mot de passe");
+            } catch (IOException e) {
+                errorMessage.postValue("Erreur réseau : " + e.getMessage());
+            }
+        });
+    }
+
+    public void updatePhoto(String photoUrl) {
+        executorService.execute(() -> {
+            try {
+                boolean success = userDao.updatePhoto(photoUrl);
+                updateSuccess.postValue(success);
+                if (!success) errorMessage.postValue("Erreur lors de la mise à jour de la photo");
             } catch (IOException e) {
                 errorMessage.postValue("Erreur réseau : " + e.getMessage());
             }

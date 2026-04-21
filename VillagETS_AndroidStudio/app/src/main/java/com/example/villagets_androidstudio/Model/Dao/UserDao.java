@@ -3,7 +3,9 @@ package com.example.villagets_androidstudio.Model.Dao;
 import com.example.villagets_androidstudio.Model.User;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Response;
 
@@ -24,6 +26,14 @@ public class UserDao {
 
     public User getUserByEmail(String email) throws IOException {
         Response<User> response = api.getUserByEmail(email).execute();
+        if (response.isSuccessful()) {
+            return response.body();
+        }
+        return null;
+    }
+
+    public User getUserById(String userId) throws IOException {
+        Response<User> response = api.getUserById(userId).execute();
         if (response.isSuccessful()) {
             return response.body();
         }
@@ -52,5 +62,27 @@ public class UserDao {
             return response.body();
         }
         return null;
+    }
+
+    public boolean updatePseudo(String pseudo) throws IOException {
+        Map<String, String> body = new HashMap<>();
+        body.put("pseudo", pseudo);
+        Response<Void> response = api.updatePseudo(body).execute();
+        return response.isSuccessful();
+    }
+
+    public boolean updatePassword(String currentPassword, String newPassword) throws IOException {
+        Map<String, String> body = new HashMap<>();
+        body.put("currentPassword", currentPassword);
+        body.put("newPassword", newPassword);
+        Response<Void> response = api.updatePassword(body).execute();
+        return response.isSuccessful();
+    }
+
+    public boolean updatePhoto(String photoUrl) throws IOException {
+        Map<String, String> body = new HashMap<>();
+        body.put("photoUrl", photoUrl);
+        Response<Void> response = api.updatePhoto(body).execute();
+        return response.isSuccessful();
     }
 }

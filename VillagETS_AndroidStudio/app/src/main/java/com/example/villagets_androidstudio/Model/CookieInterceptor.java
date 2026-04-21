@@ -16,17 +16,20 @@ public class CookieInterceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
-        Request.Builder builder = chain.request().newBuilder();
+        Request request = chain.request();
+        Request.Builder builder = request.newBuilder();
         
-        // Envoi du token stocké vers le serveur
-        String token = sessionManager.getToken();
-        if (token != null) {
-            builder.addHeader("Cookie", token);
+        String url = request.url().toString();
+        
+        if (!url.contains("/auth/login") && !url.contains("/auth/signup")) {
+            String token = sessionManager.getToken();
+            if (token != null) {
+                builder.addHeader("Cookie", token);
+            }
         }
 
         Response originalResponse = chain.proceed(builder.build());
 
-        // Récupération et sauvegarde du token envoyé par le serveur (Set-Cookie)
         if (!originalResponse.headers("Set-Cookie").isEmpty()) {
             List<String> cookies = originalResponse.headers("Set-Cookie");
             for (String cookie : cookies) {

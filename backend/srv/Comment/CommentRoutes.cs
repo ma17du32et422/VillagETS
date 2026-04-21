@@ -59,8 +59,10 @@ namespace srv.Comment
 
                 try
                 {
-                    var deleted = await commentService.Delete(commentId, userId);
-                    return deleted ? Results.Ok() : Results.NotFound("Commentaire introuvable.");
+                    var deletedCount = await commentService.Delete(commentId, userId);
+                    return deletedCount > 0
+                        ? Results.Ok(new { deletedCount })
+                        : Results.NotFound("Commentaire introuvable.");
                 }
                 catch (UnauthorizedAccessException)
                 {
