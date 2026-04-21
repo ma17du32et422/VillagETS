@@ -88,24 +88,22 @@ namespace srv.Messaging
                         if (string.IsNullOrWhiteSpace(normalizedContent) && normalizedMedia.Length == 0)
                             continue;
 
-                        var savedMsg = await SaveMessageAsync(userId, payload.receiverId, normalizedContent, normalizedMedia);
+                        MessageDTO? savedMsg;
+                        try
+                        {
+                            savedMsg = await SaveMessageAsync(userId, payload.receiverId, normalizedContent, normalizedMedia);
+                        }
+                        catch (ArgumentException ex)
+                        {
+                            _logger.LogWarning(ex, "Ignoring invalid websocket payload from user {UserId}", userId);
+                            continue;
+                        }
 
                         if (savedMsg != null && _activeConnections.TryGetValue(payload.receiverId, out var receiverSocket))
                         {
                             if (receiverSocket.State == WebSocketState.Open)
                             {
-                                var output = new MessageDTO
-                                {
-                                    id = savedMsg.Id,
-                                    conversationId = savedMsg.ConversationId,
-                                    envoyeurId = savedMsg.EnvoyeurId,
-                                    receveurId = savedMsg.ReceveurId,
-                                    contenu = savedMsg.Contenu,
-                                    media = savedMsg.Media ?? [],
-                                    dateMsg = savedMsg.DateMsg
-                                };
-
-                                var outMsg = JsonSerializer.Serialize(output);
+                                var outMsg = JsonSerializer.Serialize(savedMsg);
                                 var outBytes = Encoding.UTF8.GetBytes(outMsg);
                                 await receiverSocket.SendAsync(new ArraySegment<byte>(outBytes), WebSocketMessageType.Text, true, CancellationToken.None);
                             }
@@ -153,8 +151,18 @@ namespace srv.Messaging
         /// Persists a new message for the sender and receiver after resolving or creating their conversation.
         /// </summary>
         /// <returns>The saved conversation message row, or <c>null</c> if nothing was returned from the insert.</returns>
-        private async Task<ConversationMessage?> SaveMessageAsync(string senderId, string receiverId, string? content = "", string[]? media = null)
+        private async Task<MessageDTO?> SaveMessageAsync(string senderId, string receiverId, string? content = "", string[]? media = null)
         {
+            var mediaUrls = media?
+                .Where(url => !string.IsNullOrWhiteSpace(url))
+                .Select(url => url.Trim())
+                .Distinct()
+                .ToList() ?? [];
+
+            var fichiers = await ResolveOwnedFilesByUrlsAsync(senderId, mediaUrls);
+            if (fichiers.Count != mediaUrls.Count)
+                throw new ArgumentException("One or more message attachments are invalid.");
+
             var conversationId = await GetOrCreateConversationAsync(senderId, receiverId);
 
             var msg = new ConversationMessage
@@ -163,12 +171,43 @@ namespace srv.Messaging
                 EnvoyeurId = senderId,
                 ReceveurId = receiverId,
                 Contenu = content,
-                Media = media ?? [],
                 DateMsg = DateTime.UtcNow
             };
 
             var result = await PerfLogger.TimeAsync(_logger, "MessagingService.SaveMessageAsync insert message", () => _supabase.From<ConversationMessage>().Insert(msg));
-            return result.Models.FirstOrDefault();
+            var saved = result.Models.FirstOrDefault();
+            if (saved == null)
+                return null;
+
+            if (fichiers.Count > 0)
+            {
+                var links = fichiers
+                    .Where(file => file.Id.HasValue)
+                    .Select(file => new sql.MessageFichier
+                    {
+                        MessageId = saved.Id,
+                        FichierId = file.Id!.Value.ToString("D")
+                    })
+                    .ToList();
+
+                if (links.Count > 0)
+                {
+                    await PerfLogger.TimeAsync(_logger, "MessagingService.SaveMessageAsync insert message fichiers", () => _supabase
+                        .From<sql.MessageFichier>()
+                        .Insert(links));
+                }
+            }
+
+            return new MessageDTO
+            {
+                id = saved.Id,
+                conversationId = saved.ConversationId,
+                envoyeurId = saved.EnvoyeurId,
+                receveurId = saved.ReceveurId,
+                contenu = saved.Contenu,
+                media = mediaUrls.ToArray(),
+                dateMsg = saved.DateMsg
+            };
         }
 
         /// <summary>
@@ -220,16 +259,18 @@ namespace srv.Messaging
         /// <returns>A list of message DTOs, or an empty list when the users do not have a conversation yet.</returns>
         public async Task<List<MessageDTO>> GetHistoryAsync(string userId1, string userId2)
         {
-            var conversationId = await FindConversationIdAsync(userId1, userId2);
-            if (string.IsNullOrWhiteSpace(conversationId))
+            if (!Guid.TryParse(userId1, out var currentUserId) || !Guid.TryParse(userId2, out var targetUserId))
                 return [];
 
-            var result = await PerfLogger.TimeAsync(_logger, "MessagingService.GetHistoryAsync messages", () => _supabase.From<ConversationMessage>()
-                .Where(m => m.ConversationId == conversationId)
-                .Order("date_msg", Supabase.Postgrest.Constants.Ordering.Ascending)
-                .Get());
+            var rows = await PerfLogger.TimeAsync(_logger, "MessagingService.GetHistoryAsync rpc get_chat_history", () => _supabase.Rpc<List<MessageHistoryRpcRow>>(
+                "get_chat_history",
+                new Dictionary<string, object?>
+                {
+                    { "p_user_id_1", currentUserId },
+                    { "p_user_id_2", targetUserId }
+                }));
 
-            return result.Models.Select(m => new MessageDTO
+            return (rows ?? []).Select(m => new MessageDTO
             {
                 id = m.Id,
                 conversationId = m.ConversationId,
@@ -284,6 +325,21 @@ namespace srv.Messaging
 
             return sidebarList;
         }
+
+        private async Task<List<sql.Fichier>> ResolveOwnedFilesByUrlsAsync(string ownerId, IReadOnlyCollection<string> urls)
+        {
+            if (urls.Count == 0)
+                return [];
+
+            var response = await PerfLogger.TimeAsync(_logger, "MessagingService.ResolveOwnedFilesByUrlsAsync fichier lookup", () => _supabase
+                .From<sql.Fichier>()
+                .Filter("lien_fichier", Supabase.Postgrest.Constants.Operator.In, urls.ToList())
+                .Filter("id_proprietaire", Supabase.Postgrest.Constants.Operator.Equals, ownerId)
+                .Get());
+
+            return response.Models.ToList();
+        }
+
     }
 
     public class WsMessagePayload
@@ -308,5 +364,29 @@ namespace srv.Messaging
     {
         public string? ConversationId { get; set; }
         public object? OtherUser { get; set; }
+    }
+
+    public class MessageHistoryRpcRow
+    {
+        [Newtonsoft.Json.JsonProperty("id")]
+        public string? Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("conversation_id")]
+        public string? ConversationId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("envoyeur_id")]
+        public string? EnvoyeurId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("receveur_id")]
+        public string? ReceveurId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("contenu")]
+        public string? Contenu { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("media")]
+        public string[]? Media { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("date_msg")]
+        public DateTime? DateMsg { get; set; }
     }
 }
