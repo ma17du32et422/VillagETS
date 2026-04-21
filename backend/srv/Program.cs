@@ -1,12 +1,15 @@
 using BCrypt.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using sql;
 using srv;
 using srv.Comment;
 using srv.Messaging;
 using srv.Post;
 using srv.Reaction;
+using srv.Upload;
 using Supabase;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
@@ -14,13 +17,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
+
 const bool EnablePerformanceLogging = true;
 const bool EnableTracing = false;
 const long MaxUploadBytes = 10 * 1024 * 1024;
 
-//autorise les uploads à partir du site web
+//autorise les uploads a partir du site web
 var builder = WebApplication.CreateBuilder(args);
 var isDevelopment = builder.Environment.IsDevelopment();
 var allowedUploadContentTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -65,6 +67,7 @@ var allowedMessageUploadExtensions = new HashSet<string>(allowedUploadExtensions
     ".pptx",
     ".zip"
 };
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -82,10 +85,10 @@ builder.Services.AddCors(options =>
                     "https://villagets.lesageserveur.com",
                     "https://apivillagets.lesageserveur.com",
                     "https://api.villagets.lesageserveur.com"
-                  )
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
+                )
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
         }
     });
 });
@@ -94,19 +97,31 @@ var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? throw new Ex
 
 villagets.Auth.AuthHelper.Initialize(jwtSecret);
 
+var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+var uploadOptions = new UploadOptions
+{
+    UploadFolder = uploadFolder,
+    MaxUploadBytes = MaxUploadBytes,
+    AllowedUploadContentTypes = allowedUploadContentTypes,
+    AllowedUploadExtensions = allowedUploadExtensions,
+    AllowedMessageUploadContentTypes = allowedMessageUploadContentTypes,
+    AllowedMessageUploadExtensions = allowedMessageUploadExtensions
+};
+
+builder.Services.AddSingleton(uploadOptions);
+builder.Services.AddSingleton<UploadService>();
 builder.Services.AddSingleton<MessagingService>();
+
 var tracingEnabled = EnableTracing;
 if (tracingEnabled)
 {
     builder.Services.AddOpenTelemetry()
-        .ConfigureResource(resource => resource
-            .AddService(serviceName: builder.Environment.ApplicationName))
+        .ConfigureResource(resource => resource.AddService(serviceName: builder.Environment.ApplicationName))
         .WithTracing(tracing => tracing
             .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
             .AddConsoleExporter());
 }
-
 
 var app = builder.Build();
 
@@ -159,7 +174,8 @@ if (string.IsNullOrWhiteSpace(url))
 var key = Environment.GetEnvironmentVariable("SUPABASE_KEY");
 if (string.IsNullOrWhiteSpace(key))
     throw new Exception("SUPABASE_KEY environment variable is not set");
-var options = new Supabase.SupabaseOptions
+
+var options = new SupabaseOptions
 {
     AutoConnectRealtime = true
 };
@@ -168,23 +184,24 @@ SupabaseService supabaseService = new(url, key, options);
 await supabaseService.InitializeAsync();
 
 var supabase = SupabaseService.GetClient();
-
 var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+var uploadService = app.Services.GetRequiredService<UploadService>();
 
-UserService userService = new UserService(loggerFactory.CreateLogger<UserService>());
+UserService userService = new(loggerFactory.CreateLogger<UserService>());
 srv.User.UserRoutes.MapUserRoutes(app, userService, isDevelopment);
 
-
-PostService postService = new PostService(loggerFactory.CreateLogger<PostService>());
+PostService postService = new(loggerFactory.CreateLogger<PostService>(), uploadService);
 PostRoutes.Map(app, postService);
 
-ReactionService reactionService = new ReactionService(loggerFactory.CreateLogger<ReactionService>());
+ReactionService reactionService = new(loggerFactory.CreateLogger<ReactionService>());
 ReactionRoutes.MapReactionRoutes(app, reactionService);
 
-CommentService commentService = new CommentService(loggerFactory.CreateLogger<CommentService>());
+CommentService commentService = new(loggerFactory.CreateLogger<CommentService>());
 CommentRoutes.Map(app, commentService);
 
 MessagingRoutes.Map(app, app.Services.GetRequiredService<MessagingService>());
+UploadRoutes.Map(app, uploadService);
+
 //ROUTES
 app.MapGet("/", async () =>
 {
@@ -196,40 +213,42 @@ if (isDevelopment)
     app.MapGet("/Categorie", async () =>
     {
         var result = await supabase
-            .From<sql.CategoriePublication>()
+            .From<CategoriePublication>()
             .Get();
 
         return Results.Ok(result.Models);
     });
 
-    app.MapPost("/addCategorie", async (sql.CategoriePublication categorie) =>
+    app.MapPost("/addCategorie", async (CategoriePublication categorie) =>
     {
         var response = await supabase
-            .From<sql.CategoriePublication>()
+            .From<CategoriePublication>()
             .Insert(categorie);
 
         return Results.Ok(response.Models.FirstOrDefault());
     });
 }
 
-
 app.MapGet("/me", async (HttpContext ctx) =>
 {
     var token = ctx.Request.Cookies["token"];
-    if (token == null) return Results.Unauthorized();
+    if (token == null)
+        return Results.Unauthorized();
 
     var principal = villagets.Auth.AuthHelper.ValidateToken(token);
-    if (principal == null) return Results.Unauthorized();
+    if (principal == null)
+        return Results.Unauthorized();
 
     var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
     var result = await PerfLogger.TimeAsync(app.Logger, "Program./me user lookup", () => supabase
-        .From<sql.Utilisateur>()
+        .From<Utilisateur>()
         .Where(u => u.Id == userId)
         .Get());
 
     var user = result.Model;
-    if (user == null) return Results.NotFound();
+    if (user == null)
+        return Results.NotFound();
 
     return Results.Ok(new
     {
@@ -243,91 +262,7 @@ app.MapGet("/me", async (HttpContext ctx) =>
     });
 });
 
-//UPLOAD DE FICHIERS
-var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-Directory.CreateDirectory(uploadFolder);
-
-
-app.MapPost("/upload", async (HttpContext ctx) =>
-{
-    string? filePath = null;
-    try
-    {
-        var principal = villagets.Auth.AuthHelper.GetClaimsFromContext(ctx);
-        if (principal == null)
-            return Results.Unauthorized();
-
-        var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrWhiteSpace(userId))
-            return Results.Unauthorized();
-
-        if (!ctx.Request.HasFormContentType)
-            return Results.BadRequest(new { error = "Le formulaire d'envoi est invalide." });
-
-        var form = await ctx.Request.ReadFormAsync();
-        var file = form.Files["file"];
-        var uploadScope = form["scope"].ToString();
-
-        if (file is null || file.Length == 0)
-            return Results.BadRequest(new { error = "Aucun fichier fourni." });
-
-        if (file.Length > MaxUploadBytes)
-            return Results.BadRequest(new { error = "Le fichier dépasse la taille maximale autorisée de 10 Mo." });
-
-        var extension = Path.GetExtension(file.FileName);
-        var allowMessageFiles = string.Equals(uploadScope, "message", StringComparison.OrdinalIgnoreCase);
-        var allowedExtensions = allowMessageFiles ? allowedMessageUploadExtensions : allowedUploadExtensions;
-        var allowedContentTypes = allowMessageFiles ? allowedMessageUploadContentTypes : allowedUploadContentTypes;
-        if (!allowedExtensions.Contains(extension) || !allowedContentTypes.Contains(file.ContentType))
-            return Results.BadRequest(new { error = allowMessageFiles ? "Ce type de fichier n'est pas autorisé pour les messages." : "Seuls les fichiers image JPG, PNG, WEBP et GIF sont acceptés." });
-
-        var nom = Path.GetFileName(string.IsNullOrWhiteSpace(form["nom"]) ? file.FileName : form["nom"].ToString());
-        var uniqueName = $"{Guid.NewGuid()}{extension}";
-        filePath = Path.Combine(uploadFolder, uniqueName);
-
-        using var stream = File.Create(filePath);
-        await file.CopyToAsync(stream);
-
-        var baseUrl = $"{ctx.Request.Scheme}://{ctx.Request.Host}";
-        var fileUrl = $"{baseUrl}/uploads/{uniqueName}";
-
-        var fichier = new sql.Fichier
-        {
-            Nom = nom,
-            LienFichier = fileUrl,
-            Type = file.ContentType,
-            IdProprietaire = Guid.TryParse(userId, out var ownerId) ? ownerId : null
-        };
-
-        var response = await PerfLogger.TimeAsync(app.Logger, "Program./upload fichier insert", () => supabase
-            .From<sql.Fichier>()
-            .Insert(fichier));
-
-        var savedFile = response.Models.FirstOrDefault();
-        if (savedFile == null)
-        {
-            if (File.Exists(filePath))
-                File.Delete(filePath);
-            return Results.BadRequest(new { error = "Impossible d'enregistrer le fichier." });
-        }
-
-        return Results.Json(new
-        {
-            url = fileUrl
-        });
-    }
-    catch (Exception ex)
-    {
-        if (filePath != null && File.Exists(filePath))
-            File.Delete(filePath);
-
-        app.Logger.LogError(ex, "Upload failed");
-        return Results.BadRequest(new { error = "Le téléversement a échoué." });
-    }
-});
-
 app.UseStaticFiles();
-
 
 app.MapFallbackToFile("index.html");
 app.Run();
@@ -340,4 +275,3 @@ public record FeedQuery(
     string[]? Tags,
     bool IsMarketplace
 );
-

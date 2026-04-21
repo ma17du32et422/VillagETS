@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using sql;
+using srv.Upload;
 using Supabase.Postgrest;
 using System.Buffers;
 using System.Collections.Concurrent;
@@ -13,15 +14,17 @@ namespace srv.Messaging
     {
         private readonly Supabase.Client _supabase;
         private readonly ILogger<MessagingService> _logger;
+        private readonly UploadService _uploadService;
         private const int ReceiveBufferSize = 4 * 1024;
         private const int MaxMessageBytes = 64 * 1024;
 
         private readonly ConcurrentDictionary<string, WebSocket> _activeConnections = new();
 
-        public MessagingService(ILogger<MessagingService> logger)
+        public MessagingService(ILogger<MessagingService> logger, UploadService uploadService)
         {
             _supabase = SupabaseService.GetClient();
             _logger = logger;
+            _uploadService = uploadService;
         }
 
         /// <summary>
@@ -79,15 +82,15 @@ namespace srv.Messaging
                     if (payload != null && !string.IsNullOrWhiteSpace(payload.receiverId))
                     {
                         var limited = IsRateLimited(userId);
-                         _logger.LogInformation("Rate limit check for {UserId}: limited={Limited}", userId, limited);
+                        _logger.LogInformation("Rate limit check for {UserId}: limited={Limited}", userId, limited);
 
-                         if (limited)
-                         {
-                             var errorMsg = JsonSerializer.Serialize(new { error = "rate_limited", message = "Trop de messages." });
-                             var errorBytes = Encoding.UTF8.GetBytes(errorMsg);
-                             await webSocket.SendAsync(new ArraySegment<byte>(errorBytes), WebSocketMessageType.Text, true, CancellationToken.None);
-                             continue;
-                         }
+                        if (limited)
+                        {
+                            var errorMsg = JsonSerializer.Serialize(new { error = "rate_limited", message = "Trop de messages." });
+                            var errorBytes = Encoding.UTF8.GetBytes(errorMsg);
+                            await webSocket.SendAsync(new ArraySegment<byte>(errorBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+                            continue;
+                        }
                         
                         
                         var normalizedContent = payload.contenu?.Trim();
@@ -111,14 +114,10 @@ namespace srv.Messaging
                             continue;
                         }
 
-                        if (savedMsg != null && _activeConnections.TryGetValue(payload.receiverId, out var receiverSocket))
+                        if (savedMsg != null)
                         {
-                            if (receiverSocket.State == WebSocketState.Open)
-                            {
-                                var outMsg = JsonSerializer.Serialize(savedMsg);
-                                var outBytes = Encoding.UTF8.GetBytes(outMsg);
-                                await receiverSocket.SendAsync(new ArraySegment<byte>(outBytes), WebSocketMessageType.Text, true, CancellationToken.None);
-                            }
+                            await SendJsonToUserAsync(payload.receiverId, savedMsg);
+                            await SendJsonToUserAsync(userId, savedMsg);
                         }
                     }
                 }
@@ -220,6 +219,47 @@ namespace srv.Messaging
                 media = mediaUrls.ToArray(),
                 dateMsg = saved.DateMsg
             };
+        }
+
+        public async Task<bool> DeleteMessageAsync(string messageId, string requestUserId)
+        {
+            var existing = await PerfLogger.TimeAsync(_logger, "MessagingService.DeleteMessageAsync lookup message", () => _supabase
+                .From<ConversationMessage>()
+                .Where(message => message.Id == messageId)
+                .Get());
+
+            var message = existing.Models.FirstOrDefault();
+            if (message == null)
+                return false;
+
+            if (!string.Equals(message.EnvoyeurId, requestUserId, StringComparison.Ordinal))
+                throw new UnauthorizedAccessException();
+
+            var deletedFiles = await PerfLogger.TimeAsync(_logger, "MessagingService.DeleteMessageAsync rpc delete_message_with_files", () => _supabase.Rpc<List<DeletedFileRpcRow>>(
+                "delete_message_with_files",
+                new Dictionary<string, object?>
+                {
+                    { "p_message_id", Guid.Parse(messageId) }
+                }));
+
+            _uploadService.DeleteLocalFiles((deletedFiles ?? []).Select(file => file.LienFichier));
+
+            var deletionEvent = new MessageDeletedEventDTO
+            {
+                type = "message_deleted",
+                id = messageId,
+                conversationId = message.ConversationId,
+                envoyeurId = message.EnvoyeurId,
+                receveurId = message.ReceveurId
+            };
+
+            if (!string.IsNullOrWhiteSpace(message.EnvoyeurId))
+                await SendJsonToUserAsync(message.EnvoyeurId, deletionEvent);
+
+            if (!string.IsNullOrWhiteSpace(message.ReceveurId) && !string.Equals(message.ReceveurId, message.EnvoyeurId, StringComparison.Ordinal))
+                await SendJsonToUserAsync(message.ReceveurId, deletionEvent);
+
+            return true;
         }
 
         /// <summary>
@@ -338,26 +378,36 @@ namespace srv.Messaging
             return sidebarList;
         }
 
-            private readonly ConcurrentDictionary<string, Queue<DateTime>> _rateLimits = new();
-            private readonly object _rateLock = new();
-            private const int MaxMessagesPerMinute = 10;
+        private readonly ConcurrentDictionary<string, Queue<DateTime>> _rateLimits = new();
+        private readonly object _rateLock = new();
+        private const int MaxMessagesPerMinute = 10;
 
-            private bool IsRateLimited(string userId)
+        private bool IsRateLimited(string userId)
+        {
+            var now = DateTime.UtcNow;
+            lock (_rateLock)
             {
-                var now = DateTime.UtcNow;
-                lock (_rateLock)
-                {
-                    var queue = _rateLimits.GetOrAdd(userId, _ => new Queue<DateTime>());
+                var queue = _rateLimits.GetOrAdd(userId, _ => new Queue<DateTime>());
 
-                    while (queue.Count > 0 && now - queue.Peek() > TimeSpan.FromMinutes(1))
-                        queue.Dequeue();
+                while (queue.Count > 0 && now - queue.Peek() > TimeSpan.FromMinutes(1))
+                    queue.Dequeue();
 
-                    if (queue.Count >= MaxMessagesPerMinute) return true;
+                if (queue.Count >= MaxMessagesPerMinute) return true;
 
-                    queue.Enqueue(now);
-                    return false;
-                }
+                queue.Enqueue(now);
+                return false;
             }
+        }
+
+        private async Task SendJsonToUserAsync(string userId, object payload)
+        {
+            if (!_activeConnections.TryGetValue(userId, out var socket) || socket.State != WebSocketState.Open)
+                return;
+
+            var outMsg = JsonSerializer.Serialize(payload);
+            var outBytes = Encoding.UTF8.GetBytes(outMsg);
+            await socket.SendAsync(new ArraySegment<byte>(outBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+        }
 
         private async Task<List<sql.Fichier>> ResolveOwnedFilesByUrlsAsync(string ownerId, IReadOnlyCollection<string> urls)
         {
@@ -421,5 +471,23 @@ namespace srv.Messaging
 
         [Newtonsoft.Json.JsonProperty("date_msg")]
         public DateTime? DateMsg { get; set; }
+    }
+
+    public class MessageDeletedEventDTO
+    {
+        public string type { get; set; } = "message_deleted";
+        public string? id { get; set; }
+        public string? conversationId { get; set; }
+        public string? envoyeurId { get; set; }
+        public string? receveurId { get; set; }
+    }
+
+    public class DeletedFileRpcRow
+    {
+        [Newtonsoft.Json.JsonProperty("id_fichier")]
+        public Guid? IdFichier { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("lien_fichier")]
+        public string? LienFichier { get; set; }
     }
 }

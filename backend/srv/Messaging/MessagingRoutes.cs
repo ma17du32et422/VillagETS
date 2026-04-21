@@ -57,6 +57,24 @@ namespace srv.Messaging
                 var conversations = await messagingService.GetAllConversationsAsync(currentUserId);
                 return Results.Ok(conversations);
             });
+
+            app.MapDelete("/chat/message/{messageId}", async (string messageId, HttpContext ctx) =>
+            {
+                var principal = AuthHelper.GetClaimsFromContext(ctx);
+                if (principal == null) return Results.Unauthorized();
+
+                var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+
+                try
+                {
+                    var deleted = await messagingService.DeleteMessageAsync(messageId, currentUserId);
+                    return deleted ? Results.Ok() : Results.NotFound("Message not found");
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    return Results.Forbid();
+                }
+            });
         }
     }
 }

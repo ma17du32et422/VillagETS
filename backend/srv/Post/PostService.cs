@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Npgsql;
 using Newtonsoft.Json;
+using srv.Upload;
 using Supabase.Postgrest;
 using static Supabase.Postgrest.Constants;
 namespace srv.Post
@@ -10,11 +11,13 @@ namespace srv.Post
     {
         private readonly Supabase.Client _supabase;
         private readonly ILogger<PostService> _logger;
+        private readonly UploadService _uploadService;
 
-        public PostService(ILogger<PostService> logger)
+        public PostService(ILogger<PostService> logger, UploadService uploadService)
         {
             _supabase = SupabaseService.GetClient();
             _logger = logger;
+            _uploadService = uploadService;
         }
 
         public async Task<object?> GetById(int id)
@@ -136,41 +139,14 @@ namespace srv.Post
             if (publication.UtilisateurId != userId && !isAdmin)
                 throw new UnauthorizedAccessException();
 
-            await PerfLogger.TimeAsync(_logger, "PostService.Delete delete publication fichiers", () => _supabase
-                .From<sql.PublicationFichier>()
-                .Filter("id_publication", Operator.Equals, id)
-                .Delete());
+            var deletedFiles = await PerfLogger.TimeAsync(_logger, "PostService.Delete rpc delete_publication_with_files", () => _supabase.Rpc<List<DeletedFileRpcRow>>(
+                "delete_publication_with_files",
+                new Dictionary<string, object?>
+                {
+                    { "p_publication_id", id }
+                }));
 
-            // Delete reactions
-            await PerfLogger.TimeAsync(_logger, "PostService.Delete delete reactions", () => _supabase
-                .From<sql.ReactionPublication>()
-                .Filter("id_publication", Operator.Equals, id)
-                .Delete());
-
-            // Delete the publication itself
-            await PerfLogger.TimeAsync(_logger, "PostService.Delete delete publication", () => _supabase
-                .From<sql.Publication>()
-                .Where(p => p.Id == id)
-                .Delete());
-
-            var deletedFiles = await PerfLogger.TimeAsync(_logger, "PostService.Delete rpc cleanup_orphan_files", () => _supabase.Rpc<List<CleanupOrphanFileRpcRow>>(
-                "cleanup_orphan_files",
-                new Dictionary<string, object?>()));
-
-            var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-            foreach (var file in deletedFiles ?? [])
-            {
-                if (string.IsNullOrWhiteSpace(file.LienFichier))
-                    continue;
-
-                var fileName = Path.GetFileName(file.LienFichier);
-                if (string.IsNullOrWhiteSpace(fileName))
-                    continue;
-
-                var filePath = Path.Combine(uploadFolder, fileName);
-                if (File.Exists(filePath))
-                    File.Delete(filePath);
-            }
+            _uploadService.DeleteLocalFiles((deletedFiles ?? []).Select(file => file.LienFichier));
 
             return true;
         }
@@ -316,15 +292,6 @@ namespace srv.Post
     {
     }
 
-    public class CleanupOrphanFileRpcRow
-    {
-        [JsonProperty("id_fichier")]
-        public Guid? IdFichier { get; set; }
-
-        [JsonProperty("lien_fichier")]
-        public string? LienFichier { get; set; }
-    }
-
     public class PostCreateRequest
     {
         public string? Nom { get; set; }
@@ -344,5 +311,14 @@ namespace srv.Post
         public DateTime? DatePublication { get; set; }
         public decimal? Prix { get; set; }
         public bool? ArticleAVendre { get; set; }
+    }
+
+    public class DeletedFileRpcRow
+    {
+        [JsonProperty("id_fichier")]
+        public Guid? IdFichier { get; set; }
+
+        [JsonProperty("lien_fichier")]
+        public string? LienFichier { get; set; }
     }
 }

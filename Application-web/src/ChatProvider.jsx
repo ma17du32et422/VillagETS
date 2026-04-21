@@ -8,6 +8,7 @@ export const ChatProvider = ({ children }) => {
     const { user, loading } = useAuth();
     const [socket, setSocket] = useState(null);
     const [lastMessage, setLastMessage] = useState(null); // The most recent message received
+    const [lastDeletedMessage, setLastDeletedMessage] = useState(null);
     const [lastActivity, setLastActivity] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [isRateLimited, setIsRateLimited] = useState(false);
@@ -29,6 +30,11 @@ export const ChatProvider = ({ children }) => {
                 setIsRateLimited(true);
                 setTimeout(() => setIsRateLimited(false), 60000);
                 console.log("limite de message atteinte");
+                return;
+            }
+
+            if (data.type === 'message_deleted') {
+                setLastDeletedMessage(data);
                 return;
             }
 
@@ -71,7 +77,7 @@ export const ChatProvider = ({ children }) => {
     };
 
     return (
-        <ChatContext.Provider value={{ isConnected, lastMessage, lastActivity, sendMessage, isRateLimited }}>
+        <ChatContext.Provider value={{ isConnected, lastMessage, lastDeletedMessage, lastActivity, sendMessage, isRateLimited }}>
             {children}
         </ChatContext.Provider>
     );
