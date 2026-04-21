@@ -4,7 +4,7 @@ import { getBaseUrl } from '../API';
 import '../assets/Chat.css';
 
 const MAX_MESSAGES = 10;
-const WINDOW_MS = 60 * 1000; // 1 minute
+const WINDOW_MS = 60 * 1000;
 
 const Chat = ({ targetUserId }) => {
     const { lastMessage, sendMessage, isRateLimited: backendLimited } = useChat();
@@ -13,8 +13,11 @@ const Chat = ({ targetUserId }) => {
     const [error, setError] = useState("");
     const [rateLimitInfo, setRateLimitInfo] = useState({ blocked: false, remaining: MAX_MESSAGES, secondsLeft: 0 });
     const scrollRef = useRef();
-    const timestampsRef = useRef([]); // historique des envois
+    const timestampsRef = useRef([]);
     const countdownRef = useRef(null);
+    const isSendingRef = useRef(false);
+
+    const STORAGE_KEY = `chat_rate_limit_${targetUserId}`;
     const isBlocked = rateLimitInfo.blocked || rateLimitInfo.remaining === 0 || backendLimited;
 
     // Load History
@@ -55,7 +58,6 @@ const Chat = ({ targetUserId }) => {
         scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    // Nettoyage du countdown au démontage
     useEffect(() => {
         return () => {
             if (countdownRef.current) clearInterval(countdownRef.current);
@@ -72,9 +74,9 @@ const Chat = ({ targetUserId }) => {
                 const next = prev.secondsLeft - 1;
                 if (next <= 0) {
                     clearInterval(countdownRef.current);
-                    // Recalculer le remaining réel au déblocage
                     const now = Date.now();
                     timestampsRef.current = timestampsRef.current.filter(t => now - t < WINDOW_MS);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(timestampsRef.current));
                     return {
                         blocked: false,
                         remaining: MAX_MESSAGES - timestampsRef.current.length,
@@ -84,12 +86,29 @@ const Chat = ({ targetUserId }) => {
                 return { ...prev, secondsLeft: next };
             });
         }, 1000);
-    }, []);
+    }, [STORAGE_KEY]);
+
+    useEffect(() => {
+        const now = Date.now();
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        const valid = saved.filter(t => now - t < WINDOW_MS);
+        timestampsRef.current = valid;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(valid));
+
+        if (valid.length >= MAX_MESSAGES) {
+            const oldest = valid[0];
+            const secondsLeft = Math.ceil((oldest + WINDOW_MS - now) / 1000);
+            startCountdown(secondsLeft);
+        } else {
+            setRateLimitInfo({ blocked: false, remaining: MAX_MESSAGES - valid.length, secondsLeft: 0 });
+        }
+    }, [STORAGE_KEY, startCountdown]);
 
     const checkRateLimit = useCallback(() => {
         const now = Date.now();
 
         timestampsRef.current = timestampsRef.current.filter(t => now - t < WINDOW_MS);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(timestampsRef.current));
 
         if (timestampsRef.current.length >= MAX_MESSAGES) {
             const oldest = timestampsRef.current[0];
@@ -99,12 +118,11 @@ const Chat = ({ targetUserId }) => {
         }
 
         timestampsRef.current.push(now);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(timestampsRef.current));
         const remaining = MAX_MESSAGES - timestampsRef.current.length;
         setRateLimitInfo({ blocked: false, remaining, secondsLeft: 0 });
         return true;
-    }, [startCountdown]);
-
-    const isSendingRef = useRef(false);
+    }, [startCountdown, STORAGE_KEY]);
 
     const handleSend = useCallback(() => {
         if (!text.trim()) return;
@@ -124,17 +142,11 @@ const Chat = ({ targetUserId }) => {
         };
         setMessages((prev) => [...prev, myMessage]);
         setText("");
-    }, [text, checkRateLimit, sendMessage, targetUserId]);
+    }, [text, checkRateLimit, sendMessage, targetUserId, isBlocked]);
 
-    // Label du bouton selon l'état
-    const buttonLabel = rateLimitInfo.blocked
-        ? `${rateLimitInfo.secondsLeft}s`
-        : 'ENVOYER';
-
-    // Label du compteur
     const counterLabel = rateLimitInfo.blocked
         ? `Limite de messages atteinte — réessayez dans ${rateLimitInfo.secondsLeft}s`
-        : ` `;
+        : ' ';
 
     const counterClass = rateLimitInfo.blocked
         ? 'rate-limit-counter blocked'
