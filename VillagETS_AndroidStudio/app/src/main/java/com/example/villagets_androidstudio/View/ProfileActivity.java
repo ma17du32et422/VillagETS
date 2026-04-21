@@ -1,6 +1,7 @@
 package com.example.villagets_androidstudio.View;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,85 +11,144 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
 import com.example.villagets_androidstudio.Model.SessionManager;
+import com.example.villagets_androidstudio.Model.User;
 import com.example.villagets_androidstudio.R;
+import com.example.villagets_androidstudio.View_Model.UserViewModel;
+import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class ProfileActivity extends AppCompatActivity {
 
     private boolean isUsernameEditing = false;
     private boolean isPasswordChanging = false;
+    private UserViewModel viewModel;
+    private ShapeableImageView profileImage;
+    private TextView tvUsername;
+    private EditText etUsername, etNewPassword, etConfirmPassword, etCurrentPassword;
+    private Uri selectedImageUri;
+
+    private final ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                if (uri != null) {
+                    selectedImageUri = uri;
+                    profileImage.setImageURI(uri);
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        TextView tvUsername = findViewById(R.id.tvUsername);
+        viewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
+        tvUsername = findViewById(R.id.tvUsername);
+        profileImage = findViewById(R.id.profileImage);
+        etUsername = findViewById(R.id.etUsername);
+        etCurrentPassword = findViewById(R.id.etCurrentPassword);
+        etNewPassword = findViewById(R.id.etNewPassword);
+        etConfirmPassword = findViewById(R.id.etConfirmPassword);
+        
         ImageButton btnEditUsername = findViewById(R.id.btnEditUsername);
         TextInputLayout inputLayoutUsername = findViewById(R.id.inputLayoutUsername);
-        EditText etUsername = findViewById(R.id.etUsername);
-
         Button btnShowPasswordChange = findViewById(R.id.btnShowPasswordChange);
         LinearLayout passwordChangeLayout = findViewById(R.id.passwordChangeLayout);
-        
         Button btnSaveProfile = findViewById(R.id.btnSaveProfile);
         ImageButton btnEditImage = findViewById(R.id.btnEditImage);
-        
         ImageButton btnBack = findViewById(R.id.btnBack);
         Button btnLogout = findViewById(R.id.btnLogout);
+
+        viewModel.getUserLiveData().observe(this, user -> {
+            if (user != null) {
+                tvUsername.setText(user.getPseudo());
+                if (user.getPhotoProfil() != null && !user.getPhotoProfil().isEmpty()) {
+                    String avatarUrl = user.getPhotoProfil().replace("localhost", "10.0.2.2");
+                    Glide.with(this).load(avatarUrl).placeholder(R.drawable.silicate).into(profileImage);
+                }
+            }
+        });
+
+        viewModel.getUpdateSuccess().observe(this, success -> {
+            if (success != null && success) {
+                Toast.makeText(this, "Mise à jour réussie !", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
+
+        viewModel.getErrorMessage().observe(this, error -> {
+            if (error != null) {
+                Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        viewModel.fetchUser();
 
         btnBack.setOnClickListener(v -> finish());
 
         btnLogout.setOnClickListener(v -> {
             SessionManager sessionManager = new SessionManager(this);
             sessionManager.logout();
-            
-            Toast.makeText(this, "Déconnexion réussie", Toast.LENGTH_SHORT).show();
-            
             Intent intent = new Intent(this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         });
 
-        // Edit username
         btnEditUsername.setOnClickListener(v -> {
             isUsernameEditing = !isUsernameEditing;
             inputLayoutUsername.setVisibility(isUsernameEditing ? View.VISIBLE : View.GONE);
             if (isUsernameEditing) {
                 etUsername.setText(tvUsername.getText());
-                etUsername.requestFocus();
             }
         });
 
-        // Edit password
         btnShowPasswordChange.setOnClickListener(v -> {
             isPasswordChanging = !isPasswordChanging;
             passwordChangeLayout.setVisibility(isPasswordChanging ? View.VISIBLE : View.GONE);
-            btnShowPasswordChange.setText(isPasswordChanging ? "Annuler le changement" : "Changer le mot de passe");
+            btnShowPasswordChange.setText(isPasswordChanging ? "Cancel" : "Change password");
         });
 
-        // Edit pfp
-        btnEditImage.setOnClickListener(v -> {
-            Toast.makeText(this, "Sélection de l'image", Toast.LENGTH_SHORT).show();
-        });
+        btnEditImage.setOnClickListener(v -> pickMedia.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                .build()));
 
-        // Save profile parameters
         btnSaveProfile.setOnClickListener(v -> {
             if (isUsernameEditing) {
-                String newName = etUsername.getText().toString();
-                if (!newName.isEmpty()) {
-                    tvUsername.setText(newName);
-                    inputLayoutUsername.setVisibility(View.GONE);
-                    isUsernameEditing = false;
+                String newPseudo = etUsername.getText().toString().trim();
+                if (!newPseudo.isEmpty()) {
+                    viewModel.updatePseudo(newPseudo);
                 }
             }
-            
-            Toast.makeText(this, "Profil mis à jour !", Toast.LENGTH_SHORT).show();
-            finish();
+
+            if (isPasswordChanging) {
+                String currentPass = etCurrentPassword.getText().toString().trim();
+                String newPass = etNewPassword.getText().toString().trim();
+                String confirm = etConfirmPassword.getText().toString().trim();
+                
+                if (currentPass.isEmpty() || newPass.isEmpty() || confirm.isEmpty()) {
+                    Toast.makeText(this, "Veuillez remplir tous les champs de mot de passe", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
+                if (!newPass.equals(confirm)) {
+                    Toast.makeText(this, "Les nouveaux mots de passe ne correspondent pas", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
+                viewModel.updatePassword(currentPass, newPass);
+            }
+
+            if (selectedImageUri != null) {
+                viewModel.updatePhoto(selectedImageUri.toString());
+            }
         });
     }
 }

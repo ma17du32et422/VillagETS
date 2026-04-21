@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/delta_medium"
-        android:text="Mon Profil"
+        android:text="My Profile"
         android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -61,7 +61,6 @@
             android:paddingEnd="24dp"
             android:paddingBottom="24dp">
 
-            <!--Image-->
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -73,7 +72,6 @@
                     android:layout_height="120dp"
                     android:padding="2dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/silicate"
                     app:shapeAppearanceOverlay="@style/CircleImageAppearance"
                     app:strokeColor="@color/red_primary"
                     app:strokeWidth="2dp" />
@@ -90,7 +88,6 @@
                     app:tint="@color/white" />
             </FrameLayout>
 
-            <!--Username-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -128,7 +125,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:hint="Nouveau nom d'utilisateur"
+                    android:hint="new username"
                     android:visibility="gone"
                     app:boxStrokeColor="@color/red_primary"
                     app:hintTextColor="@color/red_primary">
@@ -140,7 +137,6 @@
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
-            <!--Password-->
             <Button
                 android:id="@+id/btnShowPasswordChange"
                 style="@style/Widget.MaterialComponents.Button"
@@ -149,7 +145,7 @@
                 android:fontFamily="@font/delta_light"
                 android:layout_marginBottom="16dp"
                 android:backgroundTint="@color/red_primary"
-                android:text="Changer le mot de passe"
+                android:text="Change password"
                 android:textColor="@color/white" />
 
             <LinearLayout
@@ -164,6 +160,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
+                    android:hint="current password"
+                    app:boxStrokeColor="@color/red_primary"
+                    app:hintTextColor="@color/red_primary"
+                    app:passwordToggleEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etCurrentPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:hint="new password"
                     app:boxStrokeColor="@color/red_primary"
                     app:hintTextColor="@color/red_primary"
                     app:passwordToggleEnabled="true">
@@ -180,6 +194,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
+                    android:hint="confirm new password"
                     app:boxStrokeColor="@color/red_primary"
                     app:hintTextColor="@color/red_primary"
                     app:passwordToggleEnabled="true">
@@ -192,7 +207,6 @@
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
-            <!--Save-->
             <Button
                 android:id="@+id/btnSaveProfile"
                 style="@style/Widget.MaterialComponents.Button"
@@ -201,10 +215,9 @@
                 android:fontFamily="@font/delta_light"
                 android:layout_marginTop="16dp"
                 android:backgroundTint="@color/red_primary"
-                android:text="Enregistrer les modifications"
+                android:text="Apply changes"
                 android:textColor="@color/white" />
 
-            <!--Logout-->
             <Button
                 android:id="@+id/btnLogout"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -212,7 +225,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/delta_light"
                 android:layout_marginTop="8dp"
-                android:text="Déconnexion"
+                android:text="sign out"
                 android:textColor="@color/red_primary" />
 
         </LinearLayout>

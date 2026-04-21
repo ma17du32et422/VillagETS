@@ -1,5 +1,6 @@
 package com.example.villagets_androidstudio.View;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -42,7 +43,11 @@ public class SignupActivity extends AppCompatActivity {
         viewModel.getSignupSuccess().observe(this, success -> {
             if (success != null && success) {
                 Toast.makeText(this, "Inscription réussie !", Toast.LENGTH_SHORT).show();
-                finish(); // Return to LoginActivity
+                
+                Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
             }
         });
 
