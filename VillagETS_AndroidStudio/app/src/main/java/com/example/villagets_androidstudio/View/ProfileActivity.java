@@ -69,10 +69,6 @@ public class ProfileActivity extends AppCompatActivity {
         viewModel.getUserLiveData().observe(this, user -> {
             if (user != null) {
                 tvUsername.setText(user.getPseudo());
-                if (user.getPhotoProfil() != null && !user.getPhotoProfil().isEmpty()) {
-                    String avatarUrl = user.getPhotoProfil().replace("localhost", "10.0.2.2");
-                    Glide.with(this).load(avatarUrl).placeholder(R.drawable.silicate).into(profileImage);
-                }
             }
         });
 

@@ -75,7 +75,7 @@ public class User {
     public static User loadUser(Context context) {
         SharedPreferences prefs = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         String json = prefs.getString("user_data", null);
-        
+
         if (json == null) return null;
 
         ObjectMapper mapper = new ObjectMapper();
