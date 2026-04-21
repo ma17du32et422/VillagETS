@@ -1,13 +1,14 @@
 /* LIGHT MODE COLORS */
 :root {
-    --color-1: #e40032;
+    --color-1: #9696969c;
     --color-2: #ffffff;
     --color-3: #f1f1f1;
     --color-4: #8d8d8d;
     --color-5: #242424;
     --color-6: #1a1a1a;
+    --color-7: #a00000;
     --color-t-1: rgba(0, 0, 0, 0.3);
-    --color-t-2: rgba(0, 0, 0, 0.5);
+    --color-t-2: rgb(184, 0, 24);
 
     --color-white: #ffffff;
     --color-black: #000000;
@@ -17,7 +18,7 @@
 
 /* DARK MODE COLORS */
 [data-theme="dark"] {
-    --color-1: #e40032;
+    --color-1: #a30000a2;
     --color-2: #1a1a1a;
     --color-3: #242424;
     --color-4: #8d8d8d;
