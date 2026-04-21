@@ -26,6 +26,12 @@ export default function Actions({ onPostCreated, user }){
           <span className="action-label">Messages</span>
         </button>
 
+        <button id="action" type="button" onClick={() => navigate('/Marketplace')}>
+          <span className="action-icon-wrap">
+            <span className="action-icon marketplace-icon" aria-hidden="true" />
+          </span>
+          <span className="action-label">Marketplace</span>
+        </button>
 
       </div>
     </div>
