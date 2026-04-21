@@ -116,14 +116,12 @@ public class CreatePostActivity extends AppCompatActivity {
             newPost.setContenu(content);
             newPost.setArticleAVendre(isMarketplace);
 
-            // Gérer les médias (simulé pour l'instant avec l'URI locale)
             if (selectedImageUri != null) {
                 newPost.setMedia(new String[]{selectedImageUri.toString()});
             } else {
                 newPost.setMedia(new String[]{});
             }
 
-            // Gérer la catégorie/tags (basé sur le premier tag si présent)
             if (!tagsStr.isEmpty()) {
                 String[] parts = tagsStr.split(",");
                 newPost.setCategorie(parts[0].trim());

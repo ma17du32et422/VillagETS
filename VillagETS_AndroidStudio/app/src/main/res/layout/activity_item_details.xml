@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <!-- Red Header Background -->
     <View
         android:id="@+id/headerBackground"
         android:layout_width="match_parent"
@@ -16,7 +15,6 @@
         app:layout_constraintBottom_toBottomOf="@id/toolbarContainer"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Toolbar Container -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbarContainer"
         android:layout_width="match_parent"
@@ -118,6 +116,7 @@
                             android:background="@color/divider" />
 
                         <TextView
+                            android:id="@+id/tvItemDescription"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/delta_medium"
@@ -127,7 +126,7 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/tvItemDescription"
+                            android:id="@+id/tvItemDescriptionContent"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
@@ -146,7 +145,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:background="@drawable/rounded_red_header"
-                android:text="Contacter le vendeur"
+                android:text="Contacter la personne"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="16sp"

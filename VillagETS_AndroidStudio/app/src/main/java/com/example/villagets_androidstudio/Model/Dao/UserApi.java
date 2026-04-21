@@ -34,6 +34,6 @@ public interface UserApi {
     @POST("/auth/login")
     Call<User> login(@Body User user);
 
-    @GET("/auth/me")
+    @GET("/me")
     Call<User> getMe();
 }

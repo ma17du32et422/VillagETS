@@ -44,11 +44,9 @@ public class UserViewModel extends ViewModel {
                 if (loggedInUser != null) {
                     userLiveData.postValue(loggedInUser);
                 } else {
-                    errorMessage.postValue("Échec de la connexion");
+                    errorMessage.postValue("Échec de la connexion (401)");
                 }
             } catch (IOException e) {
-                // If there's an error like unrecognized field, it won't be suppressed here yet
-                // but by adding @JsonIgnoreProperties in the User model, this exception should be avoided entirely.
                 errorMessage.postValue("Erreur réseau : " + e.getMessage());
             }
         });
@@ -69,29 +67,23 @@ public class UserViewModel extends ViewModel {
         });
     }
 
-    public void fetchUser(String email) {
-        executorService.execute(() -> {
-            try {
-                User user = userDao.getUserByEmail(email);
-                userLiveData.postValue(user);
-            } catch (IOException e) {
-                errorMessage.postValue("Erreur lors de la récupération : " + e.getMessage());
-            }
-        });
-    }
 
-    public void fetchCurrentUser() {
+    public void fetchUser() {
         executorService.execute(() -> {
             try {
                 User user = userDao.getMe();
                 if (user != null) {
                     userLiveData.postValue(user);
                 } else {
-                    errorMessage.postValue("Utilisateur non trouvé");
+                    errorMessage.postValue("401: Session expirée ou invalide");
                 }
             } catch (IOException e) {
-                errorMessage.postValue("Erreur réseau : " + e.getMessage());
+                errorMessage.postValue("Erreur de récupération : " + e.getMessage());
             }
         });
+    }
+
+    public void fetchUser(String email) {
+        fetchUser();
     }
 }

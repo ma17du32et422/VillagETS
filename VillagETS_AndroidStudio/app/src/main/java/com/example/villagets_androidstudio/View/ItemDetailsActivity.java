@@ -39,12 +39,12 @@ public class ItemDetailsActivity extends AppCompatActivity {
         Log.d("ItemDetails", "Loading image URL: " + imageUrl);
 
         TextView tvTitle = findViewById(R.id.tvItemTitle);
-        TextView tvDescription = findViewById(R.id.tvItemDescription);
+        TextView tvDescriptionContent = findViewById(R.id.tvItemDescriptionContent);
         TextView tvPrice = findViewById(R.id.tvItemPrice);
         ImageView ivPhoto = findViewById(R.id.ivItemPhoto);
 
         tvTitle.setText(title);
-        tvDescription.setText(description);
+        tvDescriptionContent.setText(description);
         tvPrice.setText(price);
 
         if (imageUrl != null && !imageUrl.isEmpty()) {
