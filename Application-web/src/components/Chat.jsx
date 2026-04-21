@@ -239,6 +239,20 @@ const Chat = ({ targetUserId }) => {
         setSelectedFiles(Array.from(event.target.files ?? []));
     }, []);
 
+    const handleRemoveSelectedFile = useCallback((indexToRemove) => {
+        setSelectedFiles((prev) => {
+            const next = prev.filter((_, index) => index !== indexToRemove);
+
+            if (fileInputRef.current) {
+                const dataTransfer = new DataTransfer();
+                next.forEach((file) => dataTransfer.items.add(file));
+                fileInputRef.current.files = dataTransfer.files;
+            }
+
+            return next;
+        });
+    }, []);
+
     const handleSend = useCallback(async () => {
         const trimmedText = text.trim();
         const hasFiles = selectedFiles.length > 0;
@@ -364,9 +378,17 @@ const Chat = ({ targetUserId }) => {
 
             {selectedFiles.length > 0 && (
                 <div className="selected-files">
-                    {selectedFiles.map((file) => (
+                    {selectedFiles.map((file, index) => (
                         <span key={`${file.name}-${file.size}`} className="selected-file-chip">
                             {file.name}
+                            <button
+                                type="button"
+                                className="selected-file-remove"
+                                onClick={() => handleRemoveSelectedFile(index)}
+                                aria-label={`Remove ${file.name}`}
+                            >
+                                ×
+                            </button>
                         </span>
                     ))}
                 </div>

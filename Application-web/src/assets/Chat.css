@@ -120,6 +120,8 @@
     border-top: 1px solid var(--color-4);
     display: flex;
     gap: 10px;
+    min-width: 0;
+    align-items: center;
 }
 
 .attach-button {
@@ -128,6 +130,8 @@
     background-color: var(--color-3);
     color: inherit;
     cursor: pointer;
+    flex: 0 1 auto;
+    white-space: nowrap;
 }
 
 .chat-file-input {
@@ -142,16 +146,30 @@
 }
 
 .selected-file-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     padding: 4px 8px;
     border: 1px solid var(--color-4);
     background-color: var(--color-3);
     font-size: 0.85rem;
 }
 
+.selected-file-remove {
+    border: none;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    font-size: 0.95rem;
+}
+
 .message-input {
     flex: 1;
     padding: 10px;
     border: 1px solid var(--color-4);
+    min-width: 0;
 }
 
 .send-button {
@@ -160,6 +178,8 @@
     color: var(--color-6);
     border: none;
     cursor: pointer;
+    flex: 0 1 auto;
+    white-space: nowrap;
 }
 
 .send-button:hover {
@@ -187,4 +207,40 @@
 .send-button.disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+    .entry-box {
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .attach-button,
+    .send-button {
+        padding: 9px 12px;
+        font-size: 0.85rem;
+    }
+
+    .message-input {
+        padding: 9px;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 700px) {
+    .entry-box {
+        gap: 6px;
+        padding: 10px;
+    }
+
+    .attach-button,
+    .send-button {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+
+    .message-input {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
 }

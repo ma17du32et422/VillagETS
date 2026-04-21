@@ -13,7 +13,9 @@
 }
 
 .msg-sidebar-container {
-    width: 300px;
+    width: clamp(150px, 28vw, 300px);
+    flex: 0 1 clamp(150px, 28vw, 300px);
+    min-width: 150px;
     border-right: 1px solid var(--color-4);
     border-left: 1px solid var(--color-4);
     height: 100%;
@@ -32,5 +34,21 @@
 .placeholder-text {
     margin: auto;
     color: var(--color-4);
+}
+
+@media (max-width: 900px) {
+    .msg-sidebar-container {
+        width: clamp(130px, 24vw, 220px);
+        flex-basis: clamp(130px, 24vw, 220px);
+        min-width: 130px;
+    }
+}
+
+@media (max-width: 700px) {
+    .msg-sidebar-container {
+        width: clamp(115px, 22vw, 180px);
+        flex-basis: clamp(115px, 22vw, 180px);
+        min-width: 115px;
+    }
 }
 
