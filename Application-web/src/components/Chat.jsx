@@ -36,7 +36,7 @@ const Chat = ({ targetUserId }) => {
     const isSendingRef = useRef(false);
 
     const STORAGE_KEY = `chat_rate_limit_${targetUserId}`;
-    const isBlocked = rateLimitInfo.blocked || rateLimitInfo.remaining === 0 || backendLimited;
+    const isBlocked = rateLimitInfo.blocked || backendLimited;
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -82,8 +82,9 @@ const Chat = ({ targetUserId }) => {
 
     const startCountdown = useCallback((secondsLeft) => {
         if (countdownRef.current) clearInterval(countdownRef.current);
+        const initialSeconds = Math.max(1, secondsLeft);
 
-        setRateLimitInfo(prev => ({ ...prev, blocked: true, secondsLeft, remaining: 0 }));
+        setRateLimitInfo(prev => ({ ...prev, blocked: true, secondsLeft: initialSeconds, remaining: 0 }));
 
         countdownRef.current = setInterval(() => {
             setRateLimitInfo(prev => {
@@ -113,7 +114,7 @@ const Chat = ({ targetUserId }) => {
 
         if (valid.length >= MAX_MESSAGES) {
             const oldest = valid[0];
-            const secondsLeft = Math.ceil((oldest + WINDOW_MS - now) / 1000);
+            const secondsLeft = Math.max(1, Math.ceil((oldest + WINDOW_MS - now) / 1000));
             startCountdown(secondsLeft);
         } else {
             setRateLimitInfo({ blocked: false, remaining: MAX_MESSAGES - valid.length, secondsLeft: 0 });
@@ -128,7 +129,7 @@ const Chat = ({ targetUserId }) => {
 
         if (timestampsRef.current.length >= MAX_MESSAGES) {
             const oldest = timestampsRef.current[0];
-            const secondsLeft = Math.ceil((oldest + WINDOW_MS - now) / 1000);
+            const secondsLeft = Math.max(1, Math.ceil((oldest + WINDOW_MS - now) / 1000));
             startCountdown(secondsLeft);
             return false;
         }
@@ -136,22 +137,35 @@ const Chat = ({ targetUserId }) => {
         timestampsRef.current.push(now);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(timestampsRef.current));
         const remaining = MAX_MESSAGES - timestampsRef.current.length;
+
+        if (remaining <= 0) {
+            const oldest = timestampsRef.current[0];
+            const secondsLeft = Math.max(1, Math.ceil((oldest + WINDOW_MS - now) / 1000));
+            startCountdown(secondsLeft);
+            return true;
+        }
+
         setRateLimitInfo({ blocked: false, remaining, secondsLeft: 0 });
         return true;
     }, [startCountdown, STORAGE_KEY]);
 
     const refundRateLimitSlot = useCallback(() => {
+        if (countdownRef.current) {
+            clearInterval(countdownRef.current);
+            countdownRef.current = null;
+        }
         if (timestampsRef.current.length === 0) return;
 
         timestampsRef.current.pop();
         const now = Date.now();
         timestampsRef.current = timestampsRef.current.filter(t => now - t < WINDOW_MS);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(timestampsRef.current));
         setRateLimitInfo({
             blocked: false,
             remaining: MAX_MESSAGES - timestampsRef.current.length,
             secondsLeft: 0
         });
-    }, []);
+    }, [STORAGE_KEY]);
 
     const uploadSelectedFiles = useCallback(async () => {
         if (selectedFiles.length === 0) return [];
@@ -223,7 +237,7 @@ const Chat = ({ targetUserId }) => {
             setIsUploading(false);
             setTimeout(() => { isSendingRef.current = false; }, 100);
         }
-    }, [text, selectedFiles, isUploading, checkRateLimit, uploadSelectedFiles, sendMessage, targetUserId, isBlocked]);
+    }, [text, selectedFiles, isUploading, checkRateLimit, uploadSelectedFiles, sendMessage, targetUserId]);
 
     const buttonLabel = rateLimitInfo.blocked
         ? `${rateLimitInfo.secondsLeft}s`
