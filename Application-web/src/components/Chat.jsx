@@ -67,7 +67,7 @@ const Chat = ({ targetUserId }) => {
     const startCountdown = useCallback((secondsLeft) => {
         if (countdownRef.current) clearInterval(countdownRef.current);
 
-        setRateLimitInfo(prev => ({ ...prev, blocked: true, secondsLeft }));
+        setRateLimitInfo(prev => ({ ...prev, blocked: true, secondsLeft, remaining: 0 }));
 
         countdownRef.current = setInterval(() => {
             setRateLimitInfo(prev => {
@@ -191,7 +191,7 @@ const Chat = ({ targetUserId }) => {
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     disabled={isBlocked}
-                    placeholder={isBlocked ? "Limite atteinte..." : `Envoyer un message (${rateLimitInfo.remaining}/${MAX_MESSAGES})`}
+                    placeholder={isBlocked ? "Limite atteinte..." : `Envoyer un message`}
                     onKeyDown={(e) => { if (e.key === 'Enter' && !e.repeat && !isBlocked) handleSend(); }}
                 />
                 <button
