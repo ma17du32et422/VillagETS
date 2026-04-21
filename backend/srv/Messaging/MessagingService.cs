@@ -74,16 +74,20 @@ namespace srv.Messaging
                     }
 
                     if (payload != null && !string.IsNullOrWhiteSpace(payload.receiverId))
-                    {
-                        if (IsRateLimited(userId))
-                        {
-                            var errorMsg = JsonSerializer.Serialize(new { error = "rate_limited", message = "Trop de messages, réessayez dans une minute." });
-                            var errorBytes = Encoding.UTF8.GetBytes(errorMsg);
-                            await webSocket.SendAsync(new ArraySegment<byte>(errorBytes), WebSocketMessageType.Text, true, CancellationToken.None);
-                            continue;
-                        }
+                     {
+                         var limited = IsRateLimited(userId);
+                         _logger.LogInformation("Rate limit check for {UserId}: limited={Limited}", userId, limited);
 
-                        var savedMsg = await SaveMessageAsync(userId, payload.receiverId, payload.contenu?.Trim());
+                         if (limited)
+                         {
+                             var errorMsg = JsonSerializer.Serialize(new { error = "rate_limited", message = "Trop de messages." });
+                             var errorBytes = Encoding.UTF8.GetBytes(errorMsg);
+                             await webSocket.SendAsync(new ArraySegment<byte>(errorBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+                             continue;
+                         }
+
+                         var savedMsg = await SaveMessageAsync(userId, payload.receiverId, payload.contenu?.Trim());
+
 
                         if (savedMsg != null && _activeConnections.TryGetValue(payload.receiverId, out var receiverSocket))
                         {
