@@ -257,6 +257,27 @@ namespace srv.Messaging
 
             return sidebarList;
         }
+
+            private readonly ConcurrentDictionary<string, Queue<DateTime>> _rateLimits = new();
+            private readonly object _rateLock = new();
+            private const int MaxMessagesPerMinute = 10;
+
+            private bool IsRateLimited(string userId)
+            {
+                var now = DateTime.UtcNow;
+                lock (_rateLock)
+                {
+                    var queue = _rateLimits.GetOrAdd(userId, _ => new Queue<DateTime>());
+
+                    while (queue.Count > 0 && now - queue.Peek() > TimeSpan.FromMinutes(1))
+                        queue.Dequeue();
+
+                    if (queue.Count >= MaxMessagesPerMinute) return true;
+
+                    queue.Enqueue(now);
+                    return false;
+                }
+            }
     }
 
     // DTOSSSSSSS FOR UHHH SENDING JSON SHOULD PROB BE IN .TOJSON() BUT WHATEVER
@@ -282,24 +303,5 @@ namespace srv.Messaging
         public object? OtherUser { get; set; }
     }
 
-    private readonly ConcurrentDictionary<string, Queue<DateTime>> _rateLimits = new();
-    private readonly object _rateLock = new();
-    private const int MaxMessagesPerMinute = 10;
 
-    private bool IsRateLimited(string userId)
-    {
-        var now = DateTime.UtcNow;
-        lock (_rateLock)
-        {
-            var queue = _rateLimits.GetOrAdd(userId, _ => new Queue<DateTime>());
-
-            while (queue.Count > 0 && now - queue.Peek() > TimeSpan.FromMinutes(1))
-                queue.Dequeue();
-
-            if (queue.Count >= MaxMessagesPerMinute) return true;
-
-            queue.Enqueue(now);
-            return false;
-        }
-    }
 }
