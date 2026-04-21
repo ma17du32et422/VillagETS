@@ -1,5 +1,6 @@
 package com.example.villagets_androidstudio.View;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.villagets_androidstudio.Model.SessionManager;
 import com.example.villagets_androidstudio.R;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -24,7 +26,6 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        // Views
         TextView tvUsername = findViewById(R.id.tvUsername);
         ImageButton btnEditUsername = findViewById(R.id.btnEditUsername);
         TextInputLayout inputLayoutUsername = findViewById(R.id.inputLayoutUsername);
@@ -42,7 +43,15 @@ public class ProfileActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> finish());
 
         btnLogout.setOnClickListener(v -> {
-            Toast.makeText(this, "Déconnexion (en cours...)", Toast.LENGTH_SHORT).show();
+            SessionManager sessionManager = new SessionManager(this);
+            sessionManager.logout();
+            
+            Toast.makeText(this, "Déconnexion réussie", Toast.LENGTH_SHORT).show();
+            
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         });
 
         // Edit username

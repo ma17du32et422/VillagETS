@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.villagets_androidstudio.Model.Post;
 import com.example.villagets_androidstudio.R;
+import com.google.android.material.imageview.ShapeableImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,20 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         holder.title.setText(post.getTitre());
         holder.content.setText(post.getContenu());
+        
+        if (post.getOp() != null) {
+            holder.userName.setText(post.getOp().getPseudo());
+            if (post.getOp().getPhotoProfil() != null) {
+                String avatarUrl = post.getOp().getPhotoProfil().replace("localhost", "10.0.2.2");
+                Glide.with(holder.itemView.getContext()).load(avatarUrl).into(holder.userAvatar);
+            } else {
+                holder.userAvatar.setImageResource(R.drawable.silicate);
+            }
+        }
+        
+        if (post.getDatePublication() != null) {
+            holder.postTime.setText(post.getDatePublication());
+        }
 
         String imageUrl = (post.getMedia() != null && post.getMedia().length > 0) ? post.getMedia()[0] : null;
 
@@ -74,14 +89,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     static class PostViewHolder extends RecyclerView.ViewHolder {
-        TextView title, content;
+        TextView title, content, userName, postTime;
         ImageView image;
+        ShapeableImageView userAvatar;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.postTitle);
             content = itemView.findViewById(R.id.postContent);
             image = itemView.findViewById(R.id.postImage);
+            userName = itemView.findViewById(R.id.postUserName);
+            postTime = itemView.findViewById(R.id.postTime);
+            userAvatar = itemView.findViewById(R.id.postUserAvatar);
         }
     }
 }
