@@ -7,6 +7,7 @@ import UserProfilePage from './pages/UserProfilePage'
 import TestSignup from './pages/TestSignup';
 import Signup from './pages/Signup'
 import CreatePost from './pages/CreatePost'
+import SearchResults from './pages/SearchResults'
 import { useEffect, useState } from 'react'
 import WebsiteLayout from './components/WebsiteLayout'
 
@@ -62,6 +63,7 @@ function App(){
         <Route path="/" element={<Home />} />
         <Route path="/MsgPage" element={<MsgPage />} />
         <Route path="/Create" element={<CreatePost/>}/>
+        <Route path="/Search" element={<SearchResults />} />
         <Route path="/SettingsPage" element={<ProfilePage />} />
         <Route path="/ProfilePage/:userId" element={<UserProfilePage />} />
       </Route>

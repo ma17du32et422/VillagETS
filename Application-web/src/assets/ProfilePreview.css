@@ -109,6 +109,7 @@
 .profile-preview-details p,
 .profile-viewer-details p {
   margin: 0;
+  overflow-wrap: break-word;
 }
 
 .profile-preview-actions {
