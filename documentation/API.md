@@ -1,4 +1,3 @@
-```md
 # VillagETS API — Final Route Specs
 
 ## Auth
@@ -497,5 +496,4 @@
     }
   }
 ]
-```
 ```
