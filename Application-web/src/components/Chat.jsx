@@ -4,19 +4,37 @@ import { getBaseUrl } from '../API';
 import '../assets/Chat.css';
 
 const MAX_MESSAGES = 10;
-const WINDOW_MS = 60 * 1000; // 1 minute
+const WINDOW_MS = 60 * 1000;
+const MESSAGE_FILE_ACCEPT = '.jpg,.jpeg,.png,.webp,.gif,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip';
+const imageAttachmentPattern = /\.(png|jpe?g|gif|webp)(?:$|[?#])/i;
+
+function isImageAttachment(url) {
+    return imageAttachmentPattern.test(url);
+}
+
+function getAttachmentLabel(url) {
+    try {
+        const pathname = new URL(url).pathname;
+        return decodeURIComponent(pathname.split('/').pop() || 'Attachment');
+    } catch {
+        return 'Attachment';
+    }
+}
 
 const Chat = ({ targetUserId }) => {
     const { lastMessage, sendMessage } = useChat();
     const [messages, setMessages] = useState([]);
     const [text, setText] = useState("");
+    const [selectedFiles, setSelectedFiles] = useState([]);
     const [error, setError] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
     const [rateLimitInfo, setRateLimitInfo] = useState({ blocked: false, remaining: MAX_MESSAGES, secondsLeft: 0 });
     const scrollRef = useRef();
-    const timestampsRef = useRef([]); // historique des envois
+    const fileInputRef = useRef(null);
+    const timestampsRef = useRef([]);
     const countdownRef = useRef(null);
+    const isSendingRef = useRef(false);
 
-    // Load History
     useEffect(() => {
         const fetchHistory = async () => {
             try {
@@ -37,24 +55,22 @@ const Chat = ({ targetUserId }) => {
                 setError(err.message ?? 'Failed to load discussion.');
             }
         };
+
         fetchHistory();
     }, [targetUserId]);
 
-    // Listen for WebSocket updates
     useEffect(() => {
-        if (lastMessage) {
-            if (lastMessage.envoyeurId === targetUserId || lastMessage.receveurId === targetUserId) {
-                setMessages((prev) => [...prev, lastMessage]);
-            }
+        if (!lastMessage) return;
+
+        if (lastMessage.envoyeurId === targetUserId || lastMessage.receveurId === targetUserId) {
+            setMessages((prev) => [...prev, lastMessage]);
         }
     }, [lastMessage, targetUserId]);
 
-    // Auto-scroll to bottom
     useEffect(() => {
         scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    // Nettoyage du countdown au démontage
     useEffect(() => {
         return () => {
             if (countdownRef.current) clearInterval(countdownRef.current);
@@ -71,7 +87,6 @@ const Chat = ({ targetUserId }) => {
                 const next = prev.secondsLeft - 1;
                 if (next <= 0) {
                     clearInterval(countdownRef.current);
-                    // Recalculer le remaining réel au déblocage
                     const now = Date.now();
                     timestampsRef.current = timestampsRef.current.filter(t => now - t < WINDOW_MS);
                     return {
@@ -103,35 +118,99 @@ const Chat = ({ targetUserId }) => {
         return true;
     }, [startCountdown]);
 
-    const isSendingRef = useRef(false);
+    const refundRateLimitSlot = useCallback(() => {
+        if (timestampsRef.current.length === 0) return;
 
-    const handleSend = useCallback(() => {
-        if (!text.trim()) return;
-        if (isSendingRef.current) return; // guard synchrone
+        timestampsRef.current.pop();
+        const now = Date.now();
+        timestampsRef.current = timestampsRef.current.filter(t => now - t < WINDOW_MS);
+        setRateLimitInfo({
+            blocked: false,
+            remaining: MAX_MESSAGES - timestampsRef.current.length,
+            secondsLeft: 0
+        });
+    }, []);
+
+    const uploadSelectedFiles = useCallback(async () => {
+        if (selectedFiles.length === 0) return [];
+
+        return Promise.all(selectedFiles.map(async (file) => {
+            const form = new FormData();
+            form.append('file', file);
+            form.append('nom', file.name);
+            form.append('type', file.type);
+            form.append('scope', 'message');
+
+            const res = await fetch(`${getBaseUrl()}/upload`, {
+                method: 'POST',
+                credentials: 'include',
+                body: form,
+            });
+
+            if (!res.ok) {
+                const message = await res.text();
+                throw new Error(message || `Upload failed for ${file.name}`);
+            }
+
+            const data = await res.json();
+            return data.url;
+        }));
+    }, [selectedFiles]);
+
+    const handleFileChange = useCallback((event) => {
+        setSelectedFiles(Array.from(event.target.files ?? []));
+    }, []);
+
+    const handleSend = useCallback(async () => {
+        const trimmedText = text.trim();
+        const hasFiles = selectedFiles.length > 0;
+
+        if (!trimmedText && !hasFiles) return;
+        if (isSendingRef.current || isUploading) return;
         if (!checkRateLimit()) return;
 
         isSendingRef.current = true;
-        setTimeout(() => { isSendingRef.current = false; }, 100);
+        setIsUploading(true);
 
-        sendMessage(targetUserId, text);
+        try {
+            const mediaUrls = await uploadSelectedFiles();
+            const sent = sendMessage(targetUserId, trimmedText, mediaUrls);
 
-        const myMessage = {
-            envoyeurId: "ME",
-            contenu: text,
-            dateMsg: new Date().toISOString()
-        };
-        setMessages((prev) => [...prev, myMessage]);
-        setText("");
-    }, [text, checkRateLimit, sendMessage, targetUserId]);
+            if (!sent) {
+                throw new Error('Chat connection is unavailable.');
+            }
 
-    // Label du bouton selon l'état
+            setMessages((prev) => [...prev, {
+                envoyeurId: "ME",
+                contenu: trimmedText,
+                media: mediaUrls,
+                dateMsg: new Date().toISOString()
+            }]);
+            setText("");
+            setSelectedFiles([]);
+            setError("");
+
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        } catch (err) {
+            console.error("Failed to send message", err);
+            refundRateLimitSlot();
+            setError(err.message ?? 'Failed to send message.');
+        } finally {
+            setIsUploading(false);
+            setTimeout(() => { isSendingRef.current = false; }, 100);
+        }
+    }, [text, selectedFiles, isUploading, checkRateLimit, uploadSelectedFiles, sendMessage, targetUserId, refundRateLimitSlot]);
+
     const buttonLabel = rateLimitInfo.blocked
         ? `${rateLimitInfo.secondsLeft}s`
-        : 'ENVOYER';
+        : isUploading
+            ? 'UPLOADING'
+            : 'ENVOYER';
 
-    // Label du compteur
     const counterLabel = rateLimitInfo.blocked
-        ? `Limite de messages atteinte — réessayez dans ${rateLimitInfo.secondsLeft}s`
+        ? `Limite de messages atteinte - reessayez dans ${rateLimitInfo.secondsLeft}s`
         : ` `;
 
     const counterClass = rateLimitInfo.blocked
@@ -142,7 +221,6 @@ const Chat = ({ targetUserId }) => {
 
     return (
         <div className="chat-container">
-            {/* Message List */}
             <div className="message-list">
                 {error && (
                     <div className="placeholder-text">
@@ -158,20 +236,61 @@ const Chat = ({ targetUserId }) => {
                             <small className="message-sender">
                                 {m.envoyeurId === targetUserId ? "Them" : "Moi"}
                             </small>
-                            {m.contenu}
+                            {m.contenu && (
+                                <div className="message-text">{m.contenu}</div>
+                            )}
+                            {(m.media ?? []).length > 0 && (
+                                <div className="message-attachments">
+                                    {m.media.map((url) => (
+                                        isImageAttachment(url) ? (
+                                            <a key={url} href={url} target="_blank" rel="noreferrer" className="message-image-link">
+                                                <img src={url} alt={getAttachmentLabel(url)} className="message-image" />
+                                            </a>
+                                        ) : (
+                                            <a key={url} href={url} target="_blank" rel="noreferrer" className="message-file-link">
+                                                {getAttachmentLabel(url)}
+                                            </a>
+                                        )
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 ))}
                 <div ref={scrollRef} />
             </div>
 
-            {/* Rate limit counter */}
             <div className={counterClass}>
                 {counterLabel}
             </div>
 
-            {/* Entry Box */}
+            {selectedFiles.length > 0 && (
+                <div className="selected-files">
+                    {selectedFiles.map((file) => (
+                        <span key={`${file.name}-${file.size}`} className="selected-file-chip">
+                            {file.name}
+                        </span>
+                    ))}
+                </div>
+            )}
+
             <div className="entry-box">
+                <button
+                    type="button"
+                    className="attach-button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={rateLimitInfo.blocked || isUploading}
+                >
+                    FILES
+                </button>
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept={MESSAGE_FILE_ACCEPT}
+                    className="chat-file-input"
+                    onChange={handleFileChange}
+                />
                 <input
                     className="message-input"
                     value={text}
@@ -179,13 +298,15 @@ const Chat = ({ targetUserId }) => {
                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                     placeholder={rateLimitInfo.blocked || rateLimitInfo.remaining === 0
                         ? "Limite atteinte..."
-                        : `Envoyer un message (${rateLimitInfo.remaining}/${MAX_MESSAGES})`}
-                    disabled={rateLimitInfo.blocked}
+                        : isUploading
+                            ? "Uploading files..."
+                            : `Envoyer un message (${rateLimitInfo.remaining}/${MAX_MESSAGES})`}
+                    disabled={rateLimitInfo.blocked || isUploading}
                 />
                 <button
-                    className={`send-button ${rateLimitInfo.blocked ? 'disabled' : ''}`}
+                    className={`send-button ${rateLimitInfo.blocked || isUploading ? 'disabled' : ''}`}
                     onClick={handleSend}
-                    disabled={rateLimitInfo.blocked}
+                    disabled={rateLimitInfo.blocked || isUploading}
                 >
                     {buttonLabel}
                 </button>

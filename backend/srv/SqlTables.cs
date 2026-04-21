@@ -282,5 +282,8 @@ namespace sql
 
         [Column("contenu")]
         public string? Contenu { get; set; }
+
+        [Column("media")]
+        public string[]? Media { get; set; }
     }
 }

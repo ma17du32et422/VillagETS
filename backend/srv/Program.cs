@@ -38,6 +38,33 @@ var allowedUploadExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCa
     ".webp",
     ".gif"
 };
+var allowedMessageUploadContentTypes = new HashSet<string>(allowedUploadContentTypes, StringComparer.OrdinalIgnoreCase)
+{
+    "application/pdf",
+    "text/plain",
+    "text/csv",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/zip",
+    "application/x-zip-compressed"
+};
+var allowedMessageUploadExtensions = new HashSet<string>(allowedUploadExtensions, StringComparer.OrdinalIgnoreCase)
+{
+    ".pdf",
+    ".txt",
+    ".csv",
+    ".doc",
+    ".docx",
+    ".xls",
+    ".xlsx",
+    ".ppt",
+    ".pptx",
+    ".zip"
+};
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -239,6 +266,7 @@ app.MapPost("/upload", async (HttpContext ctx) =>
 
         var form = await ctx.Request.ReadFormAsync();
         var file = form.Files["file"];
+        var uploadScope = form["scope"].ToString();
 
         if (file is null || file.Length == 0)
             return Results.BadRequest(new { error = "Aucun fichier fourni." });
@@ -247,8 +275,11 @@ app.MapPost("/upload", async (HttpContext ctx) =>
             return Results.BadRequest(new { error = "Le fichier dépasse la taille maximale autorisée de 10 Mo." });
 
         var extension = Path.GetExtension(file.FileName);
-        if (!allowedUploadExtensions.Contains(extension) || !allowedUploadContentTypes.Contains(file.ContentType))
-            return Results.BadRequest(new { error = "Seuls les fichiers image JPG, PNG, WEBP et GIF sont acceptés." });
+        var allowMessageFiles = string.Equals(uploadScope, "message", StringComparison.OrdinalIgnoreCase);
+        var allowedExtensions = allowMessageFiles ? allowedMessageUploadExtensions : allowedUploadExtensions;
+        var allowedContentTypes = allowMessageFiles ? allowedMessageUploadContentTypes : allowedUploadContentTypes;
+        if (!allowedExtensions.Contains(extension) || !allowedContentTypes.Contains(file.ContentType))
+            return Results.BadRequest(new { error = allowMessageFiles ? "Ce type de fichier n'est pas autorisé pour les messages." : "Seuls les fichiers image JPG, PNG, WEBP et GIF sont acceptés." });
 
         var nom = Path.GetFileName(string.IsNullOrWhiteSpace(form["nom"]) ? file.FileName : form["nom"].ToString());
         var uniqueName = $"{Guid.NewGuid()}{extension}";
