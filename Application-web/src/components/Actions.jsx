@@ -12,14 +12,14 @@ export default function Actions({ onPostCreated, user }){
     <div className="actions-layout">
       <div className="actions">
         
-        <button id="action" type="button" onClick={() => navigate('/create')} disabled={!user}>
+        <button id="action" type="button" onClick={() => navigate('/Create')} disabled={!user}>
           <span className="action-icon-wrap">
             <span className="action-icon create-post-icon" aria-hidden="true" />
           </span>
           <span className="action-label">New post</span>
         </button>
         
-        <button id="action" type="button" onClick={() => navigate('/Msgpage')} disabled={!user}>
+        <button id="action" type="button" onClick={() => navigate('/MsgPage')} disabled={!user}>
           <span className="action-icon-wrap">
             <span className="action-icon message-icon" aria-hidden="true" />
           </span>

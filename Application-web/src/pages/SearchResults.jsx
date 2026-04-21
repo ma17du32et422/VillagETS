@@ -37,17 +37,19 @@ export default function SearchResults() {
         const data = await res.json();
         setUsers(data || []);
         setUsersError(null);
+        return data || [];
       } catch (err) {
         console.error('Error fetching users:', err);
         setUsersError(err.message || 'Failed to fetch users');
         setUsers([]);
+        return [];
       } finally {
         setUsersLoading(false);
       }
     };
 
-    // Fetch posts
-    const fetchPosts = async () => {
+    // Fetch search posts
+    const fetchSearchPosts = async () => {
       try {
         setPostsLoading(true);
         const res = await fetch(`${getBaseUrl()}/feed`, {
@@ -66,7 +68,7 @@ export default function SearchResults() {
         }
 
         const data = await res.json();
-        setPosts(data.map((post) => ({
+        return data.map((post) => ({
           id: post.id,
           title: post.titre ?? '',
           contents: post.contenu ?? '',
@@ -81,19 +83,95 @@ export default function SearchResults() {
           commentaires: post.commentaires ?? 0,
           userReaction: post.userReaction ?? null,
           comments: [],
-        })) || []);
-        setPostsError(null);
+        })) || [];
       } catch (err) {
         console.error('Error fetching posts:', err);
         setPostsError(err.message || 'Failed to fetch posts');
-        setPosts([]);
-      } finally {
-        setPostsLoading(false);
+        return [];
       }
     };
 
-    fetchUsers();
-    fetchPosts();
+    // Fetch posts from specific users
+    const fetchUserPosts = async (users) => {
+      if (!users || users.length === 0) return [];
+      
+      try {
+        const userPostsPromises = users.map((user) => {
+          const userId = user.id || user.userId;
+          if (!userId) return Promise.resolve([]);
+          
+          return fetch(`${getBaseUrl()}/user/${userId}/posts`, {
+            credentials: 'include',
+          })
+            .then((res) => {
+              if (!res.ok) {
+                console.warn(`Failed to fetch posts for user ${userId}:`, res.status);
+                return [];
+              }
+              return res.json();
+            })
+            .then((data) => {
+              if (!Array.isArray(data)) {
+                console.warn(`Posts for user ${userId} is not an array:`, data);
+                return [];
+              }
+              return data;
+            })
+            .catch((err) => {
+              console.warn(`Error parsing posts for user ${userId}:`, err);
+              return [];
+            });
+        });
+        
+        const userPostsArrays = await Promise.all(userPostsPromises);
+        const userPosts = userPostsArrays.flat();
+        
+        return userPosts.map((post) => ({
+          id: post.id,
+          title: post.titre ?? '',
+          contents: post.contenu ?? '',
+          op: post.op ?? { id: null, pseudo: 'Unknown', photoProfil: null },
+          datetime: post.datePublication ?? '',
+          media: post.media ?? [],
+          tags: post.tags ?? [],
+          prix: post.prix ?? null,
+          articleAVendre: post.articleAVendre ?? false,
+          likes: post.likes ?? 0,
+          dislikes: post.dislikes ?? 0,
+          commentaires: post.commentaires ?? 0,
+          userReaction: post.userReaction ?? null,
+          comments: [],
+        }));
+      } catch (err) {
+        console.error('Error fetching user posts:', err);
+        return [];
+      }
+    };
+
+    // Run all fetches in parallel
+    const runFetches = async () => {
+      const [users, searchPosts] = await Promise.all([
+        fetchUsers(),
+        fetchSearchPosts(),
+      ]);
+
+      // Fetch user posts after we have the user list
+      const userPosts = await fetchUserPosts(users);
+
+      // Combine and deduplicate posts (by id)
+      const allPosts = [...userPosts, ...searchPosts];
+      const uniquePosts = Array.from(
+        new Map(allPosts.map((post) => [post.id, post])).values()
+      );
+
+      setPosts(uniquePosts);
+      if (uniquePosts.length > 0) {
+        setPostsError(null);
+      }
+      setPostsLoading(false);
+    };
+
+    runFetches();
   }, [query]);
 
   const handlePostDeleted = (id) => {
