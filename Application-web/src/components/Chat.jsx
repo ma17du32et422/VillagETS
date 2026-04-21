@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useChat } from '../ChatProvider';
+import { useAuth } from '../AuthContext';
 import { getBaseUrl } from '../API';
 import '../assets/Chat.css';
 
@@ -22,12 +23,14 @@ function getAttachmentLabel(url) {
 }
 
 const Chat = ({ targetUserId }) => {
-    const { lastMessage, sendMessage, isRateLimited: backendLimited } = useChat();
+    const { user } = useAuth();
+    const { lastMessage, lastDeletedMessage, sendMessage, isRateLimited: backendLimited } = useChat();
     const [messages, setMessages] = useState([]);
-    const [text, setText] = useState("");
+    const [text, setText] = useState('');
     const [selectedFiles, setSelectedFiles] = useState([]);
-    const [error, setError] = useState("");
+    const [error, setError] = useState('');
     const [isUploading, setIsUploading] = useState(false);
+    const [targetPseudo, setTargetPseudo] = useState('');
     const [rateLimitInfo, setRateLimitInfo] = useState({ blocked: false, remaining: MAX_MESSAGES, secondsLeft: 0 });
     const scrollRef = useRef();
     const fileInputRef = useRef(null);
@@ -41,7 +44,7 @@ const Chat = ({ targetUserId }) => {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                setError("");
+                setError('');
                 const res = await fetch(`${getBaseUrl()}/chat/history/${targetUserId}`, {
                     method: 'GET',
                     credentials: 'include'
@@ -53,7 +56,7 @@ const Chat = ({ targetUserId }) => {
                 const data = await res.json();
                 setMessages(data || []);
             } catch (err) {
-                console.error("Failed to fetch history", err);
+                console.error('Failed to fetch history', err);
                 setMessages([]);
                 setError(err.message ?? 'Failed to load discussion.');
             }
@@ -63,12 +66,51 @@ const Chat = ({ targetUserId }) => {
     }, [targetUserId]);
 
     useEffect(() => {
+        const fetchTargetUser = async () => {
+            try {
+                const res = await fetch(`${getBaseUrl()}/user/${targetUserId}`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                if (!res.ok) {
+                    setTargetPseudo('');
+                    return;
+                }
+
+                const data = await res.json();
+                setTargetPseudo(data?.pseudo ?? '');
+            } catch {
+                setTargetPseudo('');
+            }
+        };
+
+        if (!targetUserId) {
+            setTargetPseudo('');
+            return;
+        }
+
+        fetchTargetUser();
+    }, [targetUserId]);
+
+    useEffect(() => {
         if (!lastMessage) return;
 
         if (lastMessage.envoyeurId === targetUserId || lastMessage.receveurId === targetUserId) {
-            setMessages((prev) => [...prev, lastMessage]);
+            setMessages((prev) => {
+                if (lastMessage.id && prev.some((message) => message.id === lastMessage.id)) {
+                    return prev;
+                }
+                return [...prev, lastMessage];
+            });
         }
     }, [lastMessage, targetUserId]);
+
+    useEffect(() => {
+        if (!lastDeletedMessage?.id) return;
+
+        setMessages((prev) => prev.filter((message) => message.id !== lastDeletedMessage.id));
+    }, [lastDeletedMessage]);
 
     useEffect(() => {
         scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -84,15 +126,15 @@ const Chat = ({ targetUserId }) => {
         if (countdownRef.current) clearInterval(countdownRef.current);
         const initialSeconds = Math.max(1, secondsLeft);
 
-        setRateLimitInfo(prev => ({ ...prev, blocked: true, secondsLeft: initialSeconds, remaining: 0 }));
+        setRateLimitInfo((prev) => ({ ...prev, blocked: true, secondsLeft: initialSeconds, remaining: 0 }));
 
         countdownRef.current = setInterval(() => {
-            setRateLimitInfo(prev => {
+            setRateLimitInfo((prev) => {
                 const next = prev.secondsLeft - 1;
                 if (next <= 0) {
                     clearInterval(countdownRef.current);
                     const now = Date.now();
-                    timestampsRef.current = timestampsRef.current.filter(t => now - t < WINDOW_MS);
+                    timestampsRef.current = timestampsRef.current.filter((t) => now - t < WINDOW_MS);
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(timestampsRef.current));
                     return {
                         blocked: false,
@@ -108,7 +150,7 @@ const Chat = ({ targetUserId }) => {
     useEffect(() => {
         const now = Date.now();
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        const valid = saved.filter(t => now - t < WINDOW_MS);
+        const valid = saved.filter((t) => now - t < WINDOW_MS);
         timestampsRef.current = valid;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(valid));
 
@@ -124,7 +166,7 @@ const Chat = ({ targetUserId }) => {
     const checkRateLimit = useCallback(() => {
         const now = Date.now();
 
-        timestampsRef.current = timestampsRef.current.filter(t => now - t < WINDOW_MS);
+        timestampsRef.current = timestampsRef.current.filter((t) => now - t < WINDOW_MS);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(timestampsRef.current));
 
         if (timestampsRef.current.length >= MAX_MESSAGES) {
@@ -158,7 +200,7 @@ const Chat = ({ targetUserId }) => {
 
         timestampsRef.current.pop();
         const now = Date.now();
-        timestampsRef.current = timestampsRef.current.filter(t => now - t < WINDOW_MS);
+        timestampsRef.current = timestampsRef.current.filter((t) => now - t < WINDOW_MS);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(timestampsRef.current));
         setRateLimitInfo({
             blocked: false,
@@ -216,37 +258,47 @@ const Chat = ({ targetUserId }) => {
                 throw new Error('Chat connection is unavailable.');
             }
 
-            setMessages((prev) => [...prev, {
-                envoyeurId: "ME",
-                contenu: trimmedText,
-                media: mediaUrls,
-                dateMsg: new Date().toISOString()
-            }]);
-            setText("");
+            setText('');
             setSelectedFiles([]);
-            setError("");
+            setError('');
 
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
         } catch (err) {
-            console.error("Failed to send message", err);
+            console.error('Failed to send message', err);
             refundRateLimitSlot();
             setError(err.message ?? 'Failed to send message.');
         } finally {
             setIsUploading(false);
             setTimeout(() => { isSendingRef.current = false; }, 100);
         }
-    }, [text, selectedFiles, isUploading, checkRateLimit, uploadSelectedFiles, sendMessage, targetUserId]);
+    }, [text, selectedFiles, isUploading, checkRateLimit, uploadSelectedFiles, sendMessage, targetUserId, refundRateLimitSlot]);
 
-    const buttonLabel = rateLimitInfo.blocked
-        ? `${rateLimitInfo.secondsLeft}s`
-        : isUploading
-            ? 'UPLOADING'
-            : 'ENVOYER';
+    const handleDeleteMessage = useCallback(async (messageId) => {
+        if (!messageId) return;
+
+        try {
+            setError('');
+            const res = await fetch(`${getBaseUrl()}/chat/message/${messageId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (!res.ok) {
+                const message = await res.text();
+                throw new Error(message || 'Failed to delete message.');
+            }
+
+            setMessages((prev) => prev.filter((message) => message.id !== messageId));
+        } catch (err) {
+            console.error('Failed to delete message', err);
+            setError(err.message ?? 'Failed to delete message.');
+        }
+    }, []);
 
     const counterLabel = rateLimitInfo.blocked
-        ? `Limite de messages atteinte — réessayez dans ${rateLimitInfo.secondsLeft}s`
+        ? `Limite de messages atteinte - reessayez dans ${rateLimitInfo.secondsLeft}s`
         : ' ';
 
     const counterClass = rateLimitInfo.blocked
@@ -265,12 +317,22 @@ const Chat = ({ targetUserId }) => {
                 )}
                 {messages.map((m, i) => (
                     <div
-                        key={i}
+                        key={m.id ?? `${m.envoyeurId}-${m.dateMsg}-${i}`}
                         className={`message-wrapper ${m.envoyeurId === targetUserId ? 'incoming' : 'outgoing'}`}
                     >
+                        {m.envoyeurId === user?.userId && m.id && (
+                            <button
+                                type="button"
+                                className="message-delete-button"
+                                onClick={() => handleDeleteMessage(m.id)}
+                                aria-label="Delete message"
+                            >
+                                ×
+                            </button>
+                        )}
                         <div className="message-bubble">
                             <small className="message-sender">
-                                {m.envoyeurId === targetUserId ? "Them" : "Moi"}
+                                {m.envoyeurId === targetUserId ? targetPseudo : ''}
                             </small>
                             {m.contenu && (
                                 <div className="message-text">{m.contenu}</div>
@@ -332,7 +394,7 @@ const Chat = ({ targetUserId }) => {
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     disabled={isBlocked || isUploading}
-                    placeholder={isBlocked ? "Limite atteinte..." : `Envoyer un message`}
+                    placeholder={isBlocked ? 'Limite atteinte...' : 'Envoyer un message'}
                     onKeyDown={(e) => { if (e.key === 'Enter' && !e.repeat && !isBlocked) handleSend(); }}
                 />
                 <button
