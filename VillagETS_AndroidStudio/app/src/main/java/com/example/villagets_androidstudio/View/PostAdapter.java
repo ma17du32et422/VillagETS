@@ -46,10 +46,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         holder.title.setText(post.getTitre());
         holder.content.setText(post.getContenu());
         
+        String posterName = "User Name";
+        String posterAvatarUrl = null;
+        
         if (post.getOp() != null) {
-            holder.userName.setText(post.getOp().getPseudo());
-            if (post.getOp().getPhotoProfil() != null) {
-                String avatarUrl = post.getOp().getPhotoProfil().replace("localhost", "10.0.2.2");
+            posterName = post.getOp().getPseudo();
+            posterAvatarUrl = post.getOp().getPhotoProfil();
+            holder.userName.setText(posterName);
+            if (posterAvatarUrl != null) {
+                String avatarUrl = posterAvatarUrl.replace("localhost", "10.0.2.2");
                 Glide.with(holder.itemView.getContext()).load(avatarUrl).into(holder.userAvatar);
             } else {
                 holder.userAvatar.setImageResource(R.drawable.silicate);
@@ -73,12 +78,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             holder.image.setVisibility(View.GONE);
         }
 
+        final String finalPosterName = posterName;
+        final String finalPosterAvatarUrl = posterAvatarUrl;
+
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), ItemDetailsActivity.class);
             intent.putExtra("title", post.getTitre());
             intent.putExtra("description", post.getContenu());
             intent.putExtra("price", post.getPrix() != null ? String.format("%.2f$", post.getPrix()) : "");
             intent.putExtra("imageUrl", imageUrl);
+            intent.putExtra("posterName", finalPosterName);
+            intent.putExtra("posterAvatarUrl", finalPosterAvatarUrl);
             v.getContext().startActivity(intent);
         });
     }

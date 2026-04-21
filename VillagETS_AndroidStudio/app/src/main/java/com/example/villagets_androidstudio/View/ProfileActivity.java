@@ -78,7 +78,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         viewModel.getUpdateSuccess().observe(this, success -> {
             if (success != null && success) {
-                Toast.makeText(this, "Mise à jour réussie !", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Updated!", Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
@@ -134,12 +134,12 @@ public class ProfileActivity extends AppCompatActivity {
                 String confirm = etConfirmPassword.getText().toString().trim();
                 
                 if (currentPass.isEmpty() || newPass.isEmpty() || confirm.isEmpty()) {
-                    Toast.makeText(this, "Veuillez remplir tous les champs de mot de passe", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Please fill in all password fields", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 
                 if (!newPass.equals(confirm)) {
-                    Toast.makeText(this, "Les nouveaux mots de passe ne correspondent pas", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "New passwords do not match", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 

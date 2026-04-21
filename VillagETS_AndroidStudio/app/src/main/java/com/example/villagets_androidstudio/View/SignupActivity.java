@@ -42,7 +42,7 @@ public class SignupActivity extends AppCompatActivity {
 
         viewModel.getSignupSuccess().observe(this, success -> {
             if (success != null && success) {
-                Toast.makeText(this, "Inscription réussie !", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Sign up successful !", Toast.LENGTH_SHORT).show();
                 
                 Intent intent = new Intent(SignupActivity.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

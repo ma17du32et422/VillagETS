@@ -40,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
         viewModel.getUserLiveData().observe(this, user -> {
             if (user != null) {
                 user.saveUser(getApplicationContext());
-                Toast.makeText(this, "Connexion réussie !", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Sign in successful!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
