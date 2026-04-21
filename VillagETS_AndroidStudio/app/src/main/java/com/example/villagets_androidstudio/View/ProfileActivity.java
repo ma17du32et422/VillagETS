@@ -176,7 +176,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
 
             if (selectedImageUri != null) {
-                viewModel.updatePhoto(selectedImageUri.toString());
+                viewModel.updatePhoto(this, selectedImageUri);
             }
         });
     }
@@ -187,7 +187,7 @@ public class ProfileActivity extends AppCompatActivity {
             return;
         }
 
-        String photoUrl = photoProfil.replace("localhost", "10.0.2.2");
+        String photoUrl = photoProfil.replace("localhost", "apivillagets.lesageserveur.com");
         Glide.with(this)
                 .load(photoUrl)
                 .into(profileImage);
