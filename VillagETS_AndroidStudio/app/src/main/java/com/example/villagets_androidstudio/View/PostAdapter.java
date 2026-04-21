@@ -57,7 +57,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 String avatarUrl = posterAvatarUrl.replace("localhost", "10.0.2.2");
                 Glide.with(holder.itemView.getContext()).load(avatarUrl).into(holder.userAvatar);
             } else {
-                holder.userAvatar.setImageResource(R.drawable.silicate);
+                holder.userAvatar.setImageDrawable(null);
             }
         }
         
@@ -72,7 +72,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             String displayUrl = imageUrl.replace("localhost", "10.0.2.2");
             Glide.with(holder.itemView.getContext())
                     .load(displayUrl)
-                    .placeholder(R.drawable.silicate)
                     .into(holder.image);
         } else {
             holder.image.setVisibility(View.GONE);

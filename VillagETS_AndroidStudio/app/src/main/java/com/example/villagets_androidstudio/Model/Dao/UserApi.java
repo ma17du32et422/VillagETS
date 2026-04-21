@@ -42,6 +42,9 @@ public interface UserApi {
     @GET("/users/{email}")
     Call<User> getUserByEmail(@Path("email") String email);
 
+    @GET("/user/{id}")
+    Call<User> getUserById(@Path("id") String id);
+
     @POST("/auth/login")
     Call<User> login(@Body User user);
 

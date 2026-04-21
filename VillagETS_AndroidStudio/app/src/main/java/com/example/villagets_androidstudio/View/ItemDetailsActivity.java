@@ -51,9 +51,9 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
         if (posterAvatarUrl != null && !posterAvatarUrl.isEmpty()) {
             String avatarUrl = posterAvatarUrl.replace("localhost", "10.0.2.2");
-            Glide.with(this).load(avatarUrl).placeholder(R.drawable.silicate).into(ivPosterAvatar);
+            Glide.with(this).load(avatarUrl).into(ivPosterAvatar);
         } else {
-            ivPosterAvatar.setImageResource(R.drawable.silicate);
+            ivPosterAvatar.setImageDrawable(null);
         }
 
         if (imageUrl != null && !imageUrl.isEmpty()) {
@@ -64,11 +64,9 @@ public class ItemDetailsActivity extends AppCompatActivity {
             
             Glide.with(this)
                     .load(finalUrl)
-                    .placeholder(R.drawable.silicate)
-                    .error(R.drawable.silicate)
                     .into(ivPhoto);
         } else {
-            ivPhoto.setImageResource(R.drawable.silicate);
+            ivPhoto.setImageDrawable(null);
         }
     }
 }

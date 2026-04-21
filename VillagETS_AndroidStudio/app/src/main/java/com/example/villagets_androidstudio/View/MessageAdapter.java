@@ -32,7 +32,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         holder.tvUserName.setText(message.getSenderName());
         holder.tvMessageText.setText(message.getText());
         holder.tvTimestamp.setText(message.getTimestamp());
-        holder.ivAvatar.setImageResource(R.drawable.silicate);
+        holder.ivAvatar.setImageDrawable(null);
     }
 
     @Override

@@ -102,6 +102,21 @@ public class UserViewModel extends ViewModel {
         });
     }
 
+    public void fetchUserById(String userId) {
+        executorService.execute(() -> {
+            try {
+                User user = userDao.getUserById(userId);
+                if (user != null) {
+                    userLiveData.postValue(user);
+                } else {
+                    errorMessage.postValue("Utilisateur non trouvé");
+                }
+            } catch (IOException e) {
+                errorMessage.postValue("Erreur de récupération : " + e.getMessage());
+            }
+        });
+    }
+
     public void updatePseudo(String pseudo) {
         executorService.execute(() -> {
             try {

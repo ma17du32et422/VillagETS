@@ -24,25 +24,6 @@ public class ConversationFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerViewConversations);
 
-        // placeholders
-        String[] userNames = {"Thomas", "Sarah", "Marc-Antoine", "Julie", "Kevin"};
-        String[] lastMessages = {
-                "C'est bon pour la calculatrice !",
-                "Est-ce que le livre est toujours dispo ?",
-                "Je peux passer demain à 14h.",
-                "Merci beaucoup !",
-                "Salut, tu fais un prix pour le lot ?"
-        };
-        String[] times = {"14:30", "Hier", "Hier", "Lun.", "2 janv."};
-        Integer[] avatarResIds = {
-                R.drawable.silicate,
-                R.drawable.silicate,
-                R.drawable.silicate,
-                R.drawable.silicate,
-                R.drawable.silicate
-        };
 
-        ConversationAdapter adapter = new ConversationAdapter(userNames, lastMessages, times, avatarResIds);
-        recyclerView.setAdapter(adapter);
     }
 }

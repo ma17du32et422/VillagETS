@@ -32,6 +32,14 @@ public class UserDao {
         return null;
     }
 
+    public User getUserById(String userId) throws IOException {
+        Response<User> response = api.getUserById(userId).execute();
+        if (response.isSuccessful()) {
+            return response.body();
+        }
+        return null;
+    }
+
     public User login(User user) throws IOException {
         Response<User> response = api.login(user).execute();
         if (response.isSuccessful()) {

@@ -30,6 +30,8 @@ public class ProfileActivity extends AppCompatActivity {
     private boolean isUsernameEditing = false;
     private boolean isPasswordChanging = false;
     private UserViewModel viewModel;
+    private User cachedUser;
+    private boolean requestedPublicProfilePhoto;
     private ShapeableImageView profileImage;
     private TextView tvUsername;
     private EditText etUsername, etNewPassword, etConfirmPassword, etCurrentPassword;
@@ -69,6 +71,28 @@ public class ProfileActivity extends AppCompatActivity {
         viewModel.getUserLiveData().observe(this, user -> {
             if (user != null) {
                 tvUsername.setText(user.getPseudo());
+                String photoToDisplay = hasPhoto(user.getPhotoProfil())
+                        ? user.getPhotoProfil()
+                        : (cachedUser != null ? cachedUser.getPhotoProfil() : null);
+                loadProfileImage(photoToDisplay);
+
+                if (!hasPhoto(user.getPhotoProfil()) && cachedUser != null && hasPhoto(cachedUser.getPhotoProfil())) {
+                    user.setPhotoProfil(cachedUser.getPhotoProfil());
+                }
+
+                cachedUser = user;
+                user.saveUser(getApplicationContext());
+
+                if (!hasPhoto(user.getPhotoProfil())
+                        && user.getUserId() != null
+                        && !user.getUserId().trim().isEmpty()
+                        && !requestedPublicProfilePhoto) {
+                    requestedPublicProfilePhoto = true;
+                    viewModel.fetchUserById(user.getUserId());
+                    return;
+                }
+
+                requestedPublicProfilePhoto = false;
             }
         });
 
@@ -84,6 +108,15 @@ public class ProfileActivity extends AppCompatActivity {
                 Toast.makeText(this, error, Toast.LENGTH_LONG).show();
             }
         });
+
+        cachedUser = User.loadUser(getApplicationContext());
+        requestedPublicProfilePhoto = false;
+        if (cachedUser != null) {
+            if (cachedUser.getPseudo() != null && !cachedUser.getPseudo().trim().isEmpty()) {
+                tvUsername.setText(cachedUser.getPseudo());
+            }
+            loadProfileImage(cachedUser.getPhotoProfil());
+        }
 
         viewModel.fetchUser();
 
@@ -146,5 +179,21 @@ public class ProfileActivity extends AppCompatActivity {
                 viewModel.updatePhoto(selectedImageUri.toString());
             }
         });
+    }
+
+    private void loadProfileImage(String photoProfil) {
+        if (photoProfil == null || photoProfil.trim().isEmpty()) {
+            profileImage.setImageDrawable(null);
+            return;
+        }
+
+        String photoUrl = photoProfil.replace("localhost", "10.0.2.2");
+        Glide.with(this)
+                .load(photoUrl)
+                .into(profileImage);
+    }
+
+    private boolean hasPhoto(String photoProfil) {
+        return photoProfil != null && !photoProfil.trim().isEmpty();
     }
 }
