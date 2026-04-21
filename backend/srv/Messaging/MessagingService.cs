@@ -16,7 +16,6 @@ namespace srv.Messaging
         private const int ReceiveBufferSize = 4 * 1024;
         private const int MaxMessageBytes = 64 * 1024;
 
-        // Keeps track of currently connected users: Key = UserId, Value = WebSocket
         private readonly ConcurrentDictionary<string, WebSocket> _activeConnections = new();
 
         public MessagingService(ILogger<MessagingService> logger)
@@ -25,6 +24,10 @@ namespace srv.Messaging
             _logger = logger;
         }
 
+        /// <summary>
+        /// Registers the user's websocket, listens for incoming chat payloads, saves valid messages, and forwards them to connected recipients.
+        /// </summary>
+        /// <returns>A task that completes when the websocket closes or the connection loop exits.</returns>
         public async Task HandleConnectionAsync(string userId, WebSocket webSocket)
         {
             _activeConnections.AddOrUpdate(userId, webSocket, (key, oldValue) => webSocket);
@@ -74,8 +77,8 @@ namespace srv.Messaging
                     }
 
                     if (payload != null && !string.IsNullOrWhiteSpace(payload.receiverId))
-                     {
-                         var limited = IsRateLimited(userId);
+                    {
+                        var limited = IsRateLimited(userId);
                          _logger.LogInformation("Rate limit check for {UserId}: limited={Limited}", userId, limited);
 
                          if (limited)
@@ -85,25 +88,34 @@ namespace srv.Messaging
                              await webSocket.SendAsync(new ArraySegment<byte>(errorBytes), WebSocketMessageType.Text, true, CancellationToken.None);
                              continue;
                          }
+                        
+                        
+                        var normalizedContent = payload.contenu?.Trim();
+                        var normalizedMedia = payload.media
+                            .Where(url => !string.IsNullOrWhiteSpace(url))
+                            .Select(url => url.Trim())
+                            .Distinct()
+                            .ToArray() ?? [];
 
-                         var savedMsg = await SaveMessageAsync(userId, payload.receiverId, payload.contenu?.Trim());
+                        if (string.IsNullOrWhiteSpace(normalizedContent) && normalizedMedia.Length == 0)
+                            continue;
 
+                        MessageDTO? savedMsg;
+                        try
+                        {
+                            savedMsg = await SaveMessageAsync(userId, payload.receiverId, normalizedContent, normalizedMedia);
+                        }
+                        catch (ArgumentException ex)
+                        {
+                            _logger.LogWarning(ex, "Ignoring invalid websocket payload from user {UserId}", userId);
+                            continue;
+                        }
 
                         if (savedMsg != null && _activeConnections.TryGetValue(payload.receiverId, out var receiverSocket))
                         {
                             if (receiverSocket.State == WebSocketState.Open)
                             {
-                                var output = new MessageDTO
-                                {
-                                    id = savedMsg.Id,
-                                    conversationId = savedMsg.ConversationId,
-                                    envoyeurId = savedMsg.EnvoyeurId,
-                                    receveurId = savedMsg.ReceveurId,
-                                    contenu = savedMsg.Contenu,
-                                    dateMsg = savedMsg.DateMsg
-                                };
-
-                                var outMsg = JsonSerializer.Serialize(output);
+                                var outMsg = JsonSerializer.Serialize(savedMsg);
                                 var outBytes = Encoding.UTF8.GetBytes(outMsg);
                                 await receiverSocket.SendAsync(new ArraySegment<byte>(outBytes), WebSocketMessageType.Text, true, CancellationToken.None);
                             }
@@ -117,6 +129,10 @@ namespace srv.Messaging
             }
         }
 
+        /// <summary>
+        /// Reads a full text websocket message, reassembles fragmented frames, and stops early if the client closes the socket.
+        /// </summary>
+        /// <returns>A tuple containing the decoded message text and the final websocket receive result.</returns>
         private async Task<(string? message, WebSocketReceiveResult result)> ReceiveTextMessageAsync(WebSocket webSocket, CancellationToken cancellationToken)
         {
             var buffer = ArrayPool<byte>.Shared.Rent(ReceiveBufferSize);
@@ -143,8 +159,22 @@ namespace srv.Messaging
             }
         }
 
-        private async Task<ConversationMessage?> SaveMessageAsync(string senderId, string receiverId, string? content = "")
+        /// <summary>
+        /// Persists a new message for the sender and receiver after resolving or creating their conversation.
+        /// </summary>
+        /// <returns>The saved conversation message row, or <c>null</c> if nothing was returned from the insert.</returns>
+        private async Task<MessageDTO?> SaveMessageAsync(string senderId, string receiverId, string? content = "", string[]? media = null)
         {
+            var mediaUrls = media?
+                .Where(url => !string.IsNullOrWhiteSpace(url))
+                .Select(url => url.Trim())
+                .Distinct()
+                .ToList() ?? [];
+
+            var fichiers = await ResolveOwnedFilesByUrlsAsync(senderId, mediaUrls);
+            if (fichiers.Count != mediaUrls.Count)
+                throw new ArgumentException("One or more message attachments are invalid.");
+
             var conversationId = await GetOrCreateConversationAsync(senderId, receiverId);
 
             var msg = new ConversationMessage
@@ -157,9 +187,45 @@ namespace srv.Messaging
             };
 
             var result = await PerfLogger.TimeAsync(_logger, "MessagingService.SaveMessageAsync insert message", () => _supabase.From<ConversationMessage>().Insert(msg));
-            return result.Models.FirstOrDefault();
+            var saved = result.Models.FirstOrDefault();
+            if (saved == null)
+                return null;
+
+            if (fichiers.Count > 0)
+            {
+                var links = fichiers
+                    .Where(file => file.Id.HasValue)
+                    .Select(file => new sql.MessageFichier
+                    {
+                        MessageId = saved.Id,
+                        FichierId = file.Id!.Value.ToString("D")
+                    })
+                    .ToList();
+
+                if (links.Count > 0)
+                {
+                    await PerfLogger.TimeAsync(_logger, "MessagingService.SaveMessageAsync insert message fichiers", () => _supabase
+                        .From<sql.MessageFichier>()
+                        .Insert(links));
+                }
+            }
+
+            return new MessageDTO
+            {
+                id = saved.Id,
+                conversationId = saved.ConversationId,
+                envoyeurId = saved.EnvoyeurId,
+                receveurId = saved.ReceveurId,
+                contenu = saved.Contenu,
+                media = mediaUrls.ToArray(),
+                dateMsg = saved.DateMsg
+            };
         }
 
+        /// <summary>
+        /// Looks up an existing conversation between two users in either direction.
+        /// </summary>
+        /// <returns>The conversation id when one exists, or <c>null</c> when no conversation has been created yet.</returns>
         public async Task<string?> FindConversationIdAsync(string user1Id, string user2Id)
         {
             var res1 = await PerfLogger.TimeAsync(_logger, "MessagingService.FindConversationIdAsync lookup direct", () => _supabase.From<Conversation>()
@@ -179,13 +245,16 @@ namespace srv.Messaging
             return existing?.Id;
         }
 
+        /// <summary>
+        /// Returns the existing conversation id for two users or creates a new conversation when none exists.
+        /// </summary>
+        /// <returns>The existing or newly created conversation id.</returns>
         public async Task<string> GetOrCreateConversationAsync(string user1Id, string user2Id)
         {
             var existingId = await FindConversationIdAsync(user1Id, user2Id);
             if (!string.IsNullOrWhiteSpace(existingId))
                 return existingId;
 
-            // Create new if none exists
             var newConvo = new Conversation
             {
                 User1Id = user1Id,
@@ -196,28 +265,39 @@ namespace srv.Messaging
             return insertRes.Models.First().Id!;
         }
 
+        /// <summary>
+        /// Loads the full message history for the conversation between two users in ascending send order.
+        /// </summary>
+        /// <returns>A list of message DTOs, or an empty list when the users do not have a conversation yet.</returns>
         public async Task<List<MessageDTO>> GetHistoryAsync(string userId1, string userId2)
         {
-            var conversationId = await FindConversationIdAsync(userId1, userId2);
-            if (string.IsNullOrWhiteSpace(conversationId))
+            if (!Guid.TryParse(userId1, out var currentUserId) || !Guid.TryParse(userId2, out var targetUserId))
                 return [];
 
-            var result = await PerfLogger.TimeAsync(_logger, "MessagingService.GetHistoryAsync messages", () => _supabase.From<ConversationMessage>()
-                .Where(m => m.ConversationId == conversationId)
-                .Order("date_msg", Supabase.Postgrest.Constants.Ordering.Ascending)
-                .Get());
+            var rows = await PerfLogger.TimeAsync(_logger, "MessagingService.GetHistoryAsync rpc get_chat_history", () => _supabase.Rpc<List<MessageHistoryRpcRow>>(
+                "get_chat_history",
+                new Dictionary<string, object?>
+                {
+                    { "p_user_id_1", currentUserId },
+                    { "p_user_id_2", targetUserId }
+                }));
 
-            return result.Models.Select(m => new MessageDTO
+            return (rows ?? []).Select(m => new MessageDTO
             {
                 id = m.Id,
                 conversationId = m.ConversationId,
                 envoyeurId = m.EnvoyeurId,
                 receveurId = m.ReceveurId,
                 contenu = m.Contenu,
+                media = m.Media ?? [],
                 dateMsg = m.DateMsg
             }).ToList();
         }
 
+        /// <summary>
+        /// Builds the sidebar conversation list for the current user and attaches the other participant's public profile data.
+        /// </summary>
+        /// <returns>A list of sidebar conversation DTOs for every conversation involving the current user.</returns>
         public async Task<List<ConversationDTO>> GetAllConversationsAsync(string currentUserId)
         {
             var response = await PerfLogger.TimeAsync(_logger, "MessagingService.GetAllConversationsAsync conversations", () => _supabase.From<Conversation>()
@@ -278,13 +358,28 @@ namespace srv.Messaging
                     return false;
                 }
             }
+
+        private async Task<List<sql.Fichier>> ResolveOwnedFilesByUrlsAsync(string ownerId, IReadOnlyCollection<string> urls)
+        {
+            if (urls.Count == 0)
+                return [];
+
+            var response = await PerfLogger.TimeAsync(_logger, "MessagingService.ResolveOwnedFilesByUrlsAsync fichier lookup", () => _supabase
+                .From<sql.Fichier>()
+                .Filter("lien_fichier", Supabase.Postgrest.Constants.Operator.In, urls.ToList())
+                .Filter("id_proprietaire", Supabase.Postgrest.Constants.Operator.Equals, ownerId)
+                .Get());
+
+            return response.Models.ToList();
+        }
+
     }
 
-    // DTOSSSSSSS FOR UHHH SENDING JSON SHOULD PROB BE IN .TOJSON() BUT WHATEVER
     public class WsMessagePayload
     {
         public string? receiverId { get; set; }
         public string? contenu { get; set; }
+        public string[] media { get; set; } = [];
     }
 
     public class MessageDTO
@@ -294,6 +389,7 @@ namespace srv.Messaging
         public string? envoyeurId { get; set; }
         public string? receveurId { get; set; }
         public string? contenu { get; set; }
+        public string[] media { get; set; } = [];
         public DateTime? dateMsg { get; set; }
     }
 
@@ -303,5 +399,27 @@ namespace srv.Messaging
         public object? OtherUser { get; set; }
     }
 
+    public class MessageHistoryRpcRow
+    {
+        [Newtonsoft.Json.JsonProperty("id")]
+        public string? Id { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("conversation_id")]
+        public string? ConversationId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("envoyeur_id")]
+        public string? EnvoyeurId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("receveur_id")]
+        public string? ReceveurId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("contenu")]
+        public string? Contenu { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("media")]
+        public string[]? Media { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("date_msg")]
+        public DateTime? DateMsg { get; set; }
+    }
 }

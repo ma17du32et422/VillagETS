@@ -1,18 +1,6 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
-CREATE TABLE public.cat_pub_publication (
-  id_categorie_publication uuid NOT NULL,
-  publicationid_publication integer NOT NULL,
-  CONSTRAINT cat_pub_publication_pkey PRIMARY KEY (id_categorie_publication, publicationid_publication),
-  CONSTRAINT fk_cpp_categorie FOREIGN KEY (id_categorie_publication) REFERENCES public.categorie_publication(id_categorie_publication)
-);
-CREATE TABLE public.categorie_publication (
-  id_categorie_publication uuid NOT NULL DEFAULT gen_random_uuid(),
-  nom character varying UNIQUE,
-  categorie_base boolean DEFAULT false,
-  CONSTRAINT categorie_publication_pkey PRIMARY KEY (id_categorie_publication)
-);
 CREATE TABLE public.commentaire (
   id_commentaire uuid NOT NULL DEFAULT gen_random_uuid(),
   id_utilisateur uuid,
@@ -25,12 +13,6 @@ CREATE TABLE public.commentaire (
   CONSTRAINT fk_commentaire_parent FOREIGN KEY (parent_commentaire) REFERENCES public.commentaire(id_commentaire),
   CONSTRAINT commentaire_id_utilisateur_fkey FOREIGN KEY (id_utilisateur) REFERENCES public.utilisateur(id_utilisateur),
   CONSTRAINT commentaire_id_publication_fkey FOREIGN KEY (id_publication) REFERENCES public.publication(id_publication)
-);
-CREATE TABLE public.commentaire_fichier (
-  id_fichier uuid NOT NULL,
-  id_commentaire uuid NOT NULL,
-  CONSTRAINT commentaire_fichier_pkey PRIMARY KEY (id_fichier, id_commentaire),
-  CONSTRAINT fk_cf_fichier FOREIGN KEY (id_fichier) REFERENCES public.fichier(id_fichier)
 );
 CREATE TABLE public.conversation (
   id_conversation uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -54,6 +36,7 @@ CREATE TABLE public.message (
   receveur_id uuid,
   date_msg timestamp without time zone,
   id_conversation uuid,
+  media ARRAY,
   CONSTRAINT message_pkey PRIMARY KEY (id_message),
   CONSTRAINT fk_message_envoyeur FOREIGN KEY (envoyeur_id) REFERENCES public.utilisateur(id_utilisateur),
   CONSTRAINT fk_message_receveur FOREIGN KEY (envoyeur_id) REFERENCES public.utilisateur(id_utilisateur),
@@ -65,12 +48,6 @@ CREATE TABLE public.message_fichier (
   CONSTRAINT message_fichier_pkey PRIMARY KEY (id_message, id_fichier),
   CONSTRAINT fk_mf_message FOREIGN KEY (id_message) REFERENCES public.message(id_message),
   CONSTRAINT fk_mf_fichier FOREIGN KEY (id_fichier) REFERENCES public.fichier(id_fichier)
-);
-CREATE TABLE public.message_utilisateur (
-  messageid_message uuid NOT NULL,
-  receveur_id_utilisateur uuid NOT NULL,
-  CONSTRAINT message_utilisateur_pkey PRIMARY KEY (messageid_message, receveur_id_utilisateur),
-  CONSTRAINT fk_mu_utilisateur FOREIGN KEY (receveur_id_utilisateur) REFERENCES public.utilisateur(id_utilisateur)
 );
 CREATE TABLE public.publication (
   id_publication integer GENERATED ALWAYS AS IDENTITY NOT NULL,

@@ -13,12 +13,12 @@ namespace srv.Post
             app.MapGet("/post/{id}", async (int id) =>
             {
                 var ret = await postService.GetById(id);
-                if (ret.publication is null) return Results.NotFound("Publication not found");
+                if (ret is null) return Results.NotFound("Publication not found");
 
-                return Results.Ok(ret.publication.ToJson(ret.utilisateur));
+                return Results.Ok(ret);
             });
 
-            app.MapPost("/post", async ([FromBody] sql.Publication publication, HttpContext ctx) =>
+            app.MapPost("/post", async ([FromBody] PostCreateRequest publication, HttpContext ctx) =>
             {
                 var principal = AuthHelper.GetClaimsFromContext(ctx);
                 if (principal == null) return Results.Unauthorized();

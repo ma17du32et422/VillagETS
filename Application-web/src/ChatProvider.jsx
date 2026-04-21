@@ -52,18 +52,22 @@ export const ChatProvider = ({ children }) => {
         return () => socket?.close();
     }, [connect, loading]);
 
-    const sendMessage = (receiverId, content) => {
-        if (socket && isConnected) {
-            socket.send(JSON.stringify({ receiverId: receiverId, contenu: content }));
-            setLastActivity({
-                type: 'sent',
-                message: {
-                    receiverId,
-                    contenu: content
-                },
-                at: Date.now()
-            });
+    const sendMessage = (receiverId, content, media = []) => {
+        if (!(socket && isConnected)) {
+            return false;
         }
+
+        socket.send(JSON.stringify({ receiverId, contenu: content, media }));
+        setLastActivity({
+            type: 'sent',
+            message: {
+                receiverId,
+                contenu: content,
+                media
+            },
+            at: Date.now()
+        });
+        return true;
     };
 
     return (

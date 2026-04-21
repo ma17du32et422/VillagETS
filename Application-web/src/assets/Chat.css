@@ -43,11 +43,66 @@
     display: block;
 }
 
+.message-text {
+    margin-top: 4px;
+}
+
+.message-attachments {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.message-image-link {
+    display: block;
+}
+
+.message-image {
+    display: block;
+    max-width: 220px;
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--color-4);
+}
+
+.message-file-link {
+    display: inline-block;
+    color: var(--color-1);
+    text-decoration: underline;
+}
+
 .entry-box {
     padding: 15px;
     border-top: 1px solid var(--color-4);
     display: flex;
     gap: 10px;
+}
+
+.attach-button {
+    padding: 10px 14px;
+    border: 1px solid var(--color-4);
+    background-color: var(--color-3);
+    color: inherit;
+    cursor: pointer;
+}
+
+.chat-file-input {
+    display: none;
+}
+
+.selected-files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 15px 0;
+}
+
+.selected-file-chip {
+    padding: 4px 8px;
+    border: 1px solid var(--color-4);
+    background-color: var(--color-3);
+    font-size: 0.85rem;
 }
 
 .message-input {

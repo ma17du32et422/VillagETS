@@ -64,8 +64,6 @@ namespace sql
 
         [Column("contenu")]
         public string? Contenu { get; set; }
-        [Column("media")]
-        public string[]? Media { get; set; }
 
         [Column("likes")]
         public int? Likes { get; set; }
@@ -81,12 +79,12 @@ namespace sql
         [Column("nb_commentaires")]
         public int? CommentairesCount { get; set; }
 
-        public object ToJson(Utilisateur? user = null, string? userReaction = null) => new
+        public object ToJson(string[]? media = null, Utilisateur? user = null, string? userReaction = null) => new
         {
             id = Id,
             titre = Nom,
             contenu = Contenu,
-            media = Media,
+            media = media ?? [],
             datePublication = DatePublication,
             prix = Prix,
             articleAVendre = ArticleAVendre,
@@ -234,9 +232,11 @@ namespace sql
     public class MessageFichier : BaseModel
     {
         [PrimaryKey("id_message", false)]
+        [Column("id_message")]
         public string? MessageId { get; set; }
 
         [PrimaryKey("id_fichier", false)]
+        [Column("id_fichier")]
         public string? FichierId { get; set; }
     }
 
