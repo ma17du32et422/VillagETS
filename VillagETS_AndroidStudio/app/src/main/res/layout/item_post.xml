@@ -15,7 +15,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Post Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -26,12 +25,12 @@
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/postUserAvatar"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="2dp"
+                android:background="@color/white"
                 android:scaleType="centerCrop"
-                app:shapeAppearanceOverlay="@style/CircleImageAppearance"
-                app:strokeColor="@color/white"
-                app:strokeWidth="1dp" />
+                app:shapeAppearanceOverlay="@style/CircleImageAppearance" />
 
             <LinearLayout
                 android:layout_width="0dp"
