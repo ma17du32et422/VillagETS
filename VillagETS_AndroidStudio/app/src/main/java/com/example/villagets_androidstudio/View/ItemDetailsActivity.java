@@ -59,7 +59,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
         if (imageUrl != null && !imageUrl.isEmpty()) {
             String finalUrl = imageUrl;
             if (finalUrl.contains("localhost")) {
-                finalUrl = finalUrl.replace("localhost", "10.0.2.2");
+                finalUrl = finalUrl.replace("localhost", "apivillagets.lesageserveur.com");
             }
             
             Glide.with(this)

@@ -141,6 +141,37 @@ public class UserViewModel extends ViewModel {
         });
     }
 
+    public void updatePhoto(android.content.Context context, android.net.Uri uri) {
+        executorService.execute(() -> {
+            try {
+                java.io.File file = com.example.villagets_androidstudio.Utils.FileUtils.getFileFromUri(context, uri);
+                if (file == null) {
+                    errorMessage.postValue("Impossible de lire le fichier");
+                    return;
+                }
+
+                String mimeType = context.getContentResolver().getType(uri);
+                if (mimeType == null) mimeType = "image/jpeg";
+
+                String uploadedUrl = com.example.villagets_androidstudio.Model.Dao.PostDao.uploadFile(file, file.getName(), mimeType);
+                if (uploadedUrl == null) {
+                    errorMessage.postValue("Erreur lors de l'upload de l'image");
+                    return;
+                }
+
+                boolean success = userDao.updatePhoto(uploadedUrl);
+                updateSuccess.postValue(success);
+                if (!success) {
+                    errorMessage.postValue("Erreur lors de la mise à jour de la photo dans le profil");
+                } else {
+                    fetchUser();
+                }
+            } catch (IOException e) {
+                errorMessage.postValue("Erreur réseau : " + e.getMessage());
+            }
+        });
+    }
+
     public void updatePhoto(String photoUrl) {
         executorService.execute(() -> {
             try {

@@ -6,7 +6,7 @@
     display: flex;
     align-items: center;
     padding: 0 24px;
-    background-color: var(--color-1);
+    background-color: var(--color-2);
     border-bottom: 1px solid var(--color-4);
 }
 
@@ -19,11 +19,11 @@
     max-width: 46%;
     height: 36px;
     border-radius: 20px;
-    border: 1px solid var(--color-2);
+    border: 1px solid var(--color-8);
     padding: 0 16px;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 14px;
-    background-color: var(--color-1);
+    background-color: var(--color-2);
     outline: none;
     text-align: center;
     color: var(--color-6);
@@ -38,7 +38,7 @@
 
 #app-name {
     flex-shrink: 0;
-    color: var(--color-2);
+    color: var(--color-8);
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 32px;
     cursor: pointer;
@@ -60,7 +60,7 @@
 #profile{
     width: 7rem;
     height: 36px;
-    background-color: var(--color-1);
+    background-color: var(--color-8);
     color: var(--color-6);
     border: 2px solid var(--color-4);
     border-radius: 18px;
@@ -132,6 +132,6 @@
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 16px;
     margin: auto;
-    color: var(--color-6);
+    color: var(--color-2);
 }
 

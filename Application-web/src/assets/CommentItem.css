@@ -35,7 +35,7 @@
 }
 
 .comment-bubble {
-  background: #f0f2f5;
+  background: var(--color-3);
   padding: 8px 12px;
   border-radius: 18px;
   display: inline-block;
@@ -46,7 +46,7 @@
   display: block;
   font-weight: 700;
   font-size: 0.85rem;
-  color: #1c1e21;
+  color: var(--color-5);
   margin-bottom: 2px;
 }
 
@@ -54,7 +54,7 @@
   margin: 0;
   font-size: 0.95rem;
   line-height: 1.4;
-  color: #050505;
+  color: var(--color-5);
 }
 
 /* Actions Row */
@@ -68,13 +68,13 @@
 }
 
 .comment-date {
-  color: #65676b;
+  color: var(--color-4);
 }
 
 .comment-action-btn {
   background: none;
   border: none;
-  color: #65676b;
+  color: var(--color-5);
   font-weight: 700;
   cursor: pointer;
   padding: 0;

@@ -98,9 +98,11 @@ var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? throw new Ex
 villagets.Auth.AuthHelper.Initialize(jwtSecret);
 
 var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+var publicBaseUrl = Environment.GetEnvironmentVariable("PUBLIC_BASE_URL");
 var uploadOptions = new UploadOptions
 {
     UploadFolder = uploadFolder,
+    PublicBaseUrl = publicBaseUrl,
     MaxUploadBytes = MaxUploadBytes,
     AllowedUploadContentTypes = allowedUploadContentTypes,
     AllowedUploadExtensions = allowedUploadExtensions,

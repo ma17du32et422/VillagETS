@@ -24,19 +24,19 @@
       web:
         build:
           context: ./Application-web
-          dockerfile: Dockerfile
+          dockerfile: Dockerfile.dev
         ports:
-          - "420:5173"  # Change 3000 to 5173 if you are using Vite
+          - "420:5173"
         volumes:
           - ./Application-web:/app
-          - /app/node_modules # This "hides" the container's modules from being overwritten by your local ones
+          - /app/node_modules
         environment:
-          - CHOKIDAR_USEPOLLING=true # Forces the watcher to check for file changes
-          - WDS_SOCKET_PORT=420      # Fixes WebSocket connection for HMR through the mapped port
+          - CHOKIDAR_USEPOLLING=true
+          - VITE_HMR_CLIENT_PORT=420
         stdin_open: true 
         tty: true
         depends_on:
-          - api       # nginx starts after api container is up     
+          - api
       nginx:
         image: nginx:alpine
         restart: unless-stopped

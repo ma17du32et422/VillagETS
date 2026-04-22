@@ -1,15 +1,17 @@
 /** Post borders */
 .post {
-    border: 3px solid var(--color-1);
+    border-bottom: 3px solid var(--color-1);
     margin-bottom: 25px;
     margin-left: 5%;
     margin-right: 5%;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
-    border-radius: 12px;
+}
+
+.post:hover {
+    background-color: var(--color-3);
 }
 
 #post-header {
-    background-color: var(--color-1);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -30,7 +32,7 @@
 
 #post-price {
     margin: 0 18px 12px;
-    color: var(--color-1);
+    color: var(--color-4);
     font-size: 1rem;
     font-weight: 700;
 }
@@ -231,11 +233,12 @@
     padding: 8px 12px;
     cursor: pointer;
     font-size: 0.9rem;
+    color: var(--color-5);
 }
 
 .reaction-button.active {
     background-color: var(--color-3);
-    border-color: #7bc47f;
+    border-color: var(--color-8);
     transform: scale(0.98);
 }
 
