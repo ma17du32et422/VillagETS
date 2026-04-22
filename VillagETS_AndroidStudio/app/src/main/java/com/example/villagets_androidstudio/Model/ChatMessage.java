@@ -1,10 +1,13 @@
 package com.example.villagets_androidstudio.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChatMessage {
+    @JsonProperty("id")
     private String id;
+
     private String conversationId;
     private String envoyeurId;
     private String receveurId;
