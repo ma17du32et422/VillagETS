@@ -355,7 +355,7 @@ const Chat = ({ targetUserId }) => {
                             <small className="message-sender">
                                 {m.envoyeurId === targetUserId ? targetPseudo : ''}
                             </small>
-                            {m.contenu && (
+                            {m.contenu && !isImageAttachment(m.contenu) && (
                                 <div className="message-text">{m.contenu}</div>
                             )}
                             {(m.media ?? []).length > 0 && (
@@ -371,6 +371,13 @@ const Chat = ({ targetUserId }) => {
                                             </a>
                                         )
                                     ))}
+                                </div>
+                            )}
+                            {m.contenu && isImageAttachment(m.contenu) && (
+                                <div className="message-attachments">
+                                    <a href={m.contenu} target="_blank" rel="noreferrer" className="message-image-link">
+                                        <img src={m.contenu} alt={getAttachmentLabel(m.contenu)} className="message-image" />
+                                    </a>
                                 </div>
                             )}
                         </div>
