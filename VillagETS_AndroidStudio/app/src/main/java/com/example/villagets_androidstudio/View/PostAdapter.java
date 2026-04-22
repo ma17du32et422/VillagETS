@@ -4,20 +4,20 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.villagets_androidstudio.Model.Comment;
 import com.example.villagets_androidstudio.Model.Dao.PostApi;
 import com.example.villagets_androidstudio.Model.Dao.PostDao;
 import com.example.villagets_androidstudio.Model.Post;
@@ -123,8 +123,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         final String finalPosterName = posterName;
         final String finalPosterAvatarUrl = posterAvatarUrl;
         final String finalPosterId = posterId;
+        User currentUser = User.loadUser(holder.itemView.getContext());
 
-        holder.btnDetails.setOnClickListener(v -> {
+        View.OnClickListener openDetails = v -> {
             Intent intent = new Intent(v.getContext(), ItemDetailsActivity.class);
             intent.putExtra("postId", post.getId());
             intent.putExtra("title", post.getTitre());
@@ -134,32 +135,61 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             intent.putExtra("posterName", finalPosterName);
             intent.putExtra("posterAvatarUrl", finalPosterAvatarUrl);
             intent.putExtra("posterId", finalPosterId);
+            if (v == holder.btnCommentContainer) {
+                intent.putExtra("openComments", true);
+            }
             v.getContext().startActivity(intent);
-        });
+        };
+
+        boolean isAuthor = currentUser != null
+                && currentUser.getUserId() != null
+                && currentUser.getUserId().equals(finalPosterId);
+        holder.btnDetails.setVisibility(isAuthor ? View.VISIBLE : View.GONE);
+        holder.btnDetails.setOnClickListener(v -> showPostOptions(post, holder));
 
         holder.btnLike.setOnClickListener(v -> handleReaction(post, "like", holder));
         holder.btnDislike.setOnClickListener(v -> handleReaction(post, "dislike", holder));
+        holder.btnCommentContainer.setOnClickListener(openDetails);
+    }
 
-        // Comments logic
-        holder.btnCommentContainer.setOnClickListener(v -> {
-            if (holder.commentSection.getVisibility() == View.GONE) {
-                holder.commentSection.setVisibility(View.VISIBLE);
-                loadComments(post.getId(), holder);
-            } else {
-                holder.commentSection.setVisibility(View.GONE);
-            }
-        });
+    private void showPostOptions(Post post, PostViewHolder holder) {
+        PopupMenu popupMenu = new PopupMenu(holder.itemView.getContext(), holder.btnDetails);
+        popupMenu.getMenu().add(Menu.NONE, 1, 1, "Delete post");
+        popupMenu.getMenu().add(Menu.NONE, 2, 2, "Cancel");
+        popupMenu.setOnMenuItemClickListener(item -> handlePostOptionClick(item, post, holder));
+        popupMenu.show();
+    }
 
-        User me = User.loadUser(holder.itemView.getContext());
-        if (me != null && me.getPhotoProfil() != null) {
-            String myAvatar = me.getPhotoProfil().replace("localhost", "10.0.2.2");
-            Glide.with(holder.itemView.getContext()).load(myAvatar).placeholder(R.drawable.profile_placeholder).into(holder.ivMyAvatar);
+    private boolean handlePostOptionClick(MenuItem item, Post post, PostViewHolder holder) {
+        if (item.getItemId() == 1) {
+            deletePost(post, holder);
+            return true;
         }
+        return true;
+    }
 
-        holder.btnPostComment.setOnClickListener(v -> {
-            String content = holder.etComment.getText().toString().trim();
-            if (!content.isEmpty()) {
-                postComment(post.getId(), content, null, holder);
+    private void deletePost(Post post, PostViewHolder holder) {
+        executorService.execute(() -> {
+            try {
+                boolean deleted = PostDao.deletePost(post.getId());
+                holder.itemView.post(() -> {
+                    if (deleted) {
+                        int position = holder.getBindingAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION && position < postList.size()) {
+                            postList.remove(position);
+                            notifyItemRemoved(position);
+                        } else {
+                            notifyDataSetChanged();
+                        }
+                        Toast.makeText(holder.itemView.getContext(), "Post deleted", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(holder.itemView.getContext(), "Only the author can delete this post", Toast.LENGTH_LONG).show();
+                    }
+                });
+            } catch (IOException e) {
+                holder.itemView.post(() ->
+                        Toast.makeText(holder.itemView.getContext(), "Delete failed: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
             }
         });
     }
@@ -187,110 +217,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             }
         }
         return dateStr;
-    }
-
-    private void loadComments(String postId, PostViewHolder holder) {
-        executorService.execute(() -> {
-            try {
-                List<Comment> comments = PostDao.getPostComments(postId);
-                holder.itemView.post(() -> {
-                    setupCommentsRecyclerView(postId, holder, comments);
-                    updateCommentCount(postId, holder, comments);
-                });
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    private void setupCommentsRecyclerView(String postId, PostViewHolder holder, List<Comment> comments) {
-        CommentAdapter adapter = new CommentAdapter(parentComment -> {
-            // Reply click logic
-            holder.etComment.requestFocus();
-            holder.etComment.setHint("Replying to " + (parentComment.getOp() != null ? parentComment.getOp().getPseudo() : "User") + "...");
-            holder.btnPostComment.setOnClickListener(v -> {
-                String content = holder.etComment.getText().toString().trim();
-                if (!content.isEmpty()) {
-                    postComment(postId, content, parentComment.getId(), holder);
-                }
-            });
-        });
-        holder.rvComments.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
-        holder.rvComments.setAdapter(adapter);
-        adapter.setComments(comments);
-    }
-
-    private void postComment(String postId, String content, String parentId, PostViewHolder holder) {
-        executorService.execute(() -> {
-            try {
-                Comment newComment = PostDao.createComment(postId, content, parentId);
-                if (newComment != null) {
-                    holder.itemView.post(() -> {
-                        Post post = getPostById(postId);
-                        if (post != null) {
-                            post.setCommentCount(post.getCommentCount() + 1);
-                            holder.commentCount.setText(String.valueOf(post.getCommentCount()));
-                        }
-                        holder.etComment.setText("");
-                        holder.etComment.setHint("Write a comment...");
-                        loadComments(postId, holder);
-                        // Reset post button click listener to top-level comment
-                        holder.btnPostComment.setOnClickListener(v -> {
-                            String c = holder.etComment.getText().toString().trim();
-                            if (!c.isEmpty()) {
-                                postComment(postId, c, null, holder);
-                            }
-                        });
-                    });
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    private void updateCommentCount(String postId, PostViewHolder holder, List<Comment> comments) {
-        Post post = getPostById(postId);
-        if (post != null && post.getCommentCount() > 0) {
-            holder.commentCount.setText(String.valueOf(post.getCommentCount()));
-            return;
-        }
-
-        holder.commentCount.setText(String.valueOf(estimateVisibleCommentCount(comments)));
-    }
-
-    private int estimateVisibleCommentCount(List<Comment> comments) {
-        if (comments == null || comments.isEmpty()) {
-            return 0;
-        }
-
-        int count = comments.size();
-        for (Comment comment : comments) {
-            if (comment == null) {
-                continue;
-            }
-
-            if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
-                count += estimateVisibleCommentCount(comment.getReplies());
-            } else {
-                count += Math.max(comment.getReplyCount(), 0);
-            }
-        }
-        return count;
-    }
-
-    private Post getPostById(String postId) {
-        if (postList == null) {
-            return null;
-        }
-
-        for (Post post : postList) {
-            if (post != null && postId.equals(post.getId())) {
-                return post;
-            }
-        }
-
-        return null;
     }
 
     private void handleReaction(Post post, String type, PostViewHolder holder) {
@@ -329,13 +255,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     static class PostViewHolder extends RecyclerView.ViewHolder {
-        TextView title, content, userName, postTime, price, likeCount, dislikeCount, commentCount, btnPostComment;
-        ImageView image, ivLike, ivDislike, ivMyAvatar;
+        TextView title, content, userName, postTime, price, likeCount, dislikeCount, commentCount;
+        ImageView image, ivLike, ivDislike;
         ShapeableImageView userAvatar;
         ImageButton btnDetails;
-        View btnLike, btnDislike, btnCommentContainer, commentSection;
-        RecyclerView rvComments;
-        EditText etComment;
+        View btnLike, btnDislike, btnCommentContainer;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -358,12 +282,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             
             ivLike = itemView.findViewById(R.id.ivLike);
             ivDislike = itemView.findViewById(R.id.ivDislike);
-            
-            commentSection = itemView.findViewById(R.id.commentSection);
-            rvComments = itemView.findViewById(R.id.rvComments);
-            etComment = itemView.findViewById(R.id.etComment);
-            btnPostComment = itemView.findViewById(R.id.btnPostComment);
-            ivMyAvatar = itemView.findViewById(R.id.ivMyAvatar);
         }
     }
 }

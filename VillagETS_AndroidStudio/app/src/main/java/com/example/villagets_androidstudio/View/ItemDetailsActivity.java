@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
@@ -15,17 +17,30 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import com.example.villagets_androidstudio.Model.Comment;
 import com.example.villagets_androidstudio.Model.Dao.PostDao;
 import com.example.villagets_androidstudio.Model.User;
 import com.example.villagets_androidstudio.R;
+import com.google.android.material.imageview.ShapeableImageView;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ItemDetailsActivity extends AppCompatActivity {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private String postId;
+    private EditText etComment;
+    private TextView btnPostComment;
+    private TextView tvCommentsTitle;
+    private RecyclerView rvComments;
+    private View commentsSection;
+    private ScrollView detailsScrollView;
+    private ShapeableImageView ivMyAvatar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +57,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
-        String postId = getIntent().getStringExtra("postId");
+        postId = getIntent().getStringExtra("postId");
         String title = getIntent().getStringExtra("title");
         String description = getIntent().getStringExtra("description");
         String price = getIntent().getStringExtra("price");
@@ -50,6 +65,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
         String posterName = getIntent().getStringExtra("posterName");
         String posterAvatarUrl = getIntent().getStringExtra("posterAvatarUrl");
         String posterId = getIntent().getStringExtra("posterId");
+        boolean openComments = getIntent().getBooleanExtra("openComments", false);
 
         TextView tvTitle = findViewById(R.id.tvItemTitle);
         TextView tvDescriptionContent = findViewById(R.id.tvItemDescriptionContent);
@@ -59,6 +75,13 @@ public class ItemDetailsActivity extends AppCompatActivity {
         ImageView ivPosterAvatar = findViewById(R.id.ivPosterAvatar);
         AppCompatButton btnContactSeller = findViewById(R.id.btnContactSeller);
         ImageButton btnDeletePost = findViewById(R.id.btnDeletePost);
+        detailsScrollView = findViewById(R.id.detailsScrollView);
+        commentsSection = findViewById(R.id.commentsSection);
+        tvCommentsTitle = findViewById(R.id.tvCommentsTitle);
+        ivMyAvatar = findViewById(R.id.ivMyAvatar);
+        etComment = findViewById(R.id.etComment);
+        btnPostComment = findViewById(R.id.btnPostComment);
+        rvComments = findViewById(R.id.rvComments);
         User currentUser = User.loadUser(this);
 
         tvTitle.setText(title);
@@ -117,6 +140,107 @@ public class ItemDetailsActivity extends AppCompatActivity {
                 Log.e("ItemDetailsActivity", "posterId is null, cannot start conversation");
             }
         });
+
+        if (currentUser != null && currentUser.getPhotoProfil() != null && !currentUser.getPhotoProfil().trim().isEmpty()) {
+            String myAvatar = currentUser.getPhotoProfil().replace("localhost", "10.0.2.2");
+            Glide.with(this).load(myAvatar).placeholder(R.drawable.profile_placeholder).into(ivMyAvatar);
+        }
+
+        rvComments.setLayoutManager(new LinearLayoutManager(this));
+        btnPostComment.setOnClickListener(v -> {
+            String content = etComment.getText().toString().trim();
+            if (!content.isEmpty()) {
+                postComment(content, null);
+            }
+        });
+
+        loadComments();
+
+        if (openComments) {
+            commentsSection.post(() -> detailsScrollView.smoothScrollTo(0, commentsSection.getTop()));
+        }
+    }
+
+    private void loadComments() {
+        if (postId == null || postId.trim().isEmpty()) {
+            tvCommentsTitle.setText("Comments");
+            return;
+        }
+
+        executorService.execute(() -> {
+            try {
+                List<Comment> comments = PostDao.getPostComments(postId);
+                runOnUiThread(() -> {
+                    setupCommentsRecyclerView(comments);
+                    tvCommentsTitle.setText("Comments (" + estimateVisibleCommentCount(comments) + ")");
+                });
+            } catch (IOException e) {
+                runOnUiThread(() -> Toast.makeText(this, "Unable to load comments", Toast.LENGTH_SHORT).show());
+            }
+        });
+    }
+
+    private void setupCommentsRecyclerView(List<Comment> comments) {
+        CommentAdapter adapter = new CommentAdapter(parentComment -> {
+            etComment.requestFocus();
+            etComment.setHint("Replying to " + (parentComment.getOp() != null ? parentComment.getOp().getPseudo() : "User") + "...");
+            btnPostComment.setOnClickListener(v -> {
+                String content = etComment.getText().toString().trim();
+                if (!content.isEmpty()) {
+                    postComment(content, parentComment.getId());
+                }
+            });
+        });
+        rvComments.setAdapter(adapter);
+        adapter.setComments(comments);
+    }
+
+    private void postComment(String content, String parentId) {
+        if (postId == null || postId.trim().isEmpty()) {
+            Toast.makeText(this, "Unable to post comment", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        executorService.execute(() -> {
+            try {
+                Comment newComment = PostDao.createComment(postId, content, parentId);
+                if (newComment != null) {
+                    runOnUiThread(() -> {
+                        etComment.setText("");
+                        etComment.setHint("Write a comment...");
+                        btnPostComment.setOnClickListener(v -> {
+                            String newContent = etComment.getText().toString().trim();
+                            if (!newContent.isEmpty()) {
+                                postComment(newContent, null);
+                            }
+                        });
+                        loadComments();
+                    });
+                }
+            } catch (IOException e) {
+                runOnUiThread(() -> Toast.makeText(this, "Unable to post comment", Toast.LENGTH_SHORT).show());
+            }
+        });
+    }
+
+    private int estimateVisibleCommentCount(List<Comment> comments) {
+        if (comments == null || comments.isEmpty()) {
+            return 0;
+        }
+
+        int count = comments.size();
+        for (Comment comment : comments) {
+            if (comment == null) {
+                continue;
+            }
+
+            if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
+                count += estimateVisibleCommentCount(comment.getReplies());
+            } else {
+                count += Math.max(comment.getReplyCount(), 0);
+            }
+        }
+        return count;
     }
 
     private void confirmDeletePost(String postId) {
