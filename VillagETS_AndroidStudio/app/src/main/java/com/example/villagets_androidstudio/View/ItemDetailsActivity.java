@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -56,7 +57,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
         ImageView ivPhoto = findViewById(R.id.ivItemPhoto);
         TextView tvPosterName = findViewById(R.id.tvPosterName);
         ImageView ivPosterAvatar = findViewById(R.id.ivPosterAvatar);
-        View btnContactSeller = findViewById(R.id.btnContactSeller);
+        AppCompatButton btnContactSeller = findViewById(R.id.btnContactSeller);
         ImageButton btnDeletePost = findViewById(R.id.btnDeletePost);
         User currentUser = User.loadUser(this);
 
@@ -71,6 +72,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                 && postId != null
                 && !postId.trim().isEmpty();
         btnDeletePost.setVisibility(isAuthor ? View.VISIBLE : View.GONE);
+        btnContactSeller.setVisibility(isAuthor ? View.GONE : View.VISIBLE);
 
         if (posterAvatarUrl != null && !posterAvatarUrl.isEmpty()) {
             String avatarUrl = posterAvatarUrl.replace("localhost", "10.0.2.2");
