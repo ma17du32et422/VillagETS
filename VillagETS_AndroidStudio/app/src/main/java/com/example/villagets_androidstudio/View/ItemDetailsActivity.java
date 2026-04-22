@@ -45,6 +45,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
         ImageView ivPhoto = findViewById(R.id.ivItemPhoto);
         TextView tvPosterName = findViewById(R.id.tvPosterName);
         ImageView ivPosterAvatar = findViewById(R.id.ivPosterAvatar);
+        View btnContactSeller = findViewById(R.id.btnContactSeller);
 
         tvTitle.setText(title);
         tvDescriptionContent.setText(description);
@@ -81,5 +82,16 @@ public class ItemDetailsActivity extends AppCompatActivity {
         } else {
             ivPhoto.setVisibility(View.GONE);
         }
+
+        btnContactSeller.setOnClickListener(v -> {
+            if (posterId != null) {
+                Intent intent = new Intent(this, MessageActivity.class);
+                intent.putExtra("receiverId", posterId);
+                intent.putExtra("userName", posterName);
+                startActivity(intent);
+            } else {
+                Log.e("ItemDetailsActivity", "posterId is null, cannot start conversation");
+            }
+        });
     }
 }
