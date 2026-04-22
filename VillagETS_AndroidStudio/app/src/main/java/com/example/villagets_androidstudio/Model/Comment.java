@@ -1,5 +1,6 @@
 package com.example.villagets_androidstudio.Model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
@@ -9,8 +10,10 @@ public class Comment {
     private String contenu;
     private String dateCommentaire;
     private User op;
+    @JsonAlias({"parentCommentaire", "parentCommentaireId"})
     private String parentCommentaireId;
     private List<Comment> replies;
+    @JsonAlias({"nbReponses", "replyCount"})
     private int replyCount;
     private boolean isExpanded = false;
 

@@ -163,7 +163,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 List<Comment> comments = PostDao.getPostComments(postId);
                 holder.itemView.post(() -> {
                     setupCommentsRecyclerView(postId, holder, comments);
-                    holder.commentCount.setText(String.valueOf(comments.size()));
+                    updateCommentCount(postId, holder, comments);
                 });
             } catch (IOException e) {
                 e.printStackTrace();
@@ -194,6 +194,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 Comment newComment = PostDao.createComment(postId, content, parentId);
                 if (newComment != null) {
                     holder.itemView.post(() -> {
+                        Post post = getPostById(postId);
+                        if (post != null) {
+                            post.setCommentCount(post.getCommentCount() + 1);
+                            holder.commentCount.setText(String.valueOf(post.getCommentCount()));
+                        }
                         holder.etComment.setText("");
                         holder.etComment.setHint("Write a comment...");
                         loadComments(postId, holder);
@@ -210,6 +215,50 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 e.printStackTrace();
             }
         });
+    }
+
+    private void updateCommentCount(String postId, PostViewHolder holder, List<Comment> comments) {
+        Post post = getPostById(postId);
+        if (post != null && post.getCommentCount() > 0) {
+            holder.commentCount.setText(String.valueOf(post.getCommentCount()));
+            return;
+        }
+
+        holder.commentCount.setText(String.valueOf(estimateVisibleCommentCount(comments)));
+    }
+
+    private int estimateVisibleCommentCount(List<Comment> comments) {
+        if (comments == null || comments.isEmpty()) {
+            return 0;
+        }
+
+        int count = comments.size();
+        for (Comment comment : comments) {
+            if (comment == null) {
+                continue;
+            }
+
+            if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
+                count += estimateVisibleCommentCount(comment.getReplies());
+            } else {
+                count += Math.max(comment.getReplyCount(), 0);
+            }
+        }
+        return count;
+    }
+
+    private Post getPostById(String postId) {
+        if (postList == null) {
+            return null;
+        }
+
+        for (Post post : postList) {
+            if (post != null && postId.equals(post.getId())) {
+                return post;
+            }
+        }
+
+        return null;
     }
 
     private void handleReaction(Post post, String type, PostViewHolder holder) {
