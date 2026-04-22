@@ -33,6 +33,9 @@ public interface PostApi {
     @GET("/posts/{id}")
     Call<Post> getPostById(@Path("id") String id);
 
+    @GET("/user/{id}/posts")
+    Call<List<Post>> getUserPosts(@Path("id") String userId);
+
     @Multipart
     @POST("/upload")
     Call<Map<String, String>> uploadFile(

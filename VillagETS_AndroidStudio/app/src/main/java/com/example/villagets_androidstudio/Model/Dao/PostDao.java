@@ -16,6 +16,8 @@ import okhttp3.RequestBody;
 import retrofit2.Response;
 
 public class PostDao {
+    private static final PostApi api = RetrofitClient.getInstance().create(PostApi.class);
+
     public static List<Post> getAllPosts(boolean isMarketplace) throws IOException, JSONException {
         try {
             HttpJsonService service = new HttpJsonService();
@@ -30,9 +32,16 @@ public class PostDao {
         return new ArrayList<>();
     }
 
+    public static List<Post> getUserPosts(String userId) throws IOException {
+        Response<List<Post>> response = api.getUserPosts(userId).execute();
+        if (response.isSuccessful()) {
+            return response.body();
+        }
+        return new ArrayList<>();
+    }
+
     public static Post createPost(Post post) throws IOException {
-        PostApi postApi = RetrofitClient.getInstance().create(PostApi.class);
-        Response<Post> response = postApi.createPost(post).execute();
+        Response<Post> response = api.createPost(post).execute();
         if (response.isSuccessful()) {
             return response.body();
         }
@@ -40,7 +49,6 @@ public class PostDao {
     }
 
     public static String uploadFile(File file, String nom, String type) throws IOException {
-        PostApi api = RetrofitClient.getInstance().create(PostApi.class);
         RequestBody requestFile = RequestBody.create(MediaType.parse(type), file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
         

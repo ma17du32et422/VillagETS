@@ -48,10 +48,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         
         String posterName = "User Name";
         String posterAvatarUrl = null;
+        String posterId = null;
         
         if (post.getOp() != null) {
             posterName = post.getOp().getPseudo();
             posterAvatarUrl = post.getOp().getPhotoProfil();
+            posterId = post.getOp().getId();
+            
             holder.userName.setText(posterName);
             if (posterAvatarUrl != null) {
                 String avatarUrl = posterAvatarUrl.replace("localhost", "10.0.2.2");
@@ -59,6 +62,16 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             } else {
                 holder.userAvatar.setImageDrawable(null);
             }
+
+            final String finalPosterId = posterId;
+            View.OnClickListener toProfile = v -> {
+                Intent intent = new Intent(v.getContext(), ProfileActivity.class);
+                intent.putExtra("userId", finalPosterId);
+                v.getContext().startActivity(intent);
+            };
+
+            holder.userName.setOnClickListener(toProfile);
+            holder.userAvatar.setOnClickListener(toProfile);
         }
         
         if (post.getDatePublication() != null) {
@@ -79,6 +92,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         final String finalPosterName = posterName;
         final String finalPosterAvatarUrl = posterAvatarUrl;
+        final String finalPosterId = posterId;
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), ItemDetailsActivity.class);
@@ -88,6 +102,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             intent.putExtra("imageUrl", imageUrl);
             intent.putExtra("posterName", finalPosterName);
             intent.putExtra("posterAvatarUrl", finalPosterAvatarUrl);
+            intent.putExtra("posterId", finalPosterId);
             v.getContext().startActivity(intent);
         });
     }

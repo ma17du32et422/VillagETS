@@ -43,6 +43,17 @@ public class PostViewModel extends ViewModel {
         });
     }
 
+    public void chargerUserPosts(String userId) {
+        executorService.execute(() -> {
+            try {
+                List<Post> posts = PostDao.getUserPosts(userId);
+                postsLiveData.postValue(posts);
+            } catch (IOException e) {
+                message.postValue("Erreur lors du chargement des posts : " + e.getMessage());
+            }
+        });
+    }
+
     public void creerPost(android.content.Context context, Post post, android.net.Uri imageUri) {
         executorService.execute(() -> {
             try {

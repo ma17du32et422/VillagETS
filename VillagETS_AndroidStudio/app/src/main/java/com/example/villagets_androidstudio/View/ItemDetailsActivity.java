@@ -59,17 +59,28 @@ public class ItemDetailsActivity extends AppCompatActivity {
             ivPosterAvatar.setImageDrawable(null);
         }
 
+        View.OnClickListener toProfile = v -> {
+            if (posterId != null) {
+                Intent intent = new Intent(this, ProfileActivity.class);
+                intent.putExtra("userId", posterId);
+                startActivity(intent);
+            }
+        };
+
+        tvPosterName.setOnClickListener(toProfile);
+        ivPosterAvatar.setOnClickListener(toProfile);
+
         if (imageUrl != null && !imageUrl.isEmpty()) {
             String finalUrl = imageUrl;
             if (finalUrl.contains("localhost")) {
-                finalUrl = finalUrl.replace("localhost", "apivillagets.lesageserveur.com");
+                finalUrl = finalUrl.replace("localhost", "10.0.2.2");
             }
             
             Glide.with(this)
                     .load(finalUrl)
                     .into(ivPhoto);
         } else {
-            ivPhoto.setImageDrawable(null);
+            ivPhoto.setVisibility(View.GONE);
         }
 
         btnContactSeller.setOnClickListener(v -> {
