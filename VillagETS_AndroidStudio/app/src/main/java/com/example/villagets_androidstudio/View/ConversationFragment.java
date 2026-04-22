@@ -1,7 +1,10 @@
 package com.example.villagets_androidstudio.View;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,6 +25,8 @@ public class ConversationFragment extends Fragment {
     private RecyclerView recyclerView;
     private ChatViewModel chatViewModel;
     private ConversationAdapter adapter;
+    private EditText etNewConversationId;
+    private Button btnStartNewChat;
 
     public ConversationFragment() {
         super(R.layout.fragment_conversation);
@@ -32,6 +37,9 @@ public class ConversationFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         recyclerView = view.findViewById(R.id.recyclerViewConversations);
+        etNewConversationId = view.findViewById(R.id.etNewConversationId);
+        btnStartNewChat = view.findViewById(R.id.btnStartNewChat);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
@@ -48,6 +56,18 @@ public class ConversationFragment extends Fragment {
             }
         });
 
+        btnStartNewChat.setOnClickListener(v -> {
+            String targetId = etNewConversationId.getText().toString().trim();
+            if (!targetId.isEmpty()) {
+                Intent intent = new Intent(getContext(), MessageActivity.class);
+                intent.putExtra("receiverId", targetId);
+                intent.putExtra("userName", "Utilisateur " + targetId);
+                startActivity(intent);
+            } else {
+                Toast.makeText(getContext(), "Veuillez entrer un ID", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         chatViewModel.loadConversations();
     }
 
@@ -61,11 +81,16 @@ public class ConversationFragment extends Fragment {
 
         for (int i = 0; i < size; i++) {
             Conversation conv = conversations.get(i);
-            userNames[i] = conv.getOtherUser().getPrenom() + " " + conv.getOtherUser().getNom();
-            lastMessages[i] = ""; // L'objet Conversation ne semble pas avoir le dernier message dans le Model fourni
+            if (conv.getOtherUser() != null) {
+                userNames[i] = conv.getOtherUser().getPrenom() + " " + conv.getOtherUser().getNom();
+                receiverIds[i] = conv.getOtherUser().getId_utilisateur();
+            } else {
+                userNames[i] = "Inconnu";
+                receiverIds[i] = "";
+            }
+            lastMessages[i] = "";
             times[i] = "";
-            avatarResIds[i] = R.drawable.profile_placeholder; // Utilisation d'un placeholder
-            receiverIds[i] = conv.getOtherUser().getId_utilisateur();
+            avatarResIds[i] = R.drawable.profile_placeholder;
         }
 
         adapter = new ConversationAdapter(userNames, lastMessages, times, avatarResIds, receiverIds);
