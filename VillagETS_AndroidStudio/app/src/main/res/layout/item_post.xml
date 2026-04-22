@@ -55,7 +55,7 @@
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_more_vert"
-            app:tint="@color/text_secondary" />
+            app:tint="@color/red_primary" />
     </LinearLayout>
 
     <TextView
@@ -76,18 +76,19 @@
         android:layout_marginTop="4dp"
         android:fontFamily="@font/delta_medium"
         android:text="Cost"
-        android:textColor="@color/gray_inactive"
+        android:textColor="@color/red_primary"
         android:textSize="22sp"
         android:textStyle="bold" />
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/postImage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:shapeAppearanceOverlay="@style/RoundedImageAppearance" />
 
     <TextView
         android:id="@+id/postContent"
@@ -107,6 +108,7 @@
         android:orientation="horizontal">
 
         <LinearLayout
+            android:id="@+id/btnLikeContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
@@ -117,6 +119,7 @@
             android:paddingVertical="8dp">
 
             <ImageView
+                android:id="@+id/ivLike"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/arrow_up" />
@@ -126,12 +129,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="2"
+                android:text="-1"
                 android:textColor="@color/black"
                 android:textSize="16sp" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/btnDislikeContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
@@ -142,6 +146,7 @@
             android:paddingVertical="8dp">
 
             <ImageView
+                android:id="@+id/ivDislike"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:rotation="180"
@@ -152,12 +157,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="0"
+                android:text="-1"
                 android:textColor="@color/black"
                 android:textSize="16sp" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/btnCommentContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/solid_border"
@@ -167,6 +173,7 @@
             android:paddingVertical="8dp">
 
             <ImageView
+                android:id="@+id/ivComment"
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/msg" />
@@ -176,10 +183,70 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="3"
+                android:text="-1"
                 android:textColor="@color/black"
                 android:textSize="16sp" />
         </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/commentSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#EEEEEE" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingVertical="12dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivMyAvatar"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:scaleType="centerCrop"
+                app:shapeAppearanceOverlay="@style/CircleImageAppearance"
+                android:src="@drawable/profile_placeholder" />
+
+            <EditText
+                android:id="@+id/etComment"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:hint="Write a comment..."
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/btnPostComment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/rounded_gray_header"
+                android:backgroundTint="@color/white"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:text="Post"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:elevation="1dp"/>
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvComments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false" />
     </LinearLayout>
 
     <View

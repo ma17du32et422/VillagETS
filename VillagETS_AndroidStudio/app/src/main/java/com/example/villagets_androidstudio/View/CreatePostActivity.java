@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -15,7 +16,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.villagets_androidstudio.Model.Post;
@@ -29,8 +29,8 @@ import java.util.List;
 
 public class CreatePostActivity extends AppCompatActivity {
 
-    private EditText etTitle, etTags, etContent, etPrice;
-    private SwitchCompat switchMarketplace;
+    private EditText etTitle, etContent, etPrice;
+    private CheckBox switchMarketplace;
     private Button btnPost, btnCancel;
     private LinearLayout uploadPlaceholder;
     private FrameLayout btnUploadPhotos;
@@ -59,7 +59,6 @@ public class CreatePostActivity extends AppCompatActivity {
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         etTitle = findViewById(R.id.etPostTitle);
-        etTags = findViewById(R.id.etPostTags);
         etContent = findViewById(R.id.etPostContent);
         etPrice = findViewById(R.id.etPostPrice);
         switchMarketplace = findViewById(R.id.switchMarketplace);
@@ -83,7 +82,10 @@ public class CreatePostActivity extends AppCompatActivity {
 
         switchMarketplace.setOnCheckedChangeListener((buttonView, isChecked) -> {
             etPrice.setEnabled(isChecked);
-            if (!isChecked) {
+            if (isChecked) {
+                etPrice.setVisibility(View.VISIBLE);
+            } else {
+                etPrice.setVisibility(View.GONE);
                 etPrice.setText("");
             }
         });
@@ -99,7 +101,6 @@ public class CreatePostActivity extends AppCompatActivity {
             String content = etContent.getText().toString().trim();
             boolean isMarketplace = switchMarketplace.isChecked();
             String priceStr = etPrice.getText().toString().trim();
-            String tagsStr = etTags.getText().toString().trim();
             
             if (title.isEmpty() || content.isEmpty()) {
                 Toast.makeText(this, "Please fill in title and content", Toast.LENGTH_SHORT).show();
@@ -115,11 +116,6 @@ public class CreatePostActivity extends AppCompatActivity {
             newPost.setTitre(title);
             newPost.setContenu(content);
             newPost.setArticleAVendre(isMarketplace);
-
-            if (!tagsStr.isEmpty()) {
-                String[] parts = tagsStr.split(",");
-                newPost.setCategorie(parts[0].trim());
-            }
 
             if (isMarketplace) {
                 try {

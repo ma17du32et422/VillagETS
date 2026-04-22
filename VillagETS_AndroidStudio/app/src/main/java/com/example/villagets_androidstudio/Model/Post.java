@@ -19,6 +19,11 @@ public class Post {
     private Double prix;
     private boolean articleAVendre;
     private Author op;
+    
+    private int likes;
+    private int dislikes;
+    private int commentCount;
+    private String userReaction; // "like", "dislike" or null
 
     public static class Author {
         private String id;
@@ -63,4 +68,16 @@ public class Post {
 
     public Author getOp() { return op; }
     public void setOp(Author op) { this.op = op; }
+
+    public int getLikes() { return likes; }
+    public void setLikes(int likes) { this.likes = likes; }
+
+    public int getDislikes() { return dislikes; }
+    public void setDislikes(int dislikes) { this.dislikes = dislikes; }
+
+    public int getCommentCount() { return commentCount; }
+    public void setCommentCount(int commentCount) { this.commentCount = commentCount; }
+
+    public String getUserReaction() { return userReaction; }
+    public void setUserReaction(String userReaction) { this.userReaction = userReaction; }
 }
