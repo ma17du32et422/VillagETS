@@ -16,12 +16,14 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     private String[] lastMessages;
     private String[] times;
     private Integer[] avatarResIds;
+    private String[] receiverIds;
 
-    public ConversationAdapter(String[] userNames, String[] lastMessages, String[] times, Integer[] avatarResIds) {
+    public ConversationAdapter(String[] userNames, String[] lastMessages, String[] times, Integer[] avatarResIds, String[] receiverIds) {
         this.userNames = userNames;
         this.lastMessages = lastMessages;
         this.times = times;
         this.avatarResIds = avatarResIds;
+        this.receiverIds = receiverIds;
     }
 
     @NonNull
@@ -34,6 +36,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     @Override
     public void onBindViewHolder(@NonNull ConversationViewHolder holder, int position) {
         String name = userNames[position];
+        String receiverId = receiverIds[position];
         holder.userName.setText(name);
         holder.lastMessage.setText(lastMessages[position]);
         holder.messageTime.setText(times[position]);
@@ -42,6 +45,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), MessageActivity.class);
             intent.putExtra("userName", name);
+            intent.putExtra("receiverId", receiverId);
             v.getContext().startActivity(intent);
         });
     }
