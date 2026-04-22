@@ -22,6 +22,7 @@ public class Post {
     
     private int likes;
     private int dislikes;
+    @JsonAlias({"commentaires", "commentCount"})
     private int commentCount;
     private String userReaction; // "like", "dislike" or null
 
