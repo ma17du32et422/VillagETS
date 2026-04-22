@@ -16,13 +16,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.villagets_androidstudio.R;
 import com.example.villagets_androidstudio.View_Model.PostViewModel;
+import com.example.villagets_androidstudio.View_Model.UserViewModel;
+import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
 
 public class SearchFragment extends Fragment {
 
     private PostViewModel postViewModel;
+    private UserViewModel userViewModel;
     private PostAdapter postAdapter;
+    private UserSearchAdapter userAdapter;
     private TextInputEditText etSearch;
+    private TabLayout tabLayout;
+    private RecyclerView recyclerView;
 
     public SearchFragment() {
     }
@@ -38,15 +44,29 @@ public class SearchFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         etSearch = view.findViewById(R.id.etSearch);
-        RecyclerView recyclerView = view.findViewById(R.id.recyclerViewResults);
+        tabLayout = view.findViewById(R.id.tabLayoutSearch);
+        recyclerView = view.findViewById(R.id.recyclerViewResults);
 
         postAdapter = new PostAdapter();
+        userAdapter = new UserSearchAdapter();
+        
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        // Par défaut on affiche l'adaptateur de posts
         recyclerView.setAdapter(postAdapter);
 
         postViewModel = new ViewModelProvider(this).get(PostViewModel.class);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
         postViewModel.getPostsLiveData().observe(getViewLifecycleOwner(), posts -> {
-            postAdapter.setPosts(posts);
+            if (tabLayout.getSelectedTabPosition() == 0) {
+                postAdapter.setPosts(posts);
+            }
+        });
+
+        userViewModel.getSearchResultsLiveData().observe(getViewLifecycleOwner(), users -> {
+            if (tabLayout.getSelectedTabPosition() == 1) {
+                userAdapter.setUsers(users);
+            }
         });
 
         etSearch.addTextChangedListener(new TextWatcher() {
@@ -55,16 +75,40 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String query = s.toString().trim();
-                // On recherche dans le feed global (isMarketplace = false par défaut pour la recherche générale)
-                postViewModel.rechercherPosts(query, null, false);
+                performSearch(s.toString().trim());
             }
 
             @Override
             public void afterTextChanged(Editable s) {}
         });
 
-        // Charger les posts initiaux (vide ou tout le feed)
-        postViewModel.rechercherPosts("", null, false);
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 0) {
+                    recyclerView.setAdapter(postAdapter);
+                } else {
+                    recyclerView.setAdapter(userAdapter);
+                }
+                performSearch(etSearch.getText().toString().trim());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
+        });
+
+        // Recherche initiale
+        performSearch("");
+    }
+
+    private void performSearch(String query) {
+        if (tabLayout.getSelectedTabPosition() == 0) {
+            postViewModel.rechercherPosts(query, null, false);
+        } else {
+            userViewModel.searchUsers(query);
+        }
     }
 }

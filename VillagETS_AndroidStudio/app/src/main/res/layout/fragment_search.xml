@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:orientation="vertical">
 
     <com.google.android.material.textfield.TextInputLayout
@@ -12,15 +13,39 @@
         android:layout_height="wrap_content"
         android:layout_margin="12dp"
         app:startIconDrawable="@drawable/search"
-        app:hintEnabled="false">
+        app:hintEnabled="false"
+        android:textColorHint="@color/text_secondary"
+        app:hintTextColor="@color/red_primary"
+        app:boxStrokeColor="@color/red_primary">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etSearch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/recherche"
+            android:textColor="@color/text_primary"
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayoutSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/background"
+        app:tabTextColor="@color/text_secondary"
+        app:tabSelectedTextColor="@color/red_primary"
+        app:tabIndicatorColor="@color/red_primary">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="POSTS" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="USERS" />
+    </com.google.android.material.tabs.TabLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewResults"

@@ -85,4 +85,12 @@ public class UserDao {
         Response<Void> response = api.updatePhoto(body).execute();
         return response.isSuccessful();
     }
+
+    public List<User> searchUsers(String query) throws IOException {
+        Response<List<User>> response = api.searchUsers(query).execute();
+        if (response.isSuccessful()) {
+            return response.body();
+        }
+        return null;
+    }
 }

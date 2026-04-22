@@ -13,6 +13,7 @@ import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface UserApi {
     @GET("/users")
@@ -50,4 +51,7 @@ public interface UserApi {
 
     @GET("/me")
     Call<User> getMe();
+
+    @GET("/user/search")
+    Call<List<User>> searchUsers(@Query("query") String query);
 }

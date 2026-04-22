@@ -8,11 +8,13 @@ import com.example.villagets_androidstudio.Model.Dao.UserDao;
 import com.example.villagets_androidstudio.Model.User;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class UserViewModel extends ViewModel {
     private final MutableLiveData<User> userLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<User>> searchResultsLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<Boolean> signupSuccess = new MutableLiveData<>();
     private final MutableLiveData<Boolean> updateSuccess = new MutableLiveData<>();
@@ -21,6 +23,10 @@ public class UserViewModel extends ViewModel {
 
     public LiveData<User> getUserLiveData() {
         return userLiveData;
+    }
+
+    public LiveData<List<User>> getSearchResultsLiveData() {
+        return searchResultsLiveData;
     }
 
     public LiveData<String> getErrorMessage() {
@@ -180,6 +186,17 @@ public class UserViewModel extends ViewModel {
                 if (!success) errorMessage.postValue("Erreur lors de la mise à jour de la photo");
             } catch (IOException e) {
                 errorMessage.postValue("Erreur réseau : " + e.getMessage());
+            }
+        });
+    }
+
+    public void searchUsers(String query) {
+        executorService.execute(() -> {
+            try {
+                List<User> results = userDao.searchUsers(query);
+                searchResultsLiveData.postValue(results);
+            } catch (IOException e) {
+                errorMessage.postValue("Erreur de recherche : " + e.getMessage());
             }
         });
     }
