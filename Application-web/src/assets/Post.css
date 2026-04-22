@@ -158,6 +158,20 @@
     display: block;
 }
 
+.image-unavailable {
+    min-width: 50%;
+    min-height: 50%;
+    max-width: 75%;
+    max-height: 75%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-3);
+    color: var(--color-4);
+    font-size: 1rem;
+    border-radius: 8px;
+}
+
 .media-arrow {
     position: absolute;
     top: 50%;

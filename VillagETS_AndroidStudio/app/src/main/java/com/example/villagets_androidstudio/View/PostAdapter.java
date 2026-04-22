@@ -315,7 +315,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     private void updateReactionUI(PostViewHolder holder, String reaction) {
         int activeColor = holder.itemView.getContext().getResources().getColor(R.color.red_primary);
-        int inactiveColor = holder.itemView.getContext().getResources().getColor(R.color.black);
+        // Utilisation de text_primary au lieu de black pour supporter le mode sombre
+        int inactiveColor = holder.itemView.getContext().getResources().getColor(R.color.text_primary);
         
         holder.ivLike.setColorFilter("like".equals(reaction) ? activeColor : inactiveColor);
         holder.ivDislike.setColorFilter("dislike".equals(reaction) ? activeColor : inactiveColor);
