@@ -10,6 +10,7 @@ const normalizeUser = (profile, fallbackUserId) => ({
   nom: profile?.nom ?? '',
   prenom: profile?.prenom ?? '',
   photoProfil: profile?.photoProfil ?? '',
+  deleted: profile?.deleted === true,
 })
 
 const getFullName = (profile) => [profile?.prenom, profile?.nom].filter(Boolean).join(' ').trim()
@@ -118,7 +119,7 @@ export default function ProfilePreviewCard({ userId, initialUser, align = 'left'
       {discussionError && <p className="profile-preview-error">{discussionError}</p>}
 
       <div className="profile-preview-actions">
-        {!isOwnProfile && (
+        {!isOwnProfile && !profile.deleted && (
           <button
             type="button"
             className="profile-preview-button"

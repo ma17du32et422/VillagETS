@@ -48,7 +48,7 @@ namespace srv.Post
                 op = new
                 {
                     id = row.OpId,
-                    pseudo = row.OpPseudo,
+                    pseudo = GetDisplayPseudo(row.OpPseudo),
                     photoProfil = row.OpPhotoProfil
                 }
             };
@@ -182,7 +182,7 @@ namespace srv.Post
                 op = new
                 {
                     id = row.OpId,
-                    pseudo = row.OpPseudo,
+                    pseudo = GetDisplayPseudo(row.OpPseudo),
                     photoProfil = row.OpPhotoProfil
                 }
             }).ToList();
@@ -221,7 +221,7 @@ namespace srv.Post
                 op = new
                 {
                     id = row.OpId,
-                    pseudo = row.OpPseudo,
+                    pseudo = GetDisplayPseudo(row.OpPseudo),
                     photoProfil = row.OpPhotoProfil
                 }
             }).ToList();
@@ -240,6 +240,9 @@ namespace srv.Post
 
             return response.Models.ToList();
         }
+
+        private static string GetDisplayPseudo(string? pseudo) =>
+            string.IsNullOrWhiteSpace(pseudo) ? sql.Utilisateur.DeletedUserPseudo : pseudo;
 
     }
 

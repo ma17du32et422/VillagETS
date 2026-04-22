@@ -13,6 +13,7 @@ const normalizeUser = (profile, fallbackUserId) => ({
   nom: profile?.nom ?? '',
   prenom: profile?.prenom ?? '',
   photoProfil: profile?.photoProfil ?? '',
+  deleted: profile?.deleted === true,
 })
 
 const getFullName = (profile) => [profile?.prenom, profile?.nom].filter(Boolean).join(' ').trim()
@@ -28,7 +29,13 @@ function UserProfilePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [discussionError, setDiscussionError] = useState('')
+  const [deleteError, setDeleteError] = useState('')
+  const [deleteSuccess, setDeleteSuccess] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isWiping, setIsWiping] = useState(false)
   const isOwnProfile = user?.userId === userId
+  const canDeleteUser = user?.mainAdmin === true && !isOwnProfile && profile?.deleted !== true
+  const canWipeUser = user?.mainAdmin === true && !isOwnProfile
   const fullName = useMemo(() => getFullName(profile), [profile])
 
   useEffect(() => {
@@ -142,6 +149,76 @@ function UserProfilePage() {
     }
   }
 
+  const handleDeleteUser = async () => {
+    if (!canDeleteUser || isDeleting) return
+
+    const confirmed = window.confirm(`Delete ${profile?.pseudo || 'this user'}? Their posts will be removed and their comments, reactions, and messages will remain as [deleted user].`)
+    if (!confirmed) return
+
+    setDeleteError('')
+    setDeleteSuccess('')
+    setIsDeleting(true)
+
+    try {
+      const res = await fetch(`${getBaseUrl()}/user/${userId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+
+      if (!res.ok) {
+        const text = await res.text()
+        throw new Error(text || 'Failed to delete user.')
+      }
+
+      setProfile((current) => normalizeUser({
+        ...current,
+        pseudo: '[deleted user]',
+        nom: '',
+        prenom: '',
+        photoProfil: '',
+        deleted: true,
+      }, userId))
+      setPosts([])
+      setDeleteSuccess('User deleted.')
+    } catch (err) {
+      setDeleteError(err.message ?? 'Failed to delete user.')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const handleWipeUser = async () => {
+    if (!canWipeUser || isWiping) return
+
+    const confirmed = window.confirm(`Wipe ${profile?.pseudo || 'this user'} permanently? This removes their account, posts, comments, reactions, messages, and discussions.`)
+    if (!confirmed) return
+
+    setDeleteError('')
+    setDeleteSuccess('')
+    setIsWiping(true)
+
+    try {
+      const res = await fetch(`${getBaseUrl()}/user/${userId}/wipe`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+
+      if (!res.ok) {
+        const text = await res.text()
+        throw new Error(text || 'Failed to wipe user.')
+      }
+
+      setProfile(null)
+      setPosts([])
+      setError('User has been permanently deleted.')
+      setDeleteSuccess('User wiped.')
+    } catch (err) {
+      setDeleteError(err.message ?? 'Failed to wipe user.')
+    } finally {
+      setIsWiping(false)
+    }
+  }
+
   return (
       <main className="user-profile-page">
         <section className="user-profile-hero">
@@ -162,9 +239,31 @@ function UserProfilePage() {
                   <div className="user-profile-title-row">
                     <h2>{profile.pseudo || 'Unknown user'}</h2>
 
-                    {!isOwnProfile && (
+                    {!isOwnProfile && !profile.deleted && (
                       <button className="user-profile-discussion-button" type="button" onClick={handleBeginDiscussion}>
                         Begin Discussion
+                      </button>
+                    )}
+
+                    {canDeleteUser && (
+                      <button
+                        className="user-profile-delete-button"
+                        type="button"
+                        onClick={handleDeleteUser}
+                        disabled={isDeleting}
+                      >
+                        {isDeleting ? 'Deleting...' : 'Delete User'}
+                      </button>
+                    )}
+
+                    {canWipeUser && (
+                      <button
+                        className="user-profile-wipe-button"
+                        type="button"
+                        onClick={handleWipeUser}
+                        disabled={isWiping}
+                      >
+                        {isWiping ? 'Wiping...' : 'Wipe User'}
                       </button>
                     )}
                   </div>
@@ -176,9 +275,12 @@ function UserProfilePage() {
 
                   <div className="user-profile-details">
                     {profile.userId && <p>User ID: {profile.userId}</p>}
+                    {profile.deleted && <p>This account has been deleted.</p>}
                   </div>
 
                   {discussionError && <p className="profile-preview-error">{discussionError}</p>}
+                  {deleteError && <p className="profile-preview-error">{deleteError}</p>}
+                  {deleteSuccess && <p className="profile-preview-success">{deleteSuccess}</p>}
                 </div>
               </>
             )}

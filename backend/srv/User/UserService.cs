@@ -54,7 +54,7 @@ namespace srv
             var result = await PerfLogger.TimeAsync(_logger, "UserService.Login user lookup", () => _supabase.From<Utilisateur>().Where(u => u.Email == email).Get());
             var user = result.Models.FirstOrDefault();
 
-            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
+            if (user == null || user.DeletedAt.HasValue || !BCrypt.Net.BCrypt.Verify(password, user.Password))
                 throw new UnauthorizedAccessException("Invalid credentials");
 
             return user;
@@ -124,8 +124,55 @@ namespace srv
 
         public async Task<List<Utilisateur>> GetUserListFromPseudo(string query)
         {
-            var result = await PerfLogger.TimeAsync(_logger, "UserService.GetUserListFromPseudo user search", () => _supabase.From<Utilisateur>().Filter("pseudo", Operator.ILike, $"%{query}%").Get());
+            var result = await PerfLogger.TimeAsync(_logger, "UserService.GetUserListFromPseudo user search", () => _supabase
+                .From<Utilisateur>()
+                .Filter("deleted_at", Operator.Is, (string?)null)
+                .Filter("pseudo", Operator.ILike, $"%{query}%")
+                .Get());
             return result.Models.ToList();
+        }
+
+        public async Task<List<DeletedFileRpcRow>> DeleteUserByAdmin(string targetUserId, string requestUserId)
+        {
+            var targetUser = await EnsureAdminCanManageUser(targetUserId, requestUserId);
+            if (targetUser.DeletedAt.HasValue)
+                throw new InvalidOperationException("User is already deleted.");
+
+            if (!Guid.TryParse(targetUserId, out var rpcTargetUserId))
+                throw new ArgumentException("Invalid user id.", nameof(targetUserId));
+
+            var deletedEmail = $"d-{rpcTargetUserId:N}@del.ca";
+            var deletedPassword = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString("N"));
+            var deletedAt = DateTime.UtcNow;
+
+            var deletedFiles = await PerfLogger.TimeAsync(_logger, "UserService.DeleteUserByAdmin rpc delete_user_with_posts", () => _supabase.Rpc<List<DeletedFileRpcRow>>(
+                "delete_user_with_posts",
+                new Dictionary<string, object?>
+                {
+                    { "p_user_id", rpcTargetUserId },
+                    { "p_deleted_email", deletedEmail },
+                    { "p_deleted_password", deletedPassword },
+                    { "p_deleted_at", deletedAt }
+                }));
+
+            return deletedFiles ?? [];
+        }
+
+        public async Task<List<DeletedFileRpcRow>> WipeUserByAdmin(string targetUserId, string requestUserId)
+        {
+            _ = await EnsureAdminCanManageUser(targetUserId, requestUserId);
+
+            if (!Guid.TryParse(targetUserId, out var rpcTargetUserId))
+                throw new ArgumentException("Invalid user id.", nameof(targetUserId));
+
+            var deletedFiles = await PerfLogger.TimeAsync(_logger, "UserService.WipeUserByAdmin rpc wipe_user_and_files", () => _supabase.Rpc<List<DeletedFileRpcRow>>(
+                "wipe_user_and_files",
+                new Dictionary<string, object?>
+                {
+                    { "p_user_id", rpcTargetUserId }
+                }));
+
+            return deletedFiles ?? [];
         }
 
         private async Task<Utilisateur> GetRequiredUser(string userId)
@@ -137,5 +184,26 @@ namespace srv
 
             return result.Model ?? throw new KeyNotFoundException("User not found");
         }
+
+        private async Task<Utilisateur> EnsureAdminCanManageUser(string targetUserId, string requestUserId)
+        {
+            if (string.Equals(targetUserId, requestUserId, StringComparison.Ordinal))
+                throw new InvalidOperationException("Admins cannot delete their own account.");
+
+            var requestUser = await GetRequiredUser(requestUserId);
+            if (requestUser.DeletedAt.HasValue || requestUser.MainAdmin != true)
+                throw new UnauthorizedAccessException("Only admins can delete users.");
+
+            return await GetRequiredUser(targetUserId);
+        }
+    }
+
+    public class DeletedFileRpcRow
+    {
+        [Newtonsoft.Json.JsonProperty("id_fichier")]
+        public Guid? IdFichier { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("lien_fichier")]
+        public string? LienFichier { get; set; }
     }
 }

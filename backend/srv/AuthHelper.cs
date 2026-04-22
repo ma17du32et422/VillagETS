@@ -1,7 +1,9 @@
-﻿using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens;
+using sql;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+
 namespace villagets.Auth;
 
 public static class AuthHelper
@@ -42,7 +44,7 @@ public static class AuthHelper
         if (_key == null) throw new Exception("JwtHelper not initialized");
 
         try
-        { 
+        {
             var handler = new JwtSecurityTokenHandler();
             return handler.ValidateToken(token, new TokenValidationParameters
             {
@@ -55,12 +57,39 @@ public static class AuthHelper
                 ValidateLifetime = true
             }, out _);
         }
-        catch { return null; }
+        catch
+        {
+            return null;
+        }
     }
+
     public static ClaimsPrincipal? GetClaimsFromContext(HttpContext ctx)
     {
         var token = ctx.Request.Cookies["token"];
         if (token == null) return null;
         return ValidateToken(token);
+    }
+
+    public static async Task<Utilisateur?> GetAuthenticatedUserAsync(HttpContext ctx)
+    {
+        var principal = GetClaimsFromContext(ctx);
+        var userId = principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrWhiteSpace(userId))
+            return null;
+
+        var supabase = srv.SupabaseService.GetClient();
+        var result = await supabase
+            .From<Utilisateur>()
+            .Where(u => u.Id == userId)
+            .Get();
+
+        var user = result.Model;
+        return user == null || user.DeletedAt.HasValue ? null : user;
+    }
+
+    public static async Task<string?> GetAuthenticatedUserIdIfActiveAsync(HttpContext ctx)
+    {
+        var user = await GetAuthenticatedUserAsync(ctx);
+        return user?.Id;
     }
 }

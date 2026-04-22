@@ -6,6 +6,8 @@ namespace sql
     [Supabase.Postgrest.Attributes.Table("utilisateur")]
     public class Utilisateur : BaseModel
     {
+        public const string DeletedUserPseudo = "[deleted user]";
+
         [PrimaryKey("id_utilisateur")]
         public string? Id { get; set; }
 
@@ -36,14 +38,23 @@ namespace sql
         [Column("photo_profil")]
         public string? PhotoProfil { get; set; }
 
+        [Column("deleted_at")]
+        public DateTime? DeletedAt { get; set; }
+
+        public string GetDisplayPseudo() =>
+            DeletedAt.HasValue || string.IsNullOrWhiteSpace(Pseudo)
+                ? DeletedUserPseudo
+                : Pseudo!;
+
         public object ToJson() => new
         {
             id = Id,
-            pseudo = Pseudo,
-            nom = Nom,
-            prenom = Prenom,
-            photoProfil = PhotoProfil,
-            dateCreation = DateCreation
+            pseudo = GetDisplayPseudo(),
+            nom = DeletedAt.HasValue ? null : Nom,
+            prenom = DeletedAt.HasValue ? null : Prenom,
+            photoProfil = DeletedAt.HasValue ? null : PhotoProfil,
+            dateCreation = DateCreation,
+            deleted = DeletedAt.HasValue
         };
     }
 
@@ -95,8 +106,8 @@ namespace sql
             op = new
             {
                 id = user?.Id,
-                pseudo = user?.Pseudo,
-                photoProfil = user?.PhotoProfil
+                pseudo = user?.GetDisplayPseudo(),
+                photoProfil = user?.DeletedAt.HasValue == true ? null : user?.PhotoProfil
             }
         };
     }
@@ -135,8 +146,8 @@ namespace sql
             op = new
             {
                 id = user?.Id,
-                pseudo = user?.Pseudo,
-                photoProfil = user?.PhotoProfil
+                pseudo = user?.GetDisplayPseudo(),
+                photoProfil = user?.DeletedAt.HasValue == true ? null : user?.PhotoProfil
             }
         };
     }

@@ -20,14 +20,12 @@ namespace srv.Post
 
             app.MapPost("/post", async ([FromBody] PostCreateRequest publication, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetClaimsFromContext(ctx);
-                if (principal == null) return Results.Unauthorized();
-
-                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (currentUser == null) return Results.Unauthorized();
 
                 try
                 {
-                    var created = await postService.Create(publication, userId);
+                    var created = await postService.Create(publication, currentUser.Id!);
                     if (created is null) return Results.BadRequest("Failed to create post");
 
                     return Results.Ok(new
@@ -50,14 +48,12 @@ namespace srv.Post
 
             app.MapDelete("/post/{id}", async (int id, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetClaimsFromContext(ctx);
-                if (principal == null) return Results.Unauthorized();
-
-                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (currentUser == null) return Results.Unauthorized();
 
                 try
                 {
-                    var deleted = await postService.Delete(id, userId);
+                    var deleted = await postService.Delete(id, currentUser.Id!);
                     return deleted ? Results.Ok() : Results.NotFound("Publication not found");
                 }
                 catch (UnauthorizedAccessException)
@@ -68,10 +64,7 @@ namespace srv.Post
 
             app.MapPost("/feed", async ([FromBody] FeedQuery query, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetClaimsFromContext(ctx);
-                string? userId = null;
-                if (principal != null) userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!
-;
+                var userId = await AuthHelper.GetAuthenticatedUserIdIfActiveAsync(ctx);
 
                 var feed = await postService.GetFeed(userId, query);
 
@@ -80,9 +73,7 @@ namespace srv.Post
 
             app.MapGet("/user/{id}/posts", async (string id, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetClaimsFromContext(ctx);
-                string? currentUserId = null;
-                if (principal != null) currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+                var currentUserId = await AuthHelper.GetAuthenticatedUserIdIfActiveAsync(ctx);
 
                 var feed = await postService.GetPostsByUser(currentUserId, id);
 

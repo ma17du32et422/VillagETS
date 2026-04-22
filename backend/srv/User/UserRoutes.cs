@@ -73,18 +73,19 @@ namespace srv.User
                 return Results.Ok(new
                 {
                     userId = user.Id,
-                    pseudo = user.Pseudo,
-                    nom = user.Nom,
-                    prenom = user.Prenom,
-                    photoProfil = user.PhotoProfil
+                    pseudo = user.GetDisplayPseudo(),
+                    nom = user.DeletedAt.HasValue ? null : user.Nom,
+                    prenom = user.DeletedAt.HasValue ? null : user.Prenom,
+                    photoProfil = user.DeletedAt.HasValue ? null : user.PhotoProfil,
+                    deleted = user.DeletedAt.HasValue
                 });
             });
 
             app.MapPatch("/user/pseudo", async ([FromBody] UpdatePseudoRequest req, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetClaimsFromContext(ctx);
-                if (principal == null) return Results.Unauthorized();
-                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (currentUser == null) return Results.Unauthorized();
+                var userId = currentUser.Id!;
 
                 try
                 {
@@ -98,9 +99,9 @@ namespace srv.User
 
             app.MapPatch("/user/password", async ([FromBody] UpdatePasswordRequest req, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetClaimsFromContext(ctx);
-                if (principal == null) return Results.Unauthorized();
-                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (currentUser == null) return Results.Unauthorized();
+                var userId = currentUser.Id!;
 
                 try
                 {
@@ -114,9 +115,9 @@ namespace srv.User
 
             app.MapPatch("/user/email", async ([FromBody] UpdateEmailRequest req, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetClaimsFromContext(ctx);
-                if (principal == null) return Results.Unauthorized();
-                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (currentUser == null) return Results.Unauthorized();
+                var userId = currentUser.Id!;
 
                 try
                 {
@@ -130,12 +131,72 @@ namespace srv.User
 
             app.MapPatch("/user/photo", async ([FromBody] UpdatePhotoRequest req, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetClaimsFromContext(ctx);
-                if (principal == null) return Results.Unauthorized();
-                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (currentUser == null) return Results.Unauthorized();
+                var userId = currentUser.Id!;
 
                 await userService.UpdateProfilePicture(userId, req.PhotoUrl);
                 return Results.Ok();
+            });
+
+            app.MapDelete("/user/{id}", async (string id, HttpContext ctx) =>
+            {
+                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (currentUser == null) return Results.Unauthorized();
+
+                try
+                {
+                    var deletedFiles = await userService.DeleteUserByAdmin(id, currentUser.Id!);
+                    app.Services.GetRequiredService<srv.Upload.UploadService>()
+                        .DeleteLocalFiles(deletedFiles.Select(file => file.LienFichier));
+                    return Results.Ok();
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    return Results.Forbid();
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    return Results.NotFound(ex.Message);
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(ex.Message);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    return Results.BadRequest(ex.Message);
+                }
+            });
+
+            app.MapDelete("/user/{id}/wipe", async (string id, HttpContext ctx) =>
+            {
+                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (currentUser == null) return Results.Unauthorized();
+
+                try
+                {
+                    var deletedFiles = await userService.WipeUserByAdmin(id, currentUser.Id!);
+                    app.Services.GetRequiredService<srv.Upload.UploadService>()
+                        .DeleteLocalFiles(deletedFiles.Select(file => file.LienFichier));
+                    return Results.Ok();
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    return Results.Forbid();
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    return Results.NotFound(ex.Message);
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(ex.Message);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    return Results.BadRequest(ex.Message);
+                }
             });
 
             app.MapGet("/user/search", async (string query) =>

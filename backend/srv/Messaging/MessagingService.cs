@@ -164,6 +164,12 @@ namespace srv.Messaging
         /// <returns>The saved conversation message row, or <c>null</c> if nothing was returned from the insert.</returns>
         private async Task<MessageDTO?> SaveMessageAsync(string senderId, string receiverId, string? content = "", string[]? media = null)
         {
+            if (!await IsActiveUserAsync(senderId))
+                throw new ArgumentException("Sender account is unavailable.");
+
+            if (!await IsActiveUserAsync(receiverId))
+                throw new ArgumentException("Receiver account is unavailable.");
+
             var mediaUrls = media?
                 .Where(url => !string.IsNullOrWhiteSpace(url))
                 .Select(url => url.Trim())
@@ -421,6 +427,16 @@ namespace srv.Messaging
                 .Get());
 
             return response.Models.ToList();
+        }
+
+        private async Task<bool> IsActiveUserAsync(string userId)
+        {
+            var response = await PerfLogger.TimeAsync(_logger, "MessagingService.IsActiveUserAsync user lookup", () => _supabase
+                .From<Utilisateur>()
+                .Where(u => u.Id == userId)
+                .Get());
+
+            return response.Model?.DeletedAt.HasValue == false;
         }
 
     }

@@ -65,6 +65,7 @@ export default function Comments({ postId, initialCount, onCountChange }) {
   const handleDeleted = (deletedId, deletedCount = 1) => {
     setComments(c => c.filter(c => c.id !== deletedId))
     setCount(n => Math.max(0, n - deletedCount))
+    onCountChange?.(-deletedCount)
   }
 
   return (

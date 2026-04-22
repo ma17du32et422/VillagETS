@@ -29,17 +29,15 @@ namespace srv.Comment
                 [FromBody] CreateCommentBody body,
                 HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetClaimsFromContext(ctx);
-                if (principal == null) return Results.Unauthorized();
+                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (currentUser == null) return Results.Unauthorized();
 
                 if (string.IsNullOrWhiteSpace(body.Contenu))
                     return Results.BadRequest("Le contenu du commentaire est requis.");
 
-                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
-
                 var (comment, user) = await commentService.Create(
                     publicationId,
-                    userId,
+                    currentUser.Id!,
                     body.Contenu,
                     body.ParentCommentaireId
                 );
@@ -52,14 +50,12 @@ namespace srv.Comment
 
             app.MapDelete("/comment/{commentId}", async (string commentId, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetClaimsFromContext(ctx);
-                if (principal == null) return Results.Unauthorized();
-
-                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (currentUser == null) return Results.Unauthorized();
 
                 try
                 {
-                    var deletedCount = await commentService.Delete(commentId, userId);
+                    var deletedCount = await commentService.Delete(commentId, currentUser.Id!);
                     return deletedCount > 0
                         ? Results.Ok(new { deletedCount })
                         : Results.NotFound("Commentaire introuvable.");
