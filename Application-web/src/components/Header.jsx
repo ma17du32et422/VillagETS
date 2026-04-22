@@ -18,8 +18,12 @@ export default function Header(){
 
 
   const redirectHome = () => {navigate('/')}
-  const redirectSettingsPage = () => {navigate(user ? '/SettingsPage': '/LoginPage')};
+  const redirectSettingsPage = () => {
+    setMenuOpen(false)
+    navigate(user ? '/SettingsPage': '/LoginPage')
+  };
   const redirectProfilePage = () => {
+    setMenuOpen(false)
     if (!user) {
       navigate('/LoginPage')
       return

@@ -33,7 +33,8 @@
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-weight: bold;
 }
-.sidebar.expanded {
+.sidebar:hover,
+.sidebar:has(:focus-visible) {
     width: var(--sidebar-width-expanded);
     box-shadow: 8px 0 20px rgba(0, 0, 0, 0.08);
 }
@@ -47,65 +48,12 @@
     justify-content: center;
     overflow: hidden;
 }
-.sidebar-toggle {
-    width: 100%;
-    margin: 12px 0 16px;
-    height: 44px;
-    border: none;
-    background-color: transparent;
-    color: var(--color-5);
-    border-radius: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 12px;
-    overflow: hidden;
-    flex: 0 0 auto;
-    padding: 10px 12px;
-    text-align: left;
-}
 
-.sidebar-toggle:hover {
-    background-color: var(--color-3);
-}
-
-.sidebar-toggle-icon-wrap {
-    width: 24px;
-    min-width: 24px;
-    height: 24px;
-    flex: 0 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.sidebar-toggle-icon {
-    width: 100%;
-    height: 100%;
-    display: block;
-    background-color: var(--color-5);
-    -webkit-mask-image: url('./icons/three-bar.svg');
-    mask-image: url('./icons/three-bar.svg');
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    mask-position: center;
-    -webkit-mask-size: contain;
-    mask-size: contain;
-}
-
-.sidebar-toggle-label {
-    white-space: nowrap;
-    max-width: 0;
-    opacity: 0;
-    overflow: hidden;
-    transition: max-width 0.2s ease, opacity 0.2s ease;
-}
-
-.sidebar.expanded .sidebar-toggle-label {
-    max-width: 100%;
-    opacity: 1;
+@media (hover: none) {
+    .sidebar {
+        width: var(--sidebar-width-expanded);
+        box-shadow: 8px 0 20px rgba(0, 0, 0, 0.08);
+    }
 }
 
 .page {

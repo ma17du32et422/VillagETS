@@ -135,7 +135,8 @@
 }
 
 .post-menu-item.danger {
-    color: var(--color-1);
+    color: var(--color-8);
+    font-weight: 700;
 }
 
 .post-menu-item.danger:hover {
@@ -146,31 +147,61 @@
 #image-container {
     position: relative;
     display: flex;
+    align-items: center;
     justify-content: center;
-    width: 100%;
+    width: min(calc(100% - 36px), 720px);
+    aspect-ratio: 1 / 1;
+    margin: 0 auto 14px;
+    background-color: var(--color-3);
+    border: 1px solid color-mix(in srgb, var(--color-4) 35%, transparent);
+    border-radius: 14px;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
-#image {
-    min-width: 50%;
-    min-height: 50%;
-    max-width: 75%;
-    max-height: 75%;
-    display: block;
-    border-radius: 8px;
+.image-backdrop {
+    position: absolute;
+    inset: -12px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    filter: blur(22px);
+    transform: scale(1.06);
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 0;
 }
 
-.image-unavailable {
-    min-width: 50%;
-    min-height: 50%;
-    max-width: 75%;
-    max-height: 75%;
+.image-foreground {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--color-3);
+    background-color: var(--color-2);
+}
+
+#image {
+    width: 100%;
+    height: 100%;
+    display: block;
+    box-sizing: border-box;
+    object-fit: contain;
+}
+
+.image-unavailable {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-2);
     color: var(--color-4);
     font-size: 1rem;
+    position: relative;
+    z-index: 1;
     border-radius: 8px;
+    box-sizing: border-box;
 }
 
 .media-arrow {
@@ -188,7 +219,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1;
+    z-index: 2;
 }
 
 .media-arrow:hover {
@@ -205,6 +236,7 @@
     display: flex;
     justify-content: center;
     gap: 6px;
+    z-index: 2;
 }
 
 .media-dot {
@@ -259,6 +291,12 @@
 
 .reaction-button:hover {
   filter: brightness(0.9);
+}
+
+.reaction-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: none;
 }
 
 

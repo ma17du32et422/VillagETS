@@ -92,10 +92,11 @@
     object-fit: cover;
     outline: 3px solid var(--color-2);
     display: block;
+    transform-origin: center center;
+    transition: transform 0.2s ease;
 }
 #profile-button:hover {
-    width: 3rem;
-    height: 3rem;
+    transform: scale(1.3);
 }
 
 #profile-dropdown {
