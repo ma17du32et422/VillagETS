@@ -41,6 +41,13 @@ const Chat = ({ targetUserId }) => {
     const STORAGE_KEY = `chat_rate_limit_${targetUserId}`;
     const isBlocked = rateLimitInfo.blocked || backendLimited;
 
+    const isImageFile = (file) => {
+        return file.type.startsWith('image/');
+    };
+    const createFilePreview = (file) => {
+        return URL.createObjectURL(file);
+    };
+
     useEffect(() => {
         const fetchHistory = async () => {
             try {
@@ -376,23 +383,30 @@ const Chat = ({ targetUserId }) => {
                 {counterLabel}
             </div>
 
-            {selectedFiles.length > 0 && (
-                <div className="selected-files">
-                    {selectedFiles.map((file, index) => (
-                        <span key={`${file.name}-${file.size}`} className="selected-file-chip">
-                            {file.name}
+            {selectedFiles.map((file, index) => (
+                <div key={`${file.name}-${file.size}`} className="file-preview-card">
+                    {isImageFile(file) ? (
+                        <div className="image-preview-wrapper">
+                            <img 
+                                src={createFilePreview(file)} 
+                                alt={file.name}
+                                className="preview-image"
+                            />
                             <button
                                 type="button"
-                                className="selected-file-remove"
+                                className="preview-remove-btn"
                                 onClick={() => handleRemoveSelectedFile(index)}
                                 aria-label={`Remove ${file.name}`}
                             >
                                 ×
                             </button>
-                        </span>
-                    ))}
+                        </div>
+                    ):(
+                        <div className="file-chip-preview">
+                        </div>
+                    )}
                 </div>
-            )}
+            ))}
 
             <div className="entry-box">
                 <button
