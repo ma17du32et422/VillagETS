@@ -4,13 +4,13 @@
     android:id="@+id/detailsMainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="@color/white">
 
     <View
         android:id="@+id/headerBackground"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/red_primary"
+        android:background="@color/white"
         android:elevation="4dp"
         app:layout_constraintBottom_toBottomOf="@id/toolbarContainer"
         app:layout_constraintTop_toTopOf="parent" />
@@ -33,7 +33,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/white" />
+            app:tint="@color/black" />
 
         <TextView
             android:id="@+id/tvHeaderTitle"
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/delta_medium"
             android:text="Details"
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -67,8 +67,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/surface">
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/white"
+                app:strokeWidth="1dp"
+                app:strokeColor="#EEEEEE">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -78,35 +80,41 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@color/red_primary"
+                        android:background="@color/white"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="8dp">
+                        android:padding="12dp">
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:id="@+id/ivPosterAvatar"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:padding="2dp"
-                            android:background="@color/white"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:scaleType="centerCrop"
-                            app:shapeAppearanceOverlay="@style/CircleImageAppearance" />
+                            app:strokeWidth="1dp"
+                            app:strokeColor="@color/red_primary"
+                            app:shapeAppearanceOverlay="@style/CircleImageAppearance"
+                            android:src="@drawable/profile_placeholder" />
+
                         <TextView
                             android:id="@+id/tvPosterName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
                             android:text="Username"
-                            android:textColor="@color/white"
+                            android:textColor="@color/black"
                             android:textSize="16sp"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                            android:fontFamily="@font/delta_medium"/>
                     </LinearLayout>
 
                     <ImageView
                         android:id="@+id/ivItemPhoto"
                         android:layout_width="match_parent"
-                        android:layout_height="300dp"
-                        android:scaleType="centerCrop" />
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitCenter"
+                        android:minHeight="200dp" />
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -119,7 +127,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/delta_medium"
                             android:text="Title"
-                            android:textColor="@color/text_primary"
+                            android:textColor="@color/black"
                             android:textSize="24sp"
                             android:textStyle="bold" />
 
@@ -127,8 +135,8 @@
                             android:id="@+id/tvItemPrice"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:fontFamily="@font/delta_light"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/delta_medium"
                             android:text="0.00$"
                             android:textColor="@color/red_primary"
                             android:textSize="20sp"
@@ -138,7 +146,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
                             android:layout_marginVertical="16dp"
-                            android:background="@color/divider" />
+                            android:background="#EEEEEE" />
 
                         <TextView
                             android:id="@+id/tvItemDescription"
@@ -146,7 +154,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/delta_medium"
                             android:text="Description"
-                            android:textColor="@color/text_primary"
+                            android:textColor="@color/black"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
@@ -157,7 +165,7 @@
                             android:layout_marginTop="8dp"
                             android:fontFamily="@font/delta_light"
                             android:text="Description text goes here..."
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/black"
                             android:textSize="16sp" />
 
                     </LinearLayout>
@@ -170,7 +178,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:background="@drawable/rounded_red_header"
-                android:text="Contact"
+                android:fontFamily="@font/delta_medium"
+                android:text="Begin discussion"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="16sp"

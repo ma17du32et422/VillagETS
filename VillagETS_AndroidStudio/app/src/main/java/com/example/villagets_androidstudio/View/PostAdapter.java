@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -45,6 +46,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         holder.title.setText(post.getTitre());
         holder.content.setText(post.getContenu());
+        
+        if (post.getPrix() != null && post.getPrix() > 0) {
+            holder.price.setVisibility(View.VISIBLE);
+            holder.price.setText(String.format("$%.2f", post.getPrix()));
+        } else {
+            holder.price.setVisibility(View.GONE);
+        }
         
         String posterName = "User Name";
         String posterAvatarUrl = null;
@@ -94,7 +102,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         final String finalPosterAvatarUrl = posterAvatarUrl;
         final String finalPosterId = posterId;
 
-        holder.itemView.setOnClickListener(v -> {
+        holder.btnDetails.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), ItemDetailsActivity.class);
             intent.putExtra("title", post.getTitre());
             intent.putExtra("description", post.getContenu());
@@ -105,6 +113,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             intent.putExtra("posterId", finalPosterId);
             v.getContext().startActivity(intent);
         });
+
+        // Remove the old full item click listener if it exists
+        holder.itemView.setOnClickListener(null);
     }
 
     @Override
@@ -113,18 +124,21 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     static class PostViewHolder extends RecyclerView.ViewHolder {
-        TextView title, content, userName, postTime;
+        TextView title, content, userName, postTime, price;
         ImageView image;
         ShapeableImageView userAvatar;
+        ImageButton btnDetails;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.postTitle);
             content = itemView.findViewById(R.id.postContent);
+            price = itemView.findViewById(R.id.postPrice);
             image = itemView.findViewById(R.id.postImage);
             userName = itemView.findViewById(R.id.postUserName);
             postTime = itemView.findViewById(R.id.postTime);
             userAvatar = itemView.findViewById(R.id.postUserAvatar);
+            btnDetails = itemView.findViewById(R.id.btnDetails);
         }
     }
 }

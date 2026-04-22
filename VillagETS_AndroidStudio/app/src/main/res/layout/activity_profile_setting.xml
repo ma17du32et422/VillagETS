@@ -35,7 +35,7 @@
         app:layout_constraintBottom_toBottomOf="@id/topBarBackground"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/topBarBackground"
-        app:tint="@color/red_primary" />
+        app:tint="@color/black" />
 
     <View
         android:id="@+id/headerDivider"

@@ -27,7 +27,7 @@
                 android:layout_marginEnd="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/baseline_menu_24"
-                app:tint="@color/red_primary"
+                app:tint="@color/black"
                 android:contentDescription="Settings" />
 
         </androidx.appcompat.widget.Toolbar>
