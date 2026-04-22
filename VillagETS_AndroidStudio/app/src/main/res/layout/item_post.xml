@@ -3,10 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
+
     android:orientation="vertical"
     android:paddingHorizontal="16dp"
-    android:paddingTop="16dp">
+    android:paddingTop="16dp"
+    android:background="@color/color_2"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,7 +22,8 @@
             android:layout_height="40dp"
             android:scaleType="centerCrop"
             app:shapeAppearanceOverlay="@style/CircleImageAppearance"
-            android:src="@drawable/profile_placeholder" />
+            android:src="@drawable/profile_placeholder"
+            />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -35,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/delta_medium"
                 android:text="Username"
-                android:textColor="@color/black"
+                android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -45,7 +48,8 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/delta_light"
                 android:text="Date/Time"
-                android:textColor="@color/black"
+                android:textColor="@color/text_primary"
+
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -65,7 +69,7 @@
         android:layout_marginTop="24dp"
         android:fontFamily="@font/delta_medium"
         android:text="Title of the post"
-        android:textColor="@color/black"
+        android:textColor="@color/text_primary"
         android:textSize="28sp"
         android:textStyle="bold" />
 
@@ -97,7 +101,7 @@
         android:layout_marginTop="24dp"
         android:fontFamily="@font/delta_light"
         android:text="Description..."
-        android:textColor="@color/black"
+        android:textColor="@color/text_primary"
         android:textSize="18sp" />
 
     <LinearLayout
@@ -130,7 +134,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="-1"
-                android:textColor="@color/black"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -143,7 +147,8 @@
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="12dp"
-            android:paddingVertical="8dp">
+            android:paddingVertical="8dp"
+            >
 
             <ImageView
                 android:id="@+id/ivDislike"
@@ -158,7 +163,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="-1"
-                android:textColor="@color/black"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -184,7 +189,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="-1"
-                android:textColor="@color/black"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp" />
         </LinearLayout>
     </LinearLayout>
@@ -224,6 +229,7 @@
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:hint="Write a comment..."
+                android:textColor="@color/text_primary"
                 android:textSize="14sp" />
 
             <TextView
@@ -236,7 +242,7 @@
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="6dp"
                 android:text="Post"
-                android:textColor="@color/black"
+                android:textColor="@color/text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:elevation="1dp"/>
