@@ -2,20 +2,21 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    background-color: var(--color-2);
 }
 
 .message-list {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 20px;
+    padding: 24px;
     background-color: var(--color-2);
 }
 
 .message-wrapper {
     display: flex;
     justify-content: flex-start;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     position: relative;
 }
 
@@ -38,23 +39,25 @@
 }
 
 .message-bubble {
-    padding: 8px 12px;
+    padding: 10px 14px;
     border: 1px solid var(--color-4);
     background-color: var(--color-3);
     font-size: 14px;
     max-width: 70%;
-    border-radius: 15px;
+    border-radius: 12px;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     word-break: break-word;
     position: relative;
     transition: transform 0.15s ease;
+    color: var(--color-5);
 }
 
 .message-sender {
     color: var(--color-5);
-    font-weight: bold;
+    font-weight: 600;
     display: block;
+    font-size: 13px;
 }
 
 .message-text {
@@ -76,7 +79,7 @@
     display: block;
     max-width: 220px;
     width: 100%;
-    border-radius: 12px;
+    border-radius: 8px;
     border: 1px solid var(--color-4);
 }
 
@@ -95,15 +98,20 @@
     height: 20px;
     border: none;
     border-radius: 999px;
-    background-color: rgba(0, 0, 0, 0.12);
+    background-color: var(--color-8);
     color: var(--color-6);
     cursor: pointer;
     display: none;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    font-size: 14px;
+    font-size: 12px;
     z-index: 1;
+    transition: background-color 0.2s ease;
+}
+
+.message-delete-button:hover {
+    background-color: #8b0808;
 }
 
 .message-wrapper.outgoing:hover .message-delete-button,
@@ -116,22 +124,31 @@
 }
 
 .entry-box {
-    padding: 15px;
-    border-top: 1px solid var(--color-4);
+    padding: 16px;
+    border-top: 2px solid var(--color-4);
     display: flex;
     gap: 10px;
     min-width: 0;
-    align-items: center;
+    align-items: flex-end;
+    background-color: var(--color-2);
 }
 
 .attach-button {
     padding: 10px 14px;
     border: 1px solid var(--color-4);
     background-color: var(--color-3);
-    color: inherit;
+    color: var(--color-5);
     cursor: pointer;
     flex: 0 1 auto;
     white-space: nowrap;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.attach-button:hover {
+    background-color: var(--color-1);
+    color: var(--color-6);
 }
 
 .chat-file-input {
@@ -142,17 +159,19 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    padding: 8px 15px 0;
+    padding: 8px 16px 0;
 }
 
 .selected-file-chip {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 8px;
+    padding: 6px 10px;
     border: 1px solid var(--color-4);
     background-color: var(--color-3);
-    font-size: 0.85rem;
+    font-size: 12px;
+    border-radius: 6px;
+    color: var(--color-5);
 }
 
 .selected-file-remove {
@@ -162,14 +181,28 @@
     cursor: pointer;
     padding: 0;
     line-height: 1;
-    font-size: 0.95rem;
+    font-size: 14px;
 }
 
 .message-input {
     flex: 1;
-    padding: 10px;
+    padding: 10px 12px;
     border: 1px solid var(--color-4);
     min-width: 0;
+    border-radius: 6px;
+    background-color: var(--color-2);
+    color: var(--color-5);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+}
+
+.message-input::placeholder {
+    color: var(--color-4);
+}
+
+.message-input:focus {
+    outline: none;
+    border-color: var(--color-1);
 }
 
 .send-button {
@@ -180,6 +213,9 @@
     cursor: pointer;
     flex: 0 1 auto;
     white-space: nowrap;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
 }
 
 .send-button:hover {
@@ -188,7 +224,7 @@
 
 .rate-limit-counter {
     font-size: 0.75rem;
-    color: #888;
+    color: var(--color-4);
     text-align: right;
     padding: 0.125rem 0.75rem;
     transition: color 0.3s;

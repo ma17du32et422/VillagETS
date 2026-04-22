@@ -3,6 +3,22 @@ import { getBaseUrl } from '../../API'
 import { useAuth } from '../../AuthContext'
 import ProfileAvatar from '../ProfileAvatar'
 import '../../assets/CommentItem.css'
+
+const imageAttachmentPattern = /\.(png|jpe?g|gif|webp)(?:$|[?#])/i
+
+function isImageAttachment(url) {
+  return imageAttachmentPattern.test(url)
+}
+
+function getAttachmentLabel(url) {
+  try {
+    const pathname = new URL(url).pathname
+    return decodeURIComponent(pathname.split('/').pop() || 'Attachment')
+  } catch {
+    return 'Attachment'
+  }
+}
+
 export default function CommentItem({ comment, postId, onDeleted, onCountChange }) {
   const { user } = useAuth()
   const [repliesVisible, setRepliesVisible] = useState(false)
@@ -104,7 +120,31 @@ export default function CommentItem({ comment, postId, onDeleted, onCountChange 
       <div className="comment-body">
         <div className="comment-bubble">
           <span className="comment-pseudo">{comment.op?.pseudo ?? 'Unknown'}</span>
-          <p className="comment-text">{comment.contenu}</p>
+          {comment.contenu && !isImageAttachment(comment.contenu) && (
+            <p className="comment-text">{comment.contenu}</p>
+          )}
+          {(comment.media ?? []).length > 0 && (
+            <div className="comment-attachments">
+              {comment.media.map((url) => (
+                isImageAttachment(url) ? (
+                  <a key={url} href={url} target="_blank" rel="noreferrer" className="comment-image-link">
+                    <img src={url} alt={getAttachmentLabel(url)} className="comment-image" />
+                  </a>
+                ) : (
+                  <a key={url} href={url} target="_blank" rel="noreferrer" className="comment-file-link">
+                    {getAttachmentLabel(url)}
+                  </a>
+                )
+              ))}
+            </div>
+          )}
+          {comment.contenu && isImageAttachment(comment.contenu) && (
+            <div className="comment-attachments">
+              <a href={comment.contenu} target="_blank" rel="noreferrer" className="comment-image-link">
+                <img src={comment.contenu} alt={getAttachmentLabel(comment.contenu)} className="comment-image" />
+              </a>
+            </div>
+          )}
         </div>
 
         <div className="comment-actions">
