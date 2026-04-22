@@ -135,7 +135,8 @@
 }
 
 .post-menu-item.danger {
-    color: var(--color-1);
+    color: var(--color-8);
+    font-weight: 700;
 }
 
 .post-menu-item.danger:hover {

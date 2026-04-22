@@ -211,9 +211,6 @@ const toggleReaction = async (type) => {
                   Delete post
                 </button>
               )}
-              <button className="post-menu-item" type="button" onClick={() => setMenuOpen(false)}>
-                Cancel
-              </button>
             </div>
           )}
         </div>
