@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        // Activation du mode Edge-to-Edge
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         ImageButton addPostBtn = findViewById(R.id.addPostBtn);
         profileBtn = findViewById(R.id.profileBtn);
         View toolbar = findViewById(R.id.toolbar);
+        View bottomNav = findViewById(R.id.bottomNavContainer);
         
         viewPager = findViewById(R.id.view_pager);
         
@@ -75,38 +77,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         userViewModel.getUserLiveData().observe(this, user -> {
-            if (user == null) {
-                return;
-            }
-
+            if (user == null) return;
             if ((user.getPhotoProfil() == null || user.getPhotoProfil().trim().isEmpty())
-                    && cachedUser != null
-                    && cachedUser.getPhotoProfil() != null
-                    && !cachedUser.getPhotoProfil().trim().isEmpty()) {
+                    && cachedUser != null && cachedUser.getPhotoProfil() != null) {
                 user.setPhotoProfil(cachedUser.getPhotoProfil());
             }
-
             cachedUser = user;
             loadProfileImage(user.getPhotoProfil());
             user.saveUser(getApplicationContext());
-
-            if (!hasPhoto(user.getPhotoProfil())
-                    && user.getUserId() != null
-                    && !user.getUserId().trim().isEmpty()
-                    && !requestedPublicProfilePhoto) {
-                requestedPublicProfilePhoto = true;
-                userViewModel.fetchUserById(user.getUserId());
-                return;
-            }
-
-            requestedPublicProfilePhoto = false;
         });
 
         // 2. Configuration du ViewPager2
         MyViewPagerAdapter adapter = new MyViewPagerAdapter(this);
         viewPager.setAdapter(adapter);
-        
-        // Listener pour mettre à jour la navigation lors du swipe
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
@@ -114,46 +97,41 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 3. Logique de navigation via les boutons du bas
+        // 3. Logique de navigation
         for (int i = 0; i < navButtons.size(); i++) {
             final int index = i;
             navButtons.get(i).setOnClickListener(v -> viewPager.setCurrentItem(index));
         }
 
-        addPostBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, CreatePostActivity.class);
-            startActivity(intent);
-        });
+        addPostBtn.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, CreatePostActivity.class)));
+        profileBtn.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ProfileActivity.class)));
 
-        profileBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-            startActivity(intent);
+        // 4. Gestion des Insets (Header entourant la caméra et items décalés)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            
+            // Appliquer le padding top à la toolbar pour que son contenu (titre, boutons) 
+            // descende sous la caméra, tout en gardant son background en haut.
+            toolbar.setPadding(toolbar.getPaddingLeft(), systemBars.top, toolbar.getPaddingRight(), toolbar.getPaddingBottom());
+            
+            // Appliquer le padding bottom à la navigation pour ne pas chevaucher la barre système
+            bottomNav.setPadding(bottomNav.getPaddingLeft(), bottomNav.getPaddingTop(), bottomNav.getPaddingRight(), systemBars.bottom);
+            
+            return insets;
         });
-
-        // 4. Gestion des Insets (EdgeToEdge support)
-        if (toolbar != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(toolbar, (v, insets) -> {
-                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-                v.setPadding(v.getPaddingLeft(), systemBars.top, v.getPaddingRight(), v.getPaddingBottom());
-                return insets;
-            });
-        }
         
-        // Initial selection
         updateBottomNavSelection(0);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        requestedPublicProfilePhoto = false;
         userViewModel.fetchUser();
     }
 
     private void updateBottomNavSelection(int position) {
         int activeColor = ContextCompat.getColor(this, R.color.red_primary);
         int inactiveColor = ContextCompat.getColor(this, R.color.gray_inactive);
-        
         for (int i = 0; i < navButtons.size(); i++) {
             navButtons.get(i).setImageTintList(ColorStateList.valueOf(i == position ? activeColor : inactiveColor));
         }
@@ -164,14 +142,7 @@ public class MainActivity extends AppCompatActivity {
             profileBtn.setImageDrawable(null);
             return;
         }
-
         String photoUrl = photoProfil.replace("localhost", "10.0.2.2");
-        Glide.with(this)
-                .load(photoUrl)
-                .into(profileBtn);
-    }
-
-    private boolean hasPhoto(String photoProfil) {
-        return photoProfil != null && !photoProfil.trim().isEmpty();
+        Glide.with(this).load(photoUrl).into(profileBtn);
     }
 }
