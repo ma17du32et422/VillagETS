@@ -20,17 +20,20 @@ import retrofit2.Response;
 public class PostDao {
     private static final PostApi api = RetrofitClient.getInstance().create(PostApi.class);
 
-    public static List<Post> getAllPosts(boolean isMarketplace) throws IOException, JSONException {
-        try {
-            HttpJsonService service = new HttpJsonService();
-            List<Post> feed = service.getFeed(null, null, isMarketplace);
-            if (feed != null) {
-                return feed;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public static List<Post> getAllPosts(boolean isMarketplace) throws IOException {
+        return getFeed(null, null, isMarketplace);
+    }
+
+    public static List<Post> getFeed(String searchString, List<String> tags, boolean isMarketplace) throws IOException {
+        Map<String, Object> body = new HashMap<>();
+        body.put("searchString", searchString);
+        body.put("tags", tags);
+        body.put("isMarketplace", isMarketplace);
+
+        Response<List<Post>> response = api.getFeed(body).execute();
+        if (response.isSuccessful() && response.body() != null) {
+            return response.body();
         }
-        
         return new ArrayList<>();
     }
 

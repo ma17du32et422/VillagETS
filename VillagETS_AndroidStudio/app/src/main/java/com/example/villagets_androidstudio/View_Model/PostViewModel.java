@@ -33,11 +33,15 @@ public class PostViewModel extends ViewModel {
     }
 
     public void chargerPosts(boolean isMarketplace) {
+        rechercherPosts(null, null, isMarketplace);
+    }
+
+    public void rechercherPosts(String searchString, List<String> tags, boolean isMarketplace) {
         executorService.execute(() -> {
             try {
-                List<Post> posts = PostDao.getAllPosts(isMarketplace);
+                List<Post> posts = PostDao.getFeed(searchString, tags, isMarketplace);
                 postsLiveData.postValue(posts);
-            } catch (IOException | JSONException e) {
+            } catch (IOException e) {
                 message.postValue("Erreur lors du chargement des posts : " + e.getMessage());
             }
         });
