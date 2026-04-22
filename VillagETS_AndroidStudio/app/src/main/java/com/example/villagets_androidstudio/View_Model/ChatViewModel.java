@@ -1,5 +1,8 @@
 package com.example.villagets_androidstudio.View_Model;
 
+import android.content.Context;
+import android.net.Uri;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -8,9 +11,12 @@ import com.example.villagets_androidstudio.Model.ChatMessage;
 import com.example.villagets_androidstudio.Model.Conversation;
 import com.example.villagets_androidstudio.Model.Dao.ChatApi;
 import com.example.villagets_androidstudio.Model.Dao.ChatWebSocketClient;
+import com.example.villagets_androidstudio.Model.Dao.PostDao;
 import com.example.villagets_androidstudio.Model.Dao.RetrofitClient;
 import com.example.villagets_androidstudio.Model.SessionManager;
+import com.example.villagets_androidstudio.Utils.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,11 +89,8 @@ public class ChatViewModel extends ViewModel {
         webSocketClient.connect(sessionManager, new ChatWebSocketClient.ChatMessageListener() {
             @Override
             public void onMessageReceived(ChatMessage message) {
-                // Ajouter le nouveau message à la liste actuelle
                 List<ChatMessage> currentMessages = chatHistoryLiveData.getValue();
                 if (currentMessages == null) currentMessages = new ArrayList<>();
-                
-                // On crée une nouvelle liste pour déclencher l'observation
                 List<ChatMessage> updatedMessages = new ArrayList<>(currentMessages);
                 updatedMessages.add(message);
                 chatHistoryLiveData.postValue(updatedMessages);
@@ -102,8 +105,28 @@ public class ChatViewModel extends ViewModel {
 
     public void sendMessage(String receiverId, String contenu) {
         webSocketClient.sendMessage(receiverId, contenu);
-        // Note: Le message envoyé sera probablement reçu en retour via le WebSocket 
-        // ou devra être ajouté manuellement ici si le serveur ne le renvoie pas.
+    }
+
+    public void sendImage(Context context, String receiverId, Uri imageUri) {
+        executorService.execute(() -> {
+            try {
+                File file = FileUtils.getFileFromUri(context, imageUri);
+                if (file != null) {
+                    String mimeType = context.getContentResolver().getType(imageUri);
+                    if (mimeType == null) mimeType = "image/jpeg";
+
+                    String uploadedUrl = PostDao.uploadFile(file, file.getName(), mimeType);
+                    if (uploadedUrl != null) {
+                        // On envoie l'URL de l'image comme contenu du message via WebSocket
+                        webSocketClient.sendMessage(receiverId, uploadedUrl);
+                    } else {
+                        errorMessage.postValue("Erreur lors de l'upload de l'image");
+                    }
+                }
+            } catch (IOException e) {
+                errorMessage.postValue("Erreur lors de l'envoi de l'image : " + e.getMessage());
+            }
+        });
     }
 
     @Override

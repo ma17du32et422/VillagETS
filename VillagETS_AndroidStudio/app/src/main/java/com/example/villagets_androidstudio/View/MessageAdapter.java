@@ -3,9 +3,11 @@ package com.example.villagets_androidstudio.View;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import com.example.villagets_androidstudio.Model.Message;
 import com.example.villagets_androidstudio.R;
 import com.google.android.material.imageview.ShapeableImageView;
@@ -58,24 +60,42 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return messageList.size();
     }
 
+    private static boolean isImageUrl(String text) {
+        if (text == null) return false;
+        return text.startsWith("http") && (text.contains("/upload/") || text.endsWith(".jpg") || text.endsWith(".png") || text.endsWith(".jpeg") || text.contains("10.0.2.2") || text.contains("localhost"));
+    }
+
     static class SentMessageViewHolder extends RecyclerView.ViewHolder {
         TextView tvMessageText, tvTimestamp;
+        ImageView ivMessageImage;
 
         public SentMessageViewHolder(@NonNull View itemView) {
             super(itemView);
             tvMessageText = itemView.findViewById(R.id.messageText);
             tvTimestamp = itemView.findViewById(R.id.messageTimestamp);
+            ivMessageImage = itemView.findViewById(R.id.messageImage);
         }
 
         void bind(Message message) {
-            tvMessageText.setText(message.getText());
             tvTimestamp.setText(message.getTimestamp());
+            String text = message.getText();
+            if (isImageUrl(text)) {
+                tvMessageText.setVisibility(View.GONE);
+                ivMessageImage.setVisibility(View.VISIBLE);
+                String displayUrl = text.replace("localhost", "10.0.2.2");
+                Glide.with(itemView.getContext()).load(displayUrl).into(ivMessageImage);
+            } else {
+                tvMessageText.setVisibility(View.VISIBLE);
+                ivMessageImage.setVisibility(View.GONE);
+                tvMessageText.setText(text);
+            }
         }
     }
 
     static class ReceivedMessageViewHolder extends RecyclerView.ViewHolder {
         ShapeableImageView ivAvatar;
         TextView tvUserName, tvMessageText, tvTimestamp;
+        ImageView ivMessageImage;
 
         public ReceivedMessageViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -83,13 +103,23 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             tvUserName = itemView.findViewById(R.id.messageUserName);
             tvMessageText = itemView.findViewById(R.id.messageText);
             tvTimestamp = itemView.findViewById(R.id.messageTimestamp);
+            ivMessageImage = itemView.findViewById(R.id.messageImage);
         }
 
         void bind(Message message) {
             tvUserName.setText(message.getSenderName());
-            tvMessageText.setText(message.getText());
             tvTimestamp.setText(message.getTimestamp());
-            // ivAvatar handled via image loading library if needed
+            String text = message.getText();
+            if (isImageUrl(text)) {
+                tvMessageText.setVisibility(View.GONE);
+                ivMessageImage.setVisibility(View.VISIBLE);
+                String displayUrl = text.replace("localhost", "10.0.2.2");
+                Glide.with(itemView.getContext()).load(displayUrl).into(ivMessageImage);
+            } else {
+                tvMessageText.setVisibility(View.VISIBLE);
+                ivMessageImage.setVisibility(View.GONE);
+                tvMessageText.setText(text);
+            }
         }
     }
 }

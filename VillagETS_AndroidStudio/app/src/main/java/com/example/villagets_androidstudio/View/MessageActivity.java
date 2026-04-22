@@ -1,5 +1,6 @@
 package com.example.villagets_androidstudio.View;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -8,6 +9,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -32,13 +36,20 @@ public class MessageActivity extends AppCompatActivity {
     private MessageAdapter adapter;
     private List<Message> messageList;
     private EditText etMessageInput;
-    private ImageButton btnSend;
+    private ImageButton btnSend, btnAddImage;
 
     private ChatViewModel chatViewModel;
     private SessionManager sessionManager;
     private String receiverId;
     private String userName;
     private User currentUser;
+
+    private final ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                if (uri != null && receiverId != null) {
+                    chatViewModel.sendImage(this, receiverId, uri);
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +68,8 @@ public class MessageActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerViewMessages);
         etMessageInput = findViewById(R.id.etMessageInput);
         btnSend = findViewById(R.id.btnSendMessage);
+        btnAddImage = findViewById(R.id.btnAddImage);
+        
         View toolbarContainer = findViewById(R.id.toolbarContainer);
         View inputContainer = findViewById(R.id.inputContainer);
 
@@ -77,7 +90,6 @@ public class MessageActivity extends AppCompatActivity {
 
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
 
-        // Observer pour l'historique et les nouveaux messages
         chatViewModel.getChatHistoryLiveData().observe(this, chatMessages -> {
             messageList.clear();
             for (ChatMessage cm : chatMessages) {
@@ -98,11 +110,14 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
 
-        // Connexion au WebSocket et chargement de l'historique
         chatViewModel.connectToChat(sessionManager);
         if (receiverId != null) {
             chatViewModel.loadChatHistory(receiverId);
         }
+
+        btnAddImage.setOnClickListener(v -> pickMedia.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                .build()));
 
         btnSend.setOnClickListener(v -> {
             String text = etMessageInput.getText().toString().trim();
@@ -117,10 +132,9 @@ public class MessageActivity extends AppCompatActivity {
 
     private String formatTimestamp(String isoDate) {
         try {
-            // "2026-04-22T00:30:20.776337" -> simplification pour l'affichage
             if (isoDate.contains("T")) {
                 String timePart = isoDate.split("T")[1];
-                return timePart.substring(0, 5); // HH:mm
+                return timePart.substring(0, 5);
             }
         } catch (Exception e) {
             return isoDate;
