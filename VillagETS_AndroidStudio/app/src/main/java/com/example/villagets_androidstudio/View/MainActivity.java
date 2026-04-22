@@ -10,10 +10,8 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
-import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -59,8 +57,6 @@ public class MainActivity extends AppCompatActivity {
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         // 1. Initialisation des vues
-        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-        ImageButton menuBtn = findViewById(R.id.menuBtn);
         ImageButton addPostBtn = findViewById(R.id.addPostBtn);
         profileBtn = findViewById(R.id.profileBtn);
         View toolbar = findViewById(R.id.toolbar);
@@ -119,10 +115,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 3. Logique du Menu Drawer
-        menuBtn.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
-
-        // 4. Logique de navigation via les boutons du bas
+        // 3. Logique de navigation via les boutons du bas
         for (int i = 0; i < navButtons.size(); i++) {
             final int index = i;
             navButtons.get(i).setOnClickListener(v -> viewPager.setCurrentItem(index));
@@ -138,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // 5. Gestion des Insets (EdgeToEdge support)
+        // 4. Gestion des Insets (EdgeToEdge support)
         if (toolbar != null) {
             ViewCompat.setOnApplyWindowInsetsListener(toolbar, (v, insets) -> {
                 Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

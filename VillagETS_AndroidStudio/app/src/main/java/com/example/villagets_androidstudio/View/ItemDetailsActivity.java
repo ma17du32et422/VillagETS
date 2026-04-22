@@ -1,5 +1,6 @@
 package com.example.villagets_androidstudio.View;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -36,6 +37,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
         String imageUrl = getIntent().getStringExtra("imageUrl");
         String posterName = getIntent().getStringExtra("posterName");
         String posterAvatarUrl = getIntent().getStringExtra("posterAvatarUrl");
+        String posterId = getIntent().getStringExtra("posterId");
 
         TextView tvTitle = findViewById(R.id.tvItemTitle);
         TextView tvDescriptionContent = findViewById(R.id.tvItemDescriptionContent);
@@ -56,17 +58,28 @@ public class ItemDetailsActivity extends AppCompatActivity {
             ivPosterAvatar.setImageDrawable(null);
         }
 
+        View.OnClickListener toProfile = v -> {
+            if (posterId != null) {
+                Intent intent = new Intent(this, ProfileActivity.class);
+                intent.putExtra("userId", posterId);
+                startActivity(intent);
+            }
+        };
+
+        tvPosterName.setOnClickListener(toProfile);
+        ivPosterAvatar.setOnClickListener(toProfile);
+
         if (imageUrl != null && !imageUrl.isEmpty()) {
             String finalUrl = imageUrl;
             if (finalUrl.contains("localhost")) {
-                finalUrl = finalUrl.replace("localhost", "apivillagets.lesageserveur.com");
+                finalUrl = finalUrl.replace("localhost", "10.0.2.2");
             }
             
             Glide.with(this)
                     .load(finalUrl)
                     .into(ivPhoto);
         } else {
-            ivPhoto.setImageDrawable(null);
+            ivPhoto.setVisibility(View.GONE);
         }
     }
 }
