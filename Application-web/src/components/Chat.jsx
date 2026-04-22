@@ -30,6 +30,7 @@ const Chat = ({ targetUserId }) => {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [error, setError] = useState('');
     const [isUploading, setIsUploading] = useState(false);
+    const [isSending, setIsSending] = useState(false);
     const [targetPseudo, setTargetPseudo] = useState('');
     const [rateLimitInfo, setRateLimitInfo] = useState({ blocked: false, remaining: MAX_MESSAGES, secondsLeft: 0 });
     const scrollRef = useRef();
@@ -40,6 +41,7 @@ const Chat = ({ targetUserId }) => {
 
     const STORAGE_KEY = `chat_rate_limit_${targetUserId}`;
     const isBlocked = rateLimitInfo.blocked || backendLimited;
+    const isBusy = isUploading || isSending;
 
     const isImageFile = (file) => {
         return file.type.startsWith('image/');
@@ -247,6 +249,8 @@ const Chat = ({ targetUserId }) => {
     }, []);
 
     const handleRemoveSelectedFile = useCallback((indexToRemove) => {
+        if (isBusy) return;
+
         setSelectedFiles((prev) => {
             const next = prev.filter((_, index) => index !== indexToRemove);
 
@@ -258,17 +262,18 @@ const Chat = ({ targetUserId }) => {
 
             return next;
         });
-    }, []);
+    }, [isBusy]);
 
     const handleSend = useCallback(async () => {
         const trimmedText = text.trim();
         const hasFiles = selectedFiles.length > 0;
 
         if (!trimmedText && !hasFiles) return;
-        if (isSendingRef.current || isUploading) return;
+        if (isSendingRef.current || isBusy) return;
         if (!checkRateLimit()) return;
 
         isSendingRef.current = true;
+        setIsSending(true);
         setIsUploading(true);
 
         try {
@@ -291,10 +296,11 @@ const Chat = ({ targetUserId }) => {
             refundRateLimitSlot();
             setError(err.message ?? 'Failed to send message.');
         } finally {
+            isSendingRef.current = false;
+            setIsSending(false);
             setIsUploading(false);
-            setTimeout(() => { isSendingRef.current = false; }, 100);
         }
-    }, [text, selectedFiles, isUploading, checkRateLimit, uploadSelectedFiles, sendMessage, targetUserId, refundRateLimitSlot]);
+    }, [text, selectedFiles, isBusy, checkRateLimit, uploadSelectedFiles, sendMessage, targetUserId, refundRateLimitSlot]);
 
     const handleDeleteMessage = useCallback(async (messageId) => {
         if (!messageId) return;
@@ -403,6 +409,7 @@ const Chat = ({ targetUserId }) => {
                                 type="button"
                                 className="preview-remove-btn"
                                 onClick={() => handleRemoveSelectedFile(index)}
+                                disabled={isBusy}
                                 aria-label={`Remove ${file.name}`}
                             >
                                 ×
@@ -420,7 +427,7 @@ const Chat = ({ targetUserId }) => {
                     type="button"
                     className="attach-button"
                     onClick={() => fileInputRef.current?.click()}
-                    disabled={rateLimitInfo.blocked || isUploading}
+                    disabled={rateLimitInfo.blocked || isBusy}
                 >
                     FILES
                 </button>
@@ -436,16 +443,16 @@ const Chat = ({ targetUserId }) => {
                     className="message-input"
                     value={text}
                     onChange={(e) => setText(e.target.value)}
-                    disabled={isBlocked || isUploading}
+                    disabled={isBlocked || isBusy}
                     placeholder={isBlocked ? 'Limite atteinte...' : 'Envoyer un message'}
-                    onKeyDown={(e) => { if (e.key === 'Enter' && !e.repeat && !isBlocked) handleSend(); }}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && !e.repeat && !isBlocked && !isBusy) handleSend(); }}
                 />
                 <button
-                    className={`send-button ${isBlocked || isUploading ? 'disabled' : ''}`}
+                    className={`send-button ${isBlocked || isBusy ? 'disabled' : ''}`}
                     onClick={handleSend}
-                    disabled={isBlocked || isUploading}
+                    disabled={isBlocked || isBusy}
                 >
-                    {isBlocked ? `${rateLimitInfo.secondsLeft}s` : 'ENVOYER'}
+                    {isBlocked ? `${rateLimitInfo.secondsLeft}s` : isBusy ? 'ENVOI...' : 'ENVOYER'}
                 </button>
             </div>
         </div>

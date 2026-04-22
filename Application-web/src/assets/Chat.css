@@ -151,6 +151,16 @@
     color: var(--color-6);
 }
 
+.attach-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.attach-button:disabled:hover {
+    background-color: var(--color-3);
+    color: var(--color-5);
+}
+
 .chat-file-input {
     display: none;
 }
@@ -324,4 +334,10 @@
 .preview-remove-btn:hover {
     background-color: var(--color-t-2);
     transform: scale(1.1);
+}
+
+.preview-remove-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
 }

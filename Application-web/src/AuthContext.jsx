@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 
 const AuthContext = createContext(null)
 
@@ -8,29 +8,40 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const res = await fetch(`${getBaseUrl()}/me`, {
+        credentials: 'include',
+      })
+
+      if (!res.ok) {
+        setUser(null)
+        return null
+      }
+
+      const userData = await res.json()
+      setUser(userData)
+      return userData
+    } catch (err) {
+      console.error('Auth check failed:', err)
+      setUser(null)
+      throw err
+    }
+  }, [])
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch(`${getBaseUrl()}/me`, {
-          credentials: 'include',
-        })
-
-        if (res.ok) {
-          const userData = await res.json()
-          setUser(userData)
-        } else {
-          setUser(null)
-        }
+        await refreshUser()
       } catch (err) {
-        console.error('Auth check failed:', err)
-        setUser(null)
+        // refreshUser already logged and normalized auth state.
       } finally {
         setLoading(false)
       }
     }
 
     checkAuth()
-  }, [])
+  }, [refreshUser])
 
   const login = (userData) => {
     setUser(userData);
@@ -50,7 +61,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )
