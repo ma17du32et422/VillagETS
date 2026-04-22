@@ -5,6 +5,28 @@ import { getBaseUrl } from '../../API'
 import { useAuth } from '../../AuthContext'
 import ProfileAvatar from '../ProfileAvatar'
 
+const formatPostDate = (dateString) => {
+  if (!dateString) return ''
+  
+  try {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffMs = now - date
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins}m ago`
+    if (diffHours < 24) return `${diffHours}h ago`
+    if (diffDays < 7) return `${diffDays}d ago`
+    
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined })
+  } catch {
+    return dateString
+  }
+}
+
 export default function Post({ post, onDelete }) {
   const { user } = useAuth()
   const [likes, setLikes] = useState(post.likes ?? 0)
@@ -17,9 +39,12 @@ export default function Post({ post, onDelete }) {
   const [commentText, setCommentText] = useState('')
   const [mediaIndex, setMediaIndex] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [failedImages, setFailedImages] = useState(new Set())
   const menuRef = useRef(null)
 
-  const media = post.media ?? []
+  const rawMedia = post.media ?? []
+  const media = rawMedia.filter(url => url && typeof url === 'string' && url.trim().length > 0)
+  const validMedia = media.filter(url => !failedImages.has(url))
   const tags = post.tags ?? []
   const canDelete = user?.userId === post.op?.id || user?.mainAdmin === true
   const isMarketplaceItem = post.articleAVendre === true
@@ -41,6 +66,16 @@ export default function Post({ post, onDelete }) {
   useEffect(() => {
     setCommentCount(post.commentaires ?? 0)
   }, [post.commentaires])
+
+  useEffect(() => {
+    if (mediaIndex >= validMedia.length) {
+      setMediaIndex(0)
+    }
+  }, [validMedia.length])
+
+  const handleImageError = (url) => {
+    setFailedImages(prev => new Set(prev).add(url))
+  }
 
   const deletePost = async () => {
     setMenuOpen(false)
@@ -131,7 +166,7 @@ const toggleReaction = async (type) => {
           />
           <div id="op-details">
             <p id="op-name">{post.op?.pseudo ?? 'Unknown'}</p>
-            <p id="datetime">{post.datetime}</p>
+            <p id="datetime">{formatPostDate(post.datetime)}</p>
           </div>
         </div>
 
@@ -168,19 +203,30 @@ const toggleReaction = async (type) => {
 
       {media.length > 0 && (
         <div id="image-container">
-          {media.length > 1 && mediaIndex > 0 && (
+          {validMedia.length > 1 && mediaIndex > 0 && (
             <button className="media-arrow media-arrow-left" type="button" onClick={() => setMediaIndex(i => i - 1)}>‹</button>
           )}
-          <img id="image" src={media[mediaIndex]} alt={`Post visual ${mediaIndex + 1}`} />
-          {media.length > 1 && mediaIndex < media.length - 1 && (
-            <button className="media-arrow media-arrow-right" type="button" onClick={() => setMediaIndex(i => i + 1)}>›</button>
-          )}
-          {media.length > 1 && (
-            <div className="media-dots">
-              {media.map((_, i) => (
-                <span key={i} className={`media-dot ${i === mediaIndex ? 'active' : ''}`} />
-              ))}
-            </div>
+          {validMedia.length > 0 ? (
+            <>
+              <img 
+                id="image" 
+                src={validMedia[mediaIndex]} 
+                alt={`Post visual ${mediaIndex + 1}`}
+                onError={() => handleImageError(validMedia[mediaIndex])}
+              />
+              {validMedia.length > 1 && mediaIndex < validMedia.length - 1 && (
+                <button className="media-arrow media-arrow-right" type="button" onClick={() => setMediaIndex(i => i + 1)}>›</button>
+              )}
+              {validMedia.length > 1 && (
+                <div className="media-dots">
+                  {validMedia.map((_, i) => (
+                    <span key={i} className={`media-dot ${i === mediaIndex ? 'active' : ''}`} />
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="image-unavailable">Media unavailable</div>
           )}
         </div>
       )}
