@@ -6,7 +6,6 @@ namespace srv.Upload
     public class UploadOptions
     {
         public required string UploadFolder { get; init; }
-        public string? PublicBaseUrl { get; init; }
         public required long MaxUploadBytes { get; init; }
         public required HashSet<string> AllowedUploadContentTypes { get; init; }
         public required HashSet<string> AllowedUploadExtensions { get; init; }
@@ -75,7 +74,7 @@ namespace srv.Upload
                 using var stream = File.Create(filePath);
                 await file.CopyToAsync(stream);
 
-                var baseUrl = GetBaseUrl(ctx);
+                var baseUrl = $"{ctx.Request.Scheme}://{ctx.Request.Host}";
                 var fileUrl = $"{baseUrl}/uploads/{uniqueName}";
 
                 var fichier = new Fichier
@@ -139,22 +138,6 @@ namespace srv.Upload
         private static IResult JsonError(int statusCode, string error)
         {
             return Results.Json(new UploadErrorResponse(error), statusCode: statusCode);
-        }
-
-        private string GetBaseUrl(HttpContext ctx)
-        {
-            if (!string.IsNullOrWhiteSpace(_options.PublicBaseUrl))
-                return _options.PublicBaseUrl.TrimEnd('/');
-
-            var scheme = ctx.Request.Headers["X-Forwarded-Proto"].FirstOrDefault();
-            if (string.IsNullOrWhiteSpace(scheme))
-                scheme = ctx.Request.Scheme;
-
-            var host = ctx.Request.Headers["X-Forwarded-Host"].FirstOrDefault();
-            if (string.IsNullOrWhiteSpace(host))
-                host = ctx.Request.Host.Value;
-
-            return $"{scheme}://{host}";
         }
     }
 

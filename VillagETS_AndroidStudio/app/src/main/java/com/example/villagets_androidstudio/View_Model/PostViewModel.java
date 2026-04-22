@@ -43,6 +43,40 @@ public class PostViewModel extends ViewModel {
         });
     }
 
+    public void creerPost(android.content.Context context, Post post, android.net.Uri imageUri) {
+        executorService.execute(() -> {
+            try {
+                if (imageUri != null) {
+                    java.io.File file = com.example.villagets_androidstudio.Utils.FileUtils.getFileFromUri(context, imageUri);
+                    if (file != null) {
+                        String mimeType = context.getContentResolver().getType(imageUri);
+                        if (mimeType == null) mimeType = "image/jpeg";
+                        
+                        String uploadedUrl = PostDao.uploadFile(file, file.getName(), mimeType);
+                        if (uploadedUrl != null) {
+                            post.setMedia(new String[]{uploadedUrl});
+                        } else {
+                            message.postValue("Erreur lors de l'upload de l'image");
+                            saveSuccess.postValue(false);
+                            return;
+                        }
+                    }
+                }
+
+                Post createdPost = PostDao.createPost(post);
+                if (createdPost != null) {
+                    saveSuccess.postValue(true);
+                } else {
+                    message.postValue("Erreur lors de la création du post");
+                    saveSuccess.postValue(false);
+                }
+            } catch (IOException e) {
+                message.postValue("Erreur réseau : " + e.getMessage());
+                saveSuccess.postValue(false);
+            }
+        });
+    }
+
     public void creerPost(Post post) {
         executorService.execute(() -> {
             try {
