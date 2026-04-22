@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/background"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/background"
         app:elevation="0dp">
 
         <androidx.appcompat.widget.Toolbar
@@ -28,7 +28,7 @@
                 android:layout_marginEnd="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/baseline_menu_24"
-                app:tint="@color/black"
+                app:tint="@color/text_primary"
                 android:contentDescription="Settings" />
 
         </androidx.appcompat.widget.Toolbar>
@@ -68,7 +68,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/delta_medium"
                         android:text="Username"
-                        android:textColor="@color/black"
+                        android:textColor="@color/text_primary"
                         android:textSize="28sp"
                         android:textStyle="bold" />
 
@@ -84,7 +84,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/delta_medium"
                             android:text="0"
-                            android:textColor="@color/black"
+                            android:textColor="@color/text_primary"
                             android:textSize="14sp"
                             android:textStyle="bold" />
 
@@ -94,7 +94,7 @@
                             android:layout_marginStart="4dp"
                             android:fontFamily="@font/delta_light"
                             android:text="posts"
-                            android:textColor="@color/black"
+                            android:textColor="@color/text_primary"
                             android:textSize="14sp" />
 
                         <TextView
@@ -104,7 +104,7 @@
                             android:layout_marginStart="16dp"
                             android:fontFamily="@font/delta_light"
                             android:text="First and Last Name"
-                            android:textColor="@color/black"
+                            android:textColor="@color/text_primary"
                             android:textSize="14sp" />
                     </LinearLayout>
 
@@ -125,14 +125,14 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#EEEEEE" />
+            android:background="@color/surface" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:text="My Posts"
-            android:textColor="@color/black"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:textStyle="bold"
             android:fontFamily="@font/delta_medium" />

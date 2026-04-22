@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/background"
     android:fitsSystemWindows="true">
 
     <View
@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/delta_medium"
         android:text="My Profile"
-        android:textColor="@color/black"
+        android:textColor="@color/text_primary"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/topBarBackground"
@@ -36,13 +36,13 @@
         app:layout_constraintBottom_toBottomOf="@id/topBarBackground"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/topBarBackground"
-        app:tint="@color/black" />
+        app:tint="@color/text_primary" />
 
     <View
         android:id="@+id/headerDivider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#EEEEEE"
+        android:background="@color/surface"
         app:layout_constraintTop_toBottomOf="@id/topBarBackground" />
 
     <ScrollView
@@ -86,7 +86,7 @@
                     app:backgroundTint="@color/red_primary"
                     app:fabSize="mini"
                     app:srcCompat="@drawable/baseline_menu_24"
-                    app:tint="@color/white" />
+                    app:tint="@android:color/white" />
             </FrameLayout>
 
             <LinearLayout
@@ -108,7 +108,7 @@
                         android:layout_weight="1"
                         android:fontFamily="@font/delta_medium"
                         android:text="Username"
-                        android:textColor="@color/black"
+                        android:textColor="@color/text_primary"
                         android:textSize="18sp" />
 
                     <ImageButton
@@ -128,13 +128,15 @@
                     android:layout_marginTop="8dp"
                     android:hint="new username"
                     android:visibility="gone"
+                    android:textColorHint="@color/text_secondary"
                     app:boxStrokeColor="@color/red_primary"
                     app:hintTextColor="@color/red_primary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etUsername"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_primary" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -147,7 +149,7 @@
                 android:layout_marginBottom="16dp"
                 android:backgroundTint="@color/red_primary"
                 android:text="Change password"
-                android:textColor="@color/white" />
+                android:textColor="@android:color/white" />
 
             <LinearLayout
                 android:id="@+id/passwordChangeLayout"
@@ -162,14 +164,17 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:hint="current password"
+                    android:textColorHint="@color/text_secondary"
                     app:boxStrokeColor="@color/red_primary"
                     app:hintTextColor="@color/red_primary"
-                    app:passwordToggleEnabled="true">
+                    app:passwordToggleEnabled="true"
+                    app:passwordToggleTint="@color/text_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etCurrentPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textColor="@color/text_primary"
                         android:inputType="textPassword" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -179,14 +184,17 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:hint="new password"
+                    android:textColorHint="@color/text_secondary"
                     app:boxStrokeColor="@color/red_primary"
                     app:hintTextColor="@color/red_primary"
-                    app:passwordToggleEnabled="true">
+                    app:passwordToggleEnabled="true"
+                    app:passwordToggleTint="@color/text_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etNewPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textColor="@color/text_primary"
                         android:inputType="textPassword" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -196,14 +204,17 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:hint="confirm new password"
+                    android:textColorHint="@color/text_secondary"
                     app:boxStrokeColor="@color/red_primary"
                     app:hintTextColor="@color/red_primary"
-                    app:passwordToggleEnabled="true">
+                    app:passwordToggleEnabled="true"
+                    app:passwordToggleTint="@color/text_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etConfirmPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textColor="@color/text_primary"
                         android:inputType="textPassword" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
@@ -217,7 +228,7 @@
                 android:layout_marginTop="16dp"
                 android:backgroundTint="@color/red_primary"
                 android:text="Apply changes"
-                android:textColor="@color/white" />
+                android:textColor="@android:color/white" />
 
             <Button
                 android:id="@+id/btnLogout"

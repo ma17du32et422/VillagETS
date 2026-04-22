@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@color/white"
+    android:background="@color/background"
     android:fitsSystemWindows="true">
 
     <LinearLayout
@@ -21,7 +21,7 @@
             android:layout_marginBottom="32dp"
             android:fontFamily="@font/delta_medium"
             android:text="@string/login_title"
-            android:textColor="@color/black"
+            android:textColor="@color/text_primary"
             android:textSize="32sp"
             android:textStyle="bold" />
 
@@ -29,13 +29,17 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="16dp"
+            android:textColorHint="@color/text_secondary"
+            app:hintTextColor="@color/red_primary"
+            app:boxStrokeColor="@color/red_primary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/loginInputUser"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/login_identifier_hint"
+                android:textColor="@color/text_primary"
                 android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -44,13 +48,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:passwordToggleEnabled="true">
+            android:textColorHint="@color/text_secondary"
+            app:hintTextColor="@color/red_primary"
+            app:boxStrokeColor="@color/red_primary"
+            app:passwordToggleEnabled="true"
+            app:passwordToggleTint="@color/text_secondary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/loginInputPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/login_password_hint"
+                android:textColor="@color/text_primary"
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -61,6 +70,7 @@
             android:fontFamily="@font/delta_light"
             android:backgroundTint="@color/red_primary"
             android:text="@string/login_button"
+            android:textColor="@android:color/white"
             android:textSize="18sp" />
 
         <TextView
@@ -69,6 +79,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/delta_light"
             android:layout_marginTop="16dp"
+            android:textColor="@color/text_secondary"
             android:text="@string/login_no_account" />
 
     </LinearLayout>

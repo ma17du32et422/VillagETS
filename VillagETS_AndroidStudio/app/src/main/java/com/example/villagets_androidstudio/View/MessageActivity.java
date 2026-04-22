@@ -90,7 +90,6 @@ public class MessageActivity extends AppCompatActivity {
         messageList = new ArrayList<>();
         adapter = new MessageAdapter(messageList);
         recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         sessionManager = new SessionManager(this);
         currentUser = User.loadUser(this);

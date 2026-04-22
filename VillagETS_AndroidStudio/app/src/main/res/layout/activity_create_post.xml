@@ -70,13 +70,14 @@
                 android:hint="Title..."
                 android:inputType="text"
                 android:paddingBottom="8dp"
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
                 android:textSize="20sp" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#CCCCCC" />
+                android:background="@color/surface" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -113,7 +114,8 @@
                         android:background="@android:color/transparent"
                         android:hint="$"
                         android:inputType="numberDecimal"
-                        android:textColor="@color/black"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary"
                         android:textSize="14sp"
                         android:enabled="false"
                         android:visibility="gone" />
@@ -138,14 +140,14 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/baseline_menu_24"
-                        app:tint="#757575" />
+                        app:tint="@color/text_secondary" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:text="Click or drag to add photos"
-                        android:textColor="#757575"
+                        android:textColor="@color/text_secondary"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -167,7 +169,8 @@
                 android:hint="Write something..."
                 android:inputType="textMultiLine"
                 android:padding="10dp"
-                android:textColor="@color/black"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
                 android:textSize="14sp" />
 
             <LinearLayout
@@ -185,7 +188,7 @@
                     android:minWidth="60dp"
                     android:text="Post"
                     android:textAllCaps="false"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -198,7 +201,7 @@
                     android:minWidth="60dp"
                     android:text="Cancel"
                     android:textAllCaps="false"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:paddingHorizontal="12dp"
                     android:backgroundTint="@android:color/transparent"
@@ -212,7 +215,7 @@
         android:id="@+id/bottomBlackLine"
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:background="@color/black"
+        android:background="@color/surface"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

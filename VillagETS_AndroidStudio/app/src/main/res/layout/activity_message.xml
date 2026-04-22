@@ -52,6 +52,7 @@
         android:padding="8dp"
         android:clipToPadding="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:stackFromEnd="true"
         app:layout_constraintBottom_toTopOf="@id/inputContainer"
         app:layout_constraintTop_toBottomOf="@id/toolbarContainer" />
 
