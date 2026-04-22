@@ -156,6 +156,7 @@
     max-width: 75%;
     max-height: 75%;
     display: block;
+    border-radius: 8px;
 }
 
 .image-unavailable {

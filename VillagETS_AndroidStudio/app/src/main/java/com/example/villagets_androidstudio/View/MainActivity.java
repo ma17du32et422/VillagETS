@@ -2,13 +2,19 @@ package com.example.villagets_androidstudio.View;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.TypefaceSpan;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -20,6 +26,7 @@ import com.example.villagets_androidstudio.Model.Dao.RetrofitClient;
 import com.example.villagets_androidstudio.Model.SessionManager;
 import com.example.villagets_androidstudio.Model.User;
 import com.example.villagets_androidstudio.R;
+import com.example.villagets_androidstudio.Utils.CustomTypefaceSpan;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.example.villagets_androidstudio.View_Model.UserViewModel;
 
@@ -33,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
     private ShapeableImageView profileBtn;
     private UserViewModel userViewModel;
     private User cachedUser;
-    private boolean requestedPublicProfilePhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         // 1. Initialisation des vues
+        TextView appTitle = findViewById(R.id.appTitle);
+        setupTitleSpannable(appTitle);
+
         ImageButton addPostBtn = findViewById(R.id.addPostBtn);
         profileBtn = findViewById(R.id.profileBtn);
         View toolbar = findViewById(R.id.toolbar);
@@ -106,21 +115,32 @@ public class MainActivity extends AppCompatActivity {
         addPostBtn.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, CreatePostActivity.class)));
         profileBtn.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ProfileActivity.class)));
 
-        // 4. Gestion des Insets (Header entourant la caméra et items décalés)
+        // 4. Gestion des Insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            
-            // Appliquer le padding top à la toolbar pour que son contenu (titre, boutons) 
-            // descende sous la caméra, tout en gardant son background en haut.
             toolbar.setPadding(toolbar.getPaddingLeft(), systemBars.top, toolbar.getPaddingRight(), toolbar.getPaddingBottom());
-            
-            // Appliquer le padding bottom à la navigation pour ne pas chevaucher la barre système
             bottomNav.setPadding(bottomNav.getPaddingLeft(), bottomNav.getPaddingTop(), bottomNav.getPaddingRight(), systemBars.bottom);
-            
             return insets;
         });
         
         updateBottomNavSelection(0);
+    }
+
+    private void setupTitleSpannable(TextView textView) {
+        String fullText = getString(R.string.villagets); // Assumes "VillagETS"
+        SpannableString spannable = new SpannableString(fullText);
+
+        Typeface deltaLight = ResourcesCompat.getFont(this, R.font.delta_light);
+        Typeface deltaMedium = ResourcesCompat.getFont(this, R.font.delta_medium);
+
+        if (deltaLight != null && deltaMedium != null) {
+            int splitIndex = 6; // "Villag" is 6 characters
+            if (fullText.length() >= splitIndex) {
+                spannable.setSpan(new CustomTypefaceSpan("", deltaLight), 0, splitIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannable.setSpan(new CustomTypefaceSpan("", deltaMedium), splitIndex, fullText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
+        textView.setText(spannable);
     }
 
     @Override

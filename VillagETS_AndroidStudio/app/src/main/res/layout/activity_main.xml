@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
+    android:fitsSystemWindows="true"
     tools:context=".View.MainActivity">
 
     <View
@@ -31,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:fontFamily="@font/delta_light"
+            android:fontFamily="@font/delta_medium"
             android:text="@string/villagets"
             android:textColor="@color/red_primary"
             android:textSize="22sp"
@@ -87,7 +88,7 @@
         <LinearLayout
             android:id="@+id/bottomNavLayout"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="54dp"
             android:orientation="horizontal"
             android:weightSum="4"
             app:layout_constraintTop_toTopOf="parent"
