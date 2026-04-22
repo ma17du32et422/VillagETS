@@ -2,6 +2,7 @@ package com.example.villagets_androidstudio.View;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,8 +26,13 @@ import com.example.villagets_androidstudio.R;
 import com.google.android.material.imageview.ShapeableImageView;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -99,7 +105,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         }
         
         if (post.getDatePublication() != null) {
-            holder.postTime.setText(post.getDatePublication());
+            holder.postTime.setText(formatDate(post.getDatePublication()));
         }
 
         String imageUrl = (post.getMedia() != null && post.getMedia().length > 0) ? post.getMedia()[0] : null;
@@ -155,6 +161,31 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 postComment(post.getId(), content, null, holder);
             }
         });
+    }
+
+    private String formatDate(String dateStr) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS", Locale.getDefault());
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        try {
+            Date date = sdf.parse(dateStr);
+            if (date != null) {
+                long now = System.currentTimeMillis();
+                return DateUtils.getRelativeTimeSpanString(date.getTime(), now, DateUtils.MINUTE_IN_MILLIS).toString();
+            }
+        } catch (ParseException e) {
+            // Tentative avec un format plus court si les microsecondes varient
+            try {
+                SimpleDateFormat sdfShort = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                sdfShort.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date date = sdfShort.parse(dateStr);
+                if (date != null) {
+                    return DateUtils.getRelativeTimeSpanString(date.getTime(), System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString();
+                }
+            } catch (ParseException e2) {
+                return dateStr;
+            }
+        }
+        return dateStr;
     }
 
     private void loadComments(String postId, PostViewHolder holder) {
