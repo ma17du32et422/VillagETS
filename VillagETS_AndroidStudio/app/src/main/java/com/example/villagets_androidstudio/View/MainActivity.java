@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
         navButtons.add(findViewById(R.id.moneyBtn));
         navButtons.add(findViewById(R.id.searchBtn));
         navButtons.add(findViewById(R.id.messageBtn));
-        navButtons.add(findViewById(R.id.notificationBtn));
 
         cachedUser = User.loadUser(getApplicationContext());
         if (cachedUser != null) {

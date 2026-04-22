@@ -88,7 +88,7 @@
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:orientation="horizontal"
-            android:weightSum="5"
+            android:weightSum="4"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
 
@@ -124,13 +124,6 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/msg" />
 
-            <ImageButton
-                android:id="@+id/notificationBtn"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/notif" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

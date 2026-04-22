@@ -22,14 +22,12 @@ public class MyViewPagerAdapter extends FragmentStateAdapter {
                 return new SearchFragment();
             case 3:
                 return new ConversationFragment();
-            case 4:
-                return new NotificationFragment();
         }
         return new FeedFragment();
     }
 
     @Override
     public int getItemCount() {
-        return 5; // Nombre total de pages correspondant à tes 5 boutons du bas
+        return 4; // Nombre total de pages correspondant à tes 4 boutons du bas
     }
 }
