@@ -4,13 +4,15 @@ public class Message {
     private String senderName;
     private String text;
     private String timestamp;
-    private String avatarUrl; // or resource ID string
+    private String avatarUrl;
+    private boolean isSent;
 
-    public Message(String senderName, String text, String timestamp, String avatarUrl) {
+    public Message(String senderName, String text, String timestamp, String avatarUrl, boolean isSent) {
         this.senderName = senderName;
         this.text = text;
         this.timestamp = timestamp;
         this.avatarUrl = avatarUrl;
+        this.isSent = isSent;
     }
 
     public String getSenderName() {
@@ -27,5 +29,9 @@ public class Message {
 
     public String getAvatarUrl() {
         return avatarUrl;
+    }
+
+    public boolean isSent() {
+        return isSent;
     }
 }

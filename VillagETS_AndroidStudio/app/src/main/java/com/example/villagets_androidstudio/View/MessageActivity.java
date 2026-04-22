@@ -23,11 +23,8 @@ import com.example.villagets_androidstudio.Model.User;
 import com.example.villagets_androidstudio.R;
 import com.example.villagets_androidstudio.View_Model.ChatViewModel;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class MessageActivity extends AppCompatActivity {
 
@@ -84,10 +81,10 @@ public class MessageActivity extends AppCompatActivity {
         chatViewModel.getChatHistoryLiveData().observe(this, chatMessages -> {
             messageList.clear();
             for (ChatMessage cm : chatMessages) {
-                String sender = (currentUser != null && cm.getEnvoyeurId() != null && cm.getEnvoyeurId().equals(currentUser.getUserId())) ? "Moi" : userName;
-                // On pourrait formater la date cm.getDateMsg() si elle est disponible et valide
-                String time = cm.getDateMsg() != null ? cm.getDateMsg() : ""; 
-                messageList.add(new Message(sender, cm.getContenu(), time, "avatar"));
+                boolean isSent = (currentUser != null && cm.getEnvoyeurId() != null && cm.getEnvoyeurId().equals(currentUser.getUserId()));
+                String sender = isSent ? "Moi" : userName;
+                String time = cm.getDateMsg() != null ? formatTimestamp(cm.getDateMsg()) : "";
+                messageList.add(new Message(sender, cm.getContenu(), time, "avatar", isSent));
             }
             adapter.notifyDataSetChanged();
             if (!messageList.isEmpty()) {
@@ -111,14 +108,23 @@ public class MessageActivity extends AppCompatActivity {
             String text = etMessageInput.getText().toString().trim();
             if (!text.isEmpty() && receiverId != null) {
                 chatViewModel.sendMessage(receiverId, text);
-                
-                // Optionnel: Ajouter localement si le serveur ne renvoie pas l'écho
-                // Dans le ChatViewModel actuel, on attend le message via WebSocket.
-                
                 etMessageInput.setText("");
             } else if (receiverId == null) {
                 Toast.makeText(this, "Destinataire inconnu", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private String formatTimestamp(String isoDate) {
+        try {
+            // "2026-04-22T00:30:20.776337" -> simplification pour l'affichage
+            if (isoDate.contains("T")) {
+                String timePart = isoDate.split("T")[1];
+                return timePart.substring(0, 5); // HH:mm
+            }
+        } catch (Exception e) {
+            return isoDate;
+        }
+        return isoDate;
     }
 }
