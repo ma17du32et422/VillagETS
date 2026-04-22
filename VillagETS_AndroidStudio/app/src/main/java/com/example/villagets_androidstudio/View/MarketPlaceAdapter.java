@@ -49,6 +49,7 @@ public class MarketPlaceAdapter extends RecyclerView.Adapter<MarketPlaceAdapter.
                     ? post.getOp().getPseudo()
                     : "User Name";
             String posterAvatarUrl = post.getOp() != null ? post.getOp().getPhotoProfil() : null;
+            String posterId = post.getOp() != null ? post.getOp().getId() : null;
             
             String imageUrl = (post.getMedia() != null && post.getMedia().length > 0) ? post.getMedia()[0] : null;
             
@@ -68,9 +69,10 @@ public class MarketPlaceAdapter extends RecyclerView.Adapter<MarketPlaceAdapter.
                 intent.putExtra("title", post.getTitre());
                 intent.putExtra("description", post.getContenu());
                 intent.putExtra("price", priceText);
-                intent.putExtra("imageUrl", imageUrl); // On passe l'URL originale, ItemDetailsActivity gère déjà le replace
+                intent.putExtra("imageUrl", imageUrl);
                 intent.putExtra("posterName", posterName);
                 intent.putExtra("posterAvatarUrl", posterAvatarUrl);
+                intent.putExtra("posterId", posterId);
                 v.getContext().startActivity(intent);
             });
         }
