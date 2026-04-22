@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../AuthContext';
 import { getBaseUrl } from '../API';
 import ProfileAvatar from './ProfileAvatar';
@@ -17,6 +17,9 @@ export default function CreatePost({ onSuccess, onCancel }) {
   const [error, setError] = useState("");
   const [mediaIndex, setMediaIndex] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
+  const fileInputRef = useRef(null);
 
   const handleImageFile = (files) => {
     const arr = Array.from(files ?? []);
@@ -27,6 +30,7 @@ export default function CreatePost({ onSuccess, onCancel }) {
 
   const handleDrop = (e) => {
     e.preventDefault();
+    if (isSubmittingRef.current) return;
     setDragging(false);
     handleImageFile(e.dataTransfer.files);
   };
@@ -36,6 +40,8 @@ export default function CreatePost({ onSuccess, onCancel }) {
   }, [imagePreviews]);
 
   const submit = async () => {
+    if (isSubmittingRef.current) return;
+
     setError("");
     if (!title.trim() || !textContent.trim()) {
       setError('Title and text are required.');
@@ -49,6 +55,8 @@ export default function CreatePost({ onSuccess, onCancel }) {
     }
 
     try {
+      isSubmittingRef.current = true;
+      setIsSubmitting(true);
       let mediaUrls = [];
       if (imageFiles.length > 0) {
         const uploads = await Promise.all(imageFiles.map(async (file) => {
@@ -91,6 +99,9 @@ export default function CreatePost({ onSuccess, onCancel }) {
     } catch (err) {
       console.error('Failed to create post:', err);
       setError(err.message ?? 'Failed to create post');
+    } finally {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
@@ -116,6 +127,7 @@ export default function CreatePost({ onSuccess, onCancel }) {
         id="form-title"
         placeholder="Title..."
         value={title}
+        disabled={isSubmitting}
         onChange={e => setTitle(e.target.value)}
       />
 
@@ -124,6 +136,7 @@ export default function CreatePost({ onSuccess, onCancel }) {
           id="form-tags"
           placeholder="Tags (comma-separated)"
           value={tags}
+          disabled={isSubmitting}
           onChange={e => setTags(e.target.value)}
         />
       </div>
@@ -133,6 +146,7 @@ export default function CreatePost({ onSuccess, onCancel }) {
           <input
             type="checkbox"
             checked={isMarketplaceItem}
+            disabled={isSubmitting}
             onChange={(e) => {
               setIsMarketplaceItem(e.target.checked);
               if (!e.target.checked) setPrice("");
@@ -149,6 +163,7 @@ export default function CreatePost({ onSuccess, onCancel }) {
             step="0.01"
             placeholder="Price"
             value={price}
+            disabled={isSubmitting}
             onChange={(e) => setPrice(e.target.value)}
           />
         )}
@@ -157,8 +172,13 @@ export default function CreatePost({ onSuccess, onCancel }) {
       <div
         id="image-drop-zone"
         className={dragging ? 'dragging' : ''}
-        onClick={() => document.getElementById('form-image').click()}
-        onDragOver={e => { e.preventDefault(); setDragging(true); }}
+        onClick={() => {
+          if (!isSubmitting) fileInputRef.current?.click();
+        }}
+        onDragOver={e => {
+          e.preventDefault();
+          if (!isSubmitting) setDragging(true);
+        }}
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
       >
@@ -187,11 +207,13 @@ export default function CreatePost({ onSuccess, onCancel }) {
           </div>
         )}
         <input
+          ref={fileInputRef}
           type="file"
           id="form-image"
           accept="image/*"
           multiple
           style={{ display: 'none' }}
+          disabled={isSubmitting}
           onChange={e => handleImageFile(e.target.files)}
         />
       </div>
@@ -201,14 +223,19 @@ export default function CreatePost({ onSuccess, onCancel }) {
         placeholder="Write something..."
         rows={6}
         value={textContent}
+        disabled={isSubmitting}
         onChange={e => setTextContent(e.target.value)}
       />
 
       {error && <p id="form-error">{error}</p>}
 
       <div className="reaction-bar">
-        <button id="form-post" className="reaction-button" type="button" onClick={submit}>Post</button>
-        <button id="form-cancel" className="reaction-button" type="button" onClick={onCancel}>Cancel</button>
+        <button id="form-post" className="reaction-button" type="button" onClick={submit} disabled={isSubmitting}>
+          {isSubmitting ? 'Posting...' : 'Post'}
+        </button>
+        <button id="form-cancel" className="reaction-button" type="button" onClick={onCancel} disabled={isSubmitting}>
+          Cancel
+        </button>
       </div>
 
     </article>

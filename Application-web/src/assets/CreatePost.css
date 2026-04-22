@@ -114,6 +114,7 @@
     font-size: 14px;
     padding: 10px 1%;
     background: transparent;
+    color: var(--color-5);
     box-sizing: border-box;
     transition: border-color 0.15s;
 }
@@ -166,6 +167,10 @@
     margin: 0 auto;
     border: none; /* Remove borders if it looks like a card */
     box-shadow: none;
+}
+
+#form-container:hover {
+    background-color: transparent;
 }
 
 #main {

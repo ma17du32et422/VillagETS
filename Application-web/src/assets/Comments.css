@@ -2,8 +2,10 @@
 .comments-section {
   max-width: 100%;
   margin: 20px 0;
+  padding: 15px 18px 0;
   padding-top: 15px;
   border-top: 1px solid var(--color-4);
+  box-sizing: border-box;
 }
 
 /* Header Form Styling */

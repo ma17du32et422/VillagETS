@@ -28,6 +28,7 @@ export default function CommentItem({ comment, postId, onDeleted, onCountChange 
   const [replyFormVisible, setReplyFormVisible] = useState(false)
   const [nbReponses, setNbReponses] = useState(comment.nbReponses ?? 0)
   const [loadingReplies, setLoadingReplies] = useState(false)
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false)
 
   const canDelete = user?.userId === comment.op?.id || user?.mainAdmin === true
 
@@ -54,10 +55,13 @@ export default function CommentItem({ comment, postId, onDeleted, onCountChange 
 
   const submitReply = async (e) => {
     e.preventDefault()
+    if (isSubmittingReply) return
+
     const text = replyText.trim()
     if (!text) return
 
     try {
+      setIsSubmittingReply(true)
       const res = await fetch(`${getBaseUrl()}/post/${postId}/comment`, {
         method: 'POST',
         credentials: 'include',
@@ -76,6 +80,8 @@ export default function CommentItem({ comment, postId, onDeleted, onCountChange 
       setReplyFormVisible(false)
     } catch (err) {
       console.error('Failed to post reply:', err)
+    } finally {
+      setIsSubmittingReply(false)
     }
   }
 
@@ -192,13 +198,17 @@ export default function CommentItem({ comment, postId, onDeleted, onCountChange 
               type="text"
               placeholder={`Reply to ${comment.op?.pseudo ?? 'user'}...`}
               value={replyText}
+              disabled={isSubmittingReply}
               onChange={e => setReplyText(e.target.value)}
               autoFocus
             />
-            <button className="reaction-button" type="submit">Send</button>
+            <button className="reaction-button" type="submit" disabled={isSubmittingReply}>
+              {isSubmittingReply ? 'Sending...' : 'Send'}
+            </button>
             <button
               className="reaction-button"
               type="button"
+              disabled={isSubmittingReply}
               onClick={() => { setReplyFormVisible(false); setReplyText('') }}
             >
               Cancel

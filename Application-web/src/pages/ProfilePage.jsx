@@ -11,57 +11,45 @@ import '../assets/ProfilePage.css'
 
 /** ProfilePage */
 function ProfilePage() {
-    const { user, logout, loading } = useAuth();
-    const [profileUser, setProfileUser] = useState(null);
+    const { user, logout, loading, refreshUser } = useAuth();
     const [profilePicUrl, setProfilePicUrl] = useState('');
+    const [profileError, setProfileError] = useState('');
     const [uploadMessage, setUploadMessage] = useState('');
     const [uploading, setUploading] = useState(false);
     const inputRef = useRef(null);
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!user || loading) return;
+        if (loading || !user) return;
 
-        const parseUsersResponse = async (response) => {
-            const text = await response.text();
+        let cancelled = false;
+
+        const syncProfile = async () => {
+            setProfileError('');
             try {
-                return JSON.parse(text);
-            } catch {
-                const rawIndex = text.indexOf('Raw:');
-                if (rawIndex !== -1) {
-                    const rawJson = text.slice(rawIndex + 4).trim();
-                    return JSON.parse(rawJson);
-                }
-                return null;
-            }
-        };
-
-        const fetchProfile = async () => {
-            try {
-                const res = await fetch(`${getBaseUrl()}/Utilisateur`);
-                if (!res.ok) {
-                    throw new Error('Unable to load profile');
-                }
-
-                const allUsers = await parseUsersResponse(res);
-                if (!Array.isArray(allUsers)) {
-                    throw new Error('Unable to parse profile list');
-                }
-
-                const currentUser = allUsers.find((u) => u.id_utilisateur === user.userId || u.Id === user.userId || u.id === user.userId);
-                if (currentUser) {
-                    setProfileUser(currentUser);
-                    setProfilePicUrl(currentUser.photo_profil || currentUser.PhotoProfil || '');
-                } else {
-                    setProfileUser(null);
+                const refreshedUser = await refreshUser();
+                if (!cancelled) {
+                    setProfilePicUrl(refreshedUser?.photoProfil || '');
                 }
             } catch (err) {
-                console.error('Profile load failed:', err);
+                if (!cancelled) {
+                    console.error('Profile load failed:', err);
+                    setProfilePicUrl(user.photoProfil || '');
+                    setProfileError(err.message || 'Unable to load profile.');
+                }
             }
         };
 
-        fetchProfile();
-    }, [user, loading]);
+        syncProfile();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [user?.userId, loading, refreshUser]);
+
+    useEffect(() => {
+        setProfilePicUrl(user?.photoProfil || '');
+    }, [user?.photoProfil]);
 
     const handleLogout = async () => {
         await logout();
@@ -108,6 +96,11 @@ function ProfilePage() {
  
             setProfilePicUrl(uploadedUrl);
             setUploadMessage('Profile picture uploaded successfully.');
+            try {
+                await refreshUser();
+            } catch (refreshErr) {
+                console.error('Profile refresh failed:', refreshErr);
+            }
         } catch (err) {
             console.error('Upload failed:', err);
             setUploadMessage(err.message || 'Upload failed.');
@@ -139,9 +132,10 @@ function ProfilePage() {
                     <div id="profile-edit">
                         <h2>Settings</h2>
                         <p><strong>User ID:</strong> {user.userId}</p>
-                        {profileUser && profileUser.pseudo && <p><strong>Username:</strong> {profileUser.pseudo}</p>}
+                        {user.pseudo && <p><strong>Username:</strong> {user.pseudo}</p>}
+                        {profileError && <p style={{ color: 'red' }}>{profileError}</p>}
 
-                        <UsernameForm />
+                        <UsernameForm currentUsername={user.pseudo || ''} onSuccess={refreshUser} />
                         <PasswordForm />
 
                         <div id="profile-picture">

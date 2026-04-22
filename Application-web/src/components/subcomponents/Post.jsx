@@ -38,6 +38,7 @@ export default function Post({ post, onDelete }) {
   const [commentVisible, setCommentVisible] = useState(false)
   const [commentText, setCommentText] = useState('')
   const [mediaIndex, setMediaIndex] = useState(0)
+  const [mediaRatios, setMediaRatios] = useState({})
   const [menuOpen, setMenuOpen] = useState(false)
   const [failedImages, setFailedImages] = useState(new Set())
   const menuRef = useRef(null)
@@ -45,6 +46,8 @@ export default function Post({ post, onDelete }) {
   const rawMedia = post.media ?? []
   const media = rawMedia.filter(url => url && typeof url === 'string' && url.trim().length > 0)
   const validMedia = media.filter(url => !failedImages.has(url))
+  const currentMediaUrl = validMedia[mediaIndex] ?? ''
+  const currentMediaRatio = mediaRatios[currentMediaUrl]
   const tags = post.tags ?? []
   const canDelete = user?.userId === post.op?.id || user?.mainAdmin === true
   const isMarketplaceItem = post.articleAVendre === true
@@ -75,6 +78,35 @@ export default function Post({ post, onDelete }) {
 
   const handleImageError = (url) => {
     setFailedImages(prev => new Set(prev).add(url))
+  }
+
+  const handleImageLoad = (url, event) => {
+    const { naturalWidth, naturalHeight } = event.currentTarget
+    if (!naturalWidth || !naturalHeight) return
+
+    const ratio = naturalWidth / naturalHeight
+    setMediaRatios((prev) => {
+      if (prev[url] === ratio) return prev
+      return { ...prev, [url]: ratio }
+    })
+  }
+
+  const getForegroundStyle = (ratio) => {
+    if (!ratio) {
+      return { width: '100%', height: '100%' }
+    }
+
+    if (ratio >= 1) {
+      return {
+        width: '100%',
+        aspectRatio: `${ratio}`,
+      }
+    }
+
+    return {
+      height: '100%',
+      aspectRatio: `${ratio}`,
+    }
   }
 
   const deletePost = async () => {
@@ -179,9 +211,6 @@ const toggleReaction = async (type) => {
                   Delete post
                 </button>
               )}
-              <button className="post-menu-item" type="button" onClick={() => setMenuOpen(false)}>
-                Cancel
-              </button>
             </div>
           )}
         </div>
@@ -208,12 +237,20 @@ const toggleReaction = async (type) => {
           )}
           {validMedia.length > 0 ? (
             <>
-              <img 
-                id="image" 
-                src={validMedia[mediaIndex]} 
-                alt={`Post visual ${mediaIndex + 1}`}
-                onError={() => handleImageError(validMedia[mediaIndex])}
+              <div
+                className="image-backdrop"
+                aria-hidden="true"
+                style={{ backgroundImage: `url("${currentMediaUrl}")` }}
               />
+              <div className="image-foreground" style={getForegroundStyle(currentMediaRatio)}>
+                <img 
+                  id="image" 
+                  src={currentMediaUrl} 
+                  alt={`Post visual ${mediaIndex + 1}`}
+                  onLoad={(event) => handleImageLoad(currentMediaUrl, event)}
+                  onError={() => handleImageError(currentMediaUrl)}
+                />
+              </div>
               {validMedia.length > 1 && mediaIndex < validMedia.length - 1 && (
                 <button className="media-arrow media-arrow-right" type="button" onClick={() => setMediaIndex(i => i + 1)}>›</button>
               )}

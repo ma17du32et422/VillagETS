@@ -11,6 +11,7 @@ export default function Comments({ postId, initialCount, onCountChange }) {
   const [count, setCount] = useState(initialCount ?? 0)
   const [loaded, setLoaded] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     fetchComments()
@@ -40,10 +41,13 @@ export default function Comments({ postId, initialCount, onCountChange }) {
 
   const submitComment = async (e) => {
     e.preventDefault()
+    if (isSubmitting) return
+
     const text = commentText.trim()
     if (!text) return
 
     try {
+      setIsSubmitting(true)
       const res = await fetch(`${getBaseUrl()}/post/${postId}/comment`, {
         method: 'POST',
         credentials: 'include',
@@ -59,6 +63,8 @@ export default function Comments({ postId, initialCount, onCountChange }) {
       setCommentText('')
     } catch (err) {
       console.error('Failed to post comment:', err)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -84,9 +90,12 @@ export default function Comments({ postId, initialCount, onCountChange }) {
             type="text"
             placeholder="Write a comment..."
             value={commentText}
+            disabled={isSubmitting}
             onChange={e => setCommentText(e.target.value)}
           />
-          <button className="reaction-button" type="submit">Post</button>
+          <button className="reaction-button" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Posting...' : 'Post'}
+          </button>
         </form>
       )}
 

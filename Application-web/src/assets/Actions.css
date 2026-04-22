@@ -67,9 +67,17 @@
     transition: max-width 0.2s ease, opacity 0.2s ease;
 }
 
-.sidebar.expanded .action-label {
+.sidebar:hover .action-label,
+.sidebar:has(:focus-visible) .action-label {
     max-width: 100%;
     opacity: 1;
+}
+
+@media (hover: none) {
+    .sidebar .action-label {
+        max-width: 100%;
+        opacity: 1;
+    }
 }
 
 .create-post-icon {
