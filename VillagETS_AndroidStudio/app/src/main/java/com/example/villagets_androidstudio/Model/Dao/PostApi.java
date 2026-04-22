@@ -29,7 +29,7 @@ public interface PostApi {
     @PUT("/posts/{id}")
     Call<Post> updatePost(@Path("id") String id, @Body Post post);
 
-    @DELETE("/posts/{id}")
+    @DELETE("/post/{id}")
     Call<Void> deletePost(@Path("id") String id);
 
     @GET("/posts/{id}")

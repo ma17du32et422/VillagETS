@@ -66,6 +66,7 @@ public class MarketPlaceAdapter extends RecyclerView.Adapter<MarketPlaceAdapter.
 
             holder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(v.getContext(), ItemDetailsActivity.class);
+                intent.putExtra("postId", post.getId());
                 intent.putExtra("title", post.getTitre());
                 intent.putExtra("description", post.getContenu());
                 intent.putExtra("price", priceText);

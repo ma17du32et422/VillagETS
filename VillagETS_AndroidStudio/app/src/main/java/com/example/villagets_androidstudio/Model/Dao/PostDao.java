@@ -53,6 +53,11 @@ public class PostDao {
         return null;
     }
 
+    public static boolean deletePost(String postId) throws IOException {
+        Response<Void> response = api.deletePost(postId).execute();
+        return response.isSuccessful();
+    }
+
     public static PostApi.ReactionResponse toggleReaction(String postId, String type) throws IOException {
         Map<String, String> body = new HashMap<>();
         body.put("type", type);
