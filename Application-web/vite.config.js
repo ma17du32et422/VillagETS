@@ -1,10 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-const hmrClientPort = process.env.VITE_HMR_CLIENT_PORT
-  ? Number(process.env.VITE_HMR_CLIENT_PORT)
-  : undefined
-
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -13,10 +9,5 @@ export default defineConfig({
     watch: {
       usePolling: true,
     },
-    hmr: hmrClientPort
-      ? {
-          clientPort: hmrClientPort,
-        }
-      : undefined,
   },
 })
