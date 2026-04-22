@@ -8,6 +8,11 @@
   border-radius: 10px;
   padding: 8px 10px;
   margin-left: 0;
+  transition: background-color 0.2s ease;
+}
+
+.post:hover .comment-item {
+  background-color: var(--color-3);
 }
 
 /* Avatar Styling */
@@ -40,6 +45,11 @@
   border-radius: 18px;
   display: inline-block;
   max-width: 100%;
+  transition: background-color 0.2s ease;
+}
+
+.post:hover .comment-bubble {
+  background: var(--color-2);
 }
 
 .comment-pseudo {
