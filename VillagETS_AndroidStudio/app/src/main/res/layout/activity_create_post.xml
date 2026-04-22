@@ -112,7 +112,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:background="@android:color/transparent"
-                        android:hint="$"
+                        android:hint="Enter Price$"
                         android:inputType="numberDecimal"
                         android:textColor="@color/text_primary"
                         android:textColorHint="@color/text_secondary"
