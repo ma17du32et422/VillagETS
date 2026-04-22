@@ -52,6 +52,9 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.jackson)
 
+    // Giphy SDK
+    implementation(libs.giphy.ui)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

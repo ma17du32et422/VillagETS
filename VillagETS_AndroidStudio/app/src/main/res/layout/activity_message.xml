@@ -78,6 +78,14 @@
             android:padding="12dp" />
 
         <ImageButton
+            android:id="@+id/btnGiphy"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/baseline_menu_24"
+            app:tint="@color/red_primary" />
+
+        <ImageButton
             android:id="@+id/btnAddImage"
             android:layout_width="48dp"
             android:layout_height="48dp"

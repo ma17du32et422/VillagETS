@@ -12,6 +12,8 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -26,6 +28,10 @@ import com.example.villagets_androidstudio.Model.SessionManager;
 import com.example.villagets_androidstudio.Model.User;
 import com.example.villagets_androidstudio.R;
 import com.example.villagets_androidstudio.View_Model.ChatViewModel;
+import com.giphy.sdk.core.models.Media;
+import com.giphy.sdk.ui.GPHContentType;
+import com.giphy.sdk.ui.GPHSettings;
+import com.giphy.sdk.ui.views.GiphyDialogFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +42,7 @@ public class MessageActivity extends AppCompatActivity {
     private MessageAdapter adapter;
     private List<Message> messageList;
     private EditText etMessageInput;
-    private ImageButton btnSend, btnAddImage;
+    private ImageButton btnSend, btnAddImage, btnGiphy;
 
     private ChatViewModel chatViewModel;
     private SessionManager sessionManager;
@@ -69,6 +75,7 @@ public class MessageActivity extends AppCompatActivity {
         etMessageInput = findViewById(R.id.etMessageInput);
         btnSend = findViewById(R.id.btnSendMessage);
         btnAddImage = findViewById(R.id.btnAddImage);
+        btnGiphy = findViewById(R.id.btnGiphy);
         
         View toolbarContainer = findViewById(R.id.toolbarContainer);
         View inputContainer = findViewById(R.id.inputContainer);
@@ -118,6 +125,29 @@ public class MessageActivity extends AppCompatActivity {
         btnAddImage.setOnClickListener(v -> pickMedia.launch(new PickVisualMediaRequest.Builder()
                 .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                 .build()));
+
+        btnGiphy.setOnClickListener(v -> {
+            GiphyDialogFragment giphyDialog = GiphyDialogFragment.Companion.newInstance(new GPHSettings());
+            giphyDialog.setGifSelectionListener(new GiphyDialogFragment.GifSelectionListener() {
+                @Override
+                public void onGifSelected(@NonNull Media media, @Nullable String searchTerm, @NonNull GPHContentType selectedContentType) {
+                    if (media.getImages().getOriginal() != null && receiverId != null) {
+                        String gifUrl = media.getImages().getOriginal().getGifUrl();
+                        chatViewModel.sendMessage(receiverId, gifUrl);
+                    }
+                    giphyDialog.dismiss();
+                }
+
+                @Override
+                public void onDismissed(@NonNull GPHContentType selectedContentType) {
+                }
+
+                @Override
+                public void didSearchTerm(@NonNull String s) {
+                }
+            });
+            giphyDialog.show(getSupportFragmentManager(), "giphy_dialog");
+        });
 
         btnSend.setOnClickListener(v -> {
             String text = etMessageInput.getText().toString().trim();

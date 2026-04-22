@@ -12,6 +12,7 @@ jackson = "2.15.2"
 recyclerview = "1.4.0"
 glide = "4.16.0"
 retrofit = "2.9.0"
+giphy = "2.4.2"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -30,6 +31,7 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "gl
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter-jackson = { group = "com.squareup.retrofit2", name = "converter-jackson", version.ref = "retrofit" }
+giphy-ui = { group = "com.giphy.sdk", name = "ui", version.ref = "giphy" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

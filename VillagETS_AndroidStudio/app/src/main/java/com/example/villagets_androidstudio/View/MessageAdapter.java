@@ -62,7 +62,16 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private static boolean isImageUrl(String text) {
         if (text == null) return false;
-        return text.startsWith("http") && (text.contains("/upload/") || text.endsWith(".jpg") || text.endsWith(".png") || text.endsWith(".jpeg") || text.contains("10.0.2.2") || text.contains("localhost"));
+        return text.startsWith("http") && (
+                text.contains("/upload/") || 
+                text.endsWith(".jpg") || 
+                text.endsWith(".png") || 
+                text.endsWith(".jpeg") || 
+                text.endsWith(".gif") || 
+                text.contains("giphy.com") ||
+                text.contains("10.0.2.2") || 
+                text.contains("localhost")
+        );
     }
 
     static class SentMessageViewHolder extends RecyclerView.ViewHolder {
