@@ -116,12 +116,6 @@ public class CreatePostActivity extends AppCompatActivity {
             newPost.setContenu(content);
             newPost.setArticleAVendre(isMarketplace);
 
-            if (selectedImageUri != null) {
-                newPost.setMedia(new String[]{selectedImageUri.toString()});
-            } else {
-                newPost.setMedia(new String[]{});
-            }
-
             if (!tagsStr.isEmpty()) {
                 String[] parts = tagsStr.split(",");
                 newPost.setCategorie(parts[0].trim());
@@ -138,7 +132,7 @@ public class CreatePostActivity extends AppCompatActivity {
                 newPost.setPrix(0.0);
             }
 
-            postViewModel.creerPost(newPost);
+            postViewModel.creerPost(this, newPost, selectedImageUri);
         });
 
         postViewModel.getSaveSuccess().observe(this, success -> {
