@@ -79,16 +79,16 @@ export default function CommentItem({ comment, postId, onDeleted, onCountChange 
         }
 
         onDeleted?.(comment.id, deletedCount)
-        onCountChange?.(-deletedCount)
       }
     } catch (err) {
       console.error('Failed to delete comment:', err)
     }
   }
 
-  const handleReplyDeleted = (deletedId) => {
+  const handleReplyDeleted = (deletedId, deletedCount = 1) => {
     setReplies(r => r.filter(r => r.id !== deletedId))
     setNbReponses(n => Math.max(0, n - 1))
+    onCountChange?.(-deletedCount)
   }
 
   return (

@@ -231,33 +231,19 @@ if (isDevelopment)
 
 app.MapGet("/me", async (HttpContext ctx) =>
 {
-    var token = ctx.Request.Cookies["token"];
-    if (token == null)
-        return Results.Unauthorized();
-
-    var principal = villagets.Auth.AuthHelper.ValidateToken(token);
-    if (principal == null)
-        return Results.Unauthorized();
-
-    var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    var result = await PerfLogger.TimeAsync(app.Logger, "Program./me user lookup", () => supabase
-        .From<Utilisateur>()
-        .Where(u => u.Id == userId)
-        .Get());
-
-    var user = result.Model;
+    var user = await villagets.Auth.AuthHelper.GetAuthenticatedUserAsync(ctx);
     if (user == null)
-        return Results.NotFound();
+        return Results.Unauthorized();
 
     return Results.Ok(new
     {
         userId = user.Id,
-        pseudo = user.Pseudo,
-        nom = user.Nom,
-        prenom = user.Prenom,
+        pseudo = user.GetDisplayPseudo(),
+        nom = user.DeletedAt.HasValue ? null : user.Nom,
+        prenom = user.DeletedAt.HasValue ? null : user.Prenom,
         email = user.Email,
-        photoProfil = user.PhotoProfil,
+        photoProfil = user.DeletedAt.HasValue ? null : user.PhotoProfil,
+        deleted = user.DeletedAt.HasValue,
         mainAdmin = user.MainAdmin
     });
 });

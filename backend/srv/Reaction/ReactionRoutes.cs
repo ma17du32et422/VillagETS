@@ -10,25 +10,23 @@ namespace srv.Reaction
         {
             app.MapPost("/post/{id}/react", async (int id, [FromBody] ReactRequest req, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetClaimsFromContext(ctx);
-                if (principal == null) return Results.Unauthorized();
-                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (currentUser == null) return Results.Unauthorized();
 
                 if (req.Type != "like" && req.Type != "dislike")
                     return Results.BadRequest("Type must be 'like' or 'dislike'");
 
-                var (likes, dislikes, userReaction) = await reactionService.Toggle(userId, id, req.Type);
+                var (likes, dislikes, userReaction) = await reactionService.Toggle(currentUser.Id!, id, req.Type);
 
                 return Results.Ok(new { likes, dislikes, userReaction });
             });
 
             app.MapGet("/post/{id}/react", async (int id, HttpContext ctx) =>
             {
-                var principal = AuthHelper.GetClaimsFromContext(ctx);
-                if (principal == null) return Results.Unauthorized();
-                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (currentUser == null) return Results.Unauthorized();
 
-                var reaction = await reactionService.GetUserReaction(userId, id);
+                var reaction = await reactionService.GetUserReaction(currentUser.Id!, id);
                 return Results.Ok(new { userReaction = reaction });
             });
         }

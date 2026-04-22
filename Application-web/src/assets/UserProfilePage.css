@@ -63,6 +63,46 @@
     filter: brightness(0.95);
 }
 
+.user-profile-delete-button {
+    border: 1px solid #a12b2b;
+    background-color: #c63a3a;
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 0.95rem;
+}
+
+.user-profile-delete-button:hover:not(:disabled) {
+    filter: brightness(0.95);
+}
+
+.user-profile-delete-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.user-profile-wipe-button {
+    border: 1px solid #5f0f0f;
+    background-color: #7a1414;
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 0.95rem;
+}
+
+.user-profile-wipe-button:hover:not(:disabled) {
+    filter: brightness(0.95);
+}
+
+.user-profile-wipe-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
 .user-profile-stats {
     display: flex;
     gap: 24px;
@@ -99,6 +139,10 @@
 
 .user-profile-empty {
     color: var(--color-4);
+}
+
+.profile-preview-success {
+    color: #1d8a4b;
 }
 
 @media (max-width: 768px) {

@@ -85,6 +85,8 @@
 ### `GET /user/{id}`
 **Auth required:** No
 
+**Note:** deleted accounts still resolve, but are anonymized.
+
 **Output**
 ```json
 {
@@ -92,7 +94,20 @@
   "pseudo": "Guarded",
   "nom": "Doe",
   "prenom": "John",
-  "photoProfil": "https://.../avatar.jpg"
+  "photoProfil": "https://.../avatar.jpg",
+  "deleted": false
+}
+```
+
+Deleted-user example:
+```json
+{
+  "userId": "uuid",
+  "pseudo": "[deleted user]",
+  "nom": null,
+  "prenom": null,
+  "photoProfil": null,
+  "deleted": true
 }
 ```
 
@@ -174,9 +189,45 @@
 
 ---
 
+### `DELETE /user/{id}`
+**Auth required:** Yes
+
+**Notes**
+- admin only
+- soft delete
+- deletes the user's posts
+- keeps comments, reactions, messages, and discussions
+- the deleted account is anonymized and returned elsewhere as `"[deleted user]"`
+
+**Output**
+- `200 OK`
+- `400 BadRequest`
+- `403 Forbid`
+- `404 NotFound`
+
+---
+
+### `DELETE /user/{id}/wipe`
+**Auth required:** Yes
+
+**Notes**
+- admin only
+- hard delete / full wipe
+- deletes the user's account, posts, comments, reactions, messages, and discussions
+
+**Output**
+- `200 OK`
+- `400 BadRequest`
+- `403 Forbid`
+- `404 NotFound`
+
+---
+
 ## Posts
 
 ### Post object
+**Note:** if the author was deleted, `op.pseudo` becomes `"[deleted user]"` and `op.photoProfil` becomes `null`.
+
 ```json
 {
   "id": 1005,
@@ -353,6 +404,8 @@
 ### `GET /post/{publicationId}/comments`
 **Auth required:** No
 
+**Note:** if the comment author was deleted, `op.pseudo` becomes `"[deleted user]"` and `op.photoProfil` becomes `null`.
+
 **Output**
 ```json
 [
@@ -480,6 +533,8 @@
 
 ### `GET /chat/conversations`
 **Auth required:** Yes
+
+**Note:** if the other participant was deleted, `otherUser.pseudo` becomes `"[deleted user]"`, `otherUser.photoProfil` becomes `null`, and other profile fields may be `null`.
 
 **Output**
 ```json

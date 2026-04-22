@@ -1,5 +1,4 @@
 using sql;
-using System.Security.Claims;
 
 namespace srv.Upload
 {
@@ -33,11 +32,11 @@ namespace srv.Upload
             string? filePath = null;
             try
             {
-                var principal = villagets.Auth.AuthHelper.GetClaimsFromContext(ctx);
-                if (principal == null)
+                var currentUser = await villagets.Auth.AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (currentUser == null)
                     return JsonError(StatusCodes.Status401Unauthorized, "Unauthorized.");
 
-                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userId = currentUser.Id;
                 if (string.IsNullOrWhiteSpace(userId))
                     return JsonError(StatusCodes.Status401Unauthorized, "Unauthorized.");
 
