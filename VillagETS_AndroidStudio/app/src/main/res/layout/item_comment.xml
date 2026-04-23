@@ -55,6 +55,15 @@
                     android:text="Comment text"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/ivCommentImage"
+                    android:layout_width="220dp"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:maxHeight="220dp"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout

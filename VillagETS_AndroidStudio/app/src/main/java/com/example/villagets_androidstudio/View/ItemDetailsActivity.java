@@ -1,14 +1,23 @@
 package com.example.villagets_androidstudio.View;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -19,10 +28,14 @@ import com.bumptech.glide.Glide;
 import com.example.villagets_androidstudio.Model.Comment;
 import com.example.villagets_androidstudio.Model.Post;
 import com.example.villagets_androidstudio.Model.Dao.PostDao;
-import com.example.villagets_androidstudio.Model.User;
 import com.example.villagets_androidstudio.R;
-import com.google.android.material.imageview.ShapeableImageView;
+import com.example.villagets_androidstudio.Utils.FileUtils;
+import com.giphy.sdk.core.models.Media;
+import com.giphy.sdk.ui.GPHContentType;
+import com.giphy.sdk.ui.GPHSettings;
+import com.giphy.sdk.ui.views.GiphyDialogFragment;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -38,12 +51,22 @@ public class ItemDetailsActivity extends AppCompatActivity {
     private TextView btnNextImage;
     private TextView tvImageCounter;
     private EditText etComment;
-    private TextView btnPostComment;
+    private ImageButton btnPostComment;
     private TextView tvCommentsTitle;
     private RecyclerView rvComments;
     private View commentsSection;
+    private View inputContainer;
     private ScrollView detailsScrollView;
-    private ShapeableImageView ivMyAvatar;
+    private ImageButton btnCommentAddImage;
+    private ImageButton btnCommentGiphy;
+    private String replyParentCommentId;
+
+    private final ActivityResultLauncher<PickVisualMediaRequest> pickCommentMedia =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                if (uri != null) {
+                    uploadAndPostCommentImage(uri);
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,15 +75,15 @@ public class ItemDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_item_details);
 
         View toolbarContainer = findViewById(R.id.toolbarContainer);
+        inputContainer = findViewById(R.id.inputContainer);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.detailsMainLayout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
 
             toolbarContainer.setPadding(0, systemBars.top, 0, 0);
 
-            // Appliquer le padding en bas pour le clavier
             int bottomPadding = Math.max(systemBars.bottom, imeInsets.bottom);
-            v.setPadding(0, 0, 0, bottomPadding);
+            inputContainer.setPadding(8, 8, 8, bottomPadding + 8);
 
             return insets;
         });
@@ -90,11 +113,11 @@ public class ItemDetailsActivity extends AppCompatActivity {
         detailsScrollView = findViewById(R.id.detailsScrollView);
         commentsSection = findViewById(R.id.commentsSection);
         tvCommentsTitle = findViewById(R.id.tvCommentsTitle);
-        ivMyAvatar = findViewById(R.id.ivMyAvatar);
         etComment = findViewById(R.id.etComment);
         btnPostComment = findViewById(R.id.btnPostComment);
+        btnCommentAddImage = findViewById(R.id.btnCommentAddImage);
+        btnCommentGiphy = findViewById(R.id.btnCommentGiphy);
         rvComments = findViewById(R.id.rvComments);
-        User currentUser = User.loadUser(this);
 
         tvTitle.setText(title);
         tvDescriptionContent.setText(description);
@@ -125,18 +148,19 @@ public class ItemDetailsActivity extends AppCompatActivity {
         setupMediaCarousel();
         loadPostDetails();
 
-        if (currentUser != null && currentUser.getPhotoProfil() != null && !currentUser.getPhotoProfil().trim().isEmpty()) {
-            String myAvatar = currentUser.getPhotoProfil().replace("localhost", "10.0.2.2");
-            Glide.with(this).load(myAvatar).placeholder(R.drawable.profile_placeholder).into(ivMyAvatar);
-        }
-
         rvComments.setLayoutManager(new LinearLayoutManager(this));
         btnPostComment.setOnClickListener(v -> {
             String content = etComment.getText().toString().trim();
             if (!content.isEmpty()) {
-                postComment(content, null);
+                postComment(content, replyParentCommentId);
             }
         });
+
+        btnCommentAddImage.setOnClickListener(v -> pickCommentMedia.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                .build()));
+
+        btnCommentGiphy.setOnClickListener(v -> showGiphyPicker());
 
         loadComments();
 
@@ -239,19 +263,76 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
     private void setupCommentsRecyclerView(List<Comment> comments) {
         CommentAdapter adapter = new CommentAdapter(parentComment -> {
-            etComment.requestFocus();
             etComment.setHint("Replying to " + (parentComment.getOp() != null ? parentComment.getOp().getPseudo() : "User") + "...");
-            btnPostComment.setOnClickListener(v -> {
-                String content = etComment.getText().toString().trim();
-                if (!content.isEmpty()) {
-                    postComment(content, parentComment.getId());
-                }
-            });
-            // Scroll to comment input when replying
-            commentsSection.post(() -> detailsScrollView.smoothScrollTo(0, commentsSection.getTop()));
+            replyParentCommentId = parentComment.getId();
+            inputContainer.post(() -> detailsScrollView.smoothScrollTo(0, commentsSection.getTop()));
+            focusCommentInput();
         });
         rvComments.setAdapter(adapter);
         adapter.setComments(comments);
+    }
+
+    private void focusCommentInput() {
+        etComment.requestFocus();
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (inputMethodManager != null) {
+            inputMethodManager.showSoftInput(etComment, InputMethodManager.SHOW_IMPLICIT);
+        }
+    }
+
+    private void showGiphyPicker() {
+        GiphyDialogFragment giphyDialog = GiphyDialogFragment.Companion.newInstance(new GPHSettings());
+        giphyDialog.setGifSelectionListener(new GiphyDialogFragment.GifSelectionListener() {
+            @Override
+            public void onGifSelected(@NonNull Media media, @Nullable String searchTerm, @NonNull GPHContentType selectedContentType) {
+                if (media.getImages().getOriginal() != null) {
+                    String gifUrl = media.getImages().getOriginal().getGifUrl();
+                    postComment(gifUrl, replyParentCommentId);
+                }
+                giphyDialog.dismiss();
+            }
+
+            @Override
+            public void onDismissed(@NonNull GPHContentType selectedContentType) {
+            }
+
+            @Override
+            public void didSearchTerm(@NonNull String s) {
+            }
+        });
+        giphyDialog.show(getSupportFragmentManager(), "comment_giphy_dialog");
+    }
+
+    private void uploadAndPostCommentImage(Uri imageUri) {
+        if (postId == null || postId.trim().isEmpty()) {
+            Toast.makeText(this, "Unable to post image", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String parentId = replyParentCommentId;
+        executorService.execute(() -> {
+            try {
+                File file = FileUtils.getFileFromUri(this, imageUri);
+                if (file == null) {
+                    runOnUiThread(() -> Toast.makeText(this, "Unable to read image", Toast.LENGTH_SHORT).show());
+                    return;
+                }
+
+                String mimeType = getContentResolver().getType(imageUri);
+                if (mimeType == null) {
+                    mimeType = "image/jpeg";
+                }
+
+                String uploadedUrl = PostDao.uploadFile(file, file.getName(), mimeType);
+                if (uploadedUrl != null) {
+                    postComment(uploadedUrl, parentId);
+                } else {
+                    runOnUiThread(() -> Toast.makeText(this, "Unable to upload image", Toast.LENGTH_SHORT).show());
+                }
+            } catch (IOException e) {
+                runOnUiThread(() -> Toast.makeText(this, "Unable to upload image", Toast.LENGTH_SHORT).show());
+            }
+        });
     }
 
     private void postComment(String content, String parentId) {
@@ -267,12 +348,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
                         etComment.setText("");
                         etComment.setHint("Write a comment...");
-                        btnPostComment.setOnClickListener(v -> {
-                            String newContent = etComment.getText().toString().trim();
-                            if (!newContent.isEmpty()) {
-                                postComment(newContent, null);
-                            }
-                        });
+                        replyParentCommentId = null;
                         loadComments();
                     });
                 }
