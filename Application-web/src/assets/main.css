@@ -33,3 +33,7 @@
     --color-white: #ffffff;
     --color-black: #000000;
 }
+
+.feed-status-message {
+    color: var(--color-5);
+}
