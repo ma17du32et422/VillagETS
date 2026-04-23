@@ -84,7 +84,7 @@ function UsernameForm({ currentUsername = '', onSuccess }) {
             {error && <p style={{ color: 'red' }}>{error}</p>}
             {success && <p style={{ color: 'green' }}>{success}</p>}
 
-            <button type="submit" disabled={submitting}>
+            <button type="button" onClick={handleSubmit} disabled={submitting}>
                 {submitting ? 'Applying...' : 'Apply New Username'}
             </button>
         </form>

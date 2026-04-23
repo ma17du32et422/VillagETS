@@ -7,9 +7,9 @@
     --color-5: #242424;
     --color-6: #1a1a1a;
     --color-7: #5e5e5e;
-    --color-8: #ac0e0e;
+    --color-8: rgb(228, 0, 50);
     --color-t-1: rgba(0, 0, 0, 0.3);
-    --color-t-2: rgb(184, 0, 24);
+    --color-t-2: rgb(228, 0, 50);
 
     --color-white: #ffffff;
     --color-black: #000000;
@@ -25,6 +25,7 @@
     --color-4: #8d8d8d;
     --color-5: #eeeeee;
     --color-6: #f7f7f7;
+    --color-7: #bbbbbb;
     --color-t-1: rgba(0, 0, 0, 0.3);
     --color-t-2: rgba(0, 0, 0, 0.5);
 
