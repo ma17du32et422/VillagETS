@@ -127,14 +127,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupTitleSpannable(TextView textView) {
-        String fullText = getString(R.string.villagets); // Assumes "VillagETS"
+        String fullText = getString(R.string.villagets);
         SpannableString spannable = new SpannableString(fullText);
 
         Typeface deltaLight = ResourcesCompat.getFont(this, R.font.delta_light);
         Typeface deltaMedium = ResourcesCompat.getFont(this, R.font.delta_medium);
 
         if (deltaLight != null && deltaMedium != null) {
-            int splitIndex = 6; // "Villag" is 6 characters
+            int splitIndex = 6;
             if (fullText.length() >= splitIndex) {
                 spannable.setSpan(new CustomTypefaceSpan("", deltaLight), 0, splitIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 spannable.setSpan(new CustomTypefaceSpan("", deltaMedium), splitIndex, fullText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
