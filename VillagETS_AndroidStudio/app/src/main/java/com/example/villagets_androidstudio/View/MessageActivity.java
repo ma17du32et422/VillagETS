@@ -82,8 +82,14 @@ public class MessageActivity extends AppCompatActivity {
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.chatMainLayout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
+            
             toolbarContainer.setPadding(0, systemBars.top, 0, 0);
-            inputContainer.setPadding(0, 0, 0, systemBars.bottom);
+            
+            // On utilise l'imeInsets.bottom si le clavier est ouvert, sinon systemBars.bottom
+            int bottomPadding = Math.max(systemBars.bottom, imeInsets.bottom);
+            inputContainer.setPadding(0, 0, 0, bottomPadding);
+            
             return insets;
         });
 
@@ -155,6 +161,13 @@ public class MessageActivity extends AppCompatActivity {
                 etMessageInput.setText("");
             } else if (receiverId == null) {
                 Toast.makeText(this, "Destinataire inconnu", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Scroll to bottom when keyboard appears
+        recyclerView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if (bottom < oldBottom && !messageList.isEmpty()) {
+                recyclerView.postDelayed(() -> recyclerView.smoothScrollToPosition(messageList.size() - 1), 100);
             }
         });
     }
