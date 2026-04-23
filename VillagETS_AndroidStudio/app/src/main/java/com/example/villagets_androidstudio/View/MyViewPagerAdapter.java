@@ -5,6 +5,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.example.villagets_androidstudio.View.Feed.FeedFragment;
+import com.example.villagets_androidstudio.View.Feed.MarketPlaceFragment;
+import com.example.villagets_androidstudio.View.Message.ConversationFragment;
+import com.example.villagets_androidstudio.View.Search.SearchFragment;
+
 public class MyViewPagerAdapter extends FragmentStateAdapter {
     public MyViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);

@@ -6,7 +6,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.style.TypefaceSpan;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -23,10 +22,13 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.example.villagets_androidstudio.Model.Dao.RetrofitClient;
-import com.example.villagets_androidstudio.Model.SessionManager;
-import com.example.villagets_androidstudio.Model.User;
+import com.example.villagets_androidstudio.Model.Dao.SessionManager;
+import com.example.villagets_androidstudio.Model.Entity.User;
 import com.example.villagets_androidstudio.R;
 import com.example.villagets_androidstudio.Utils.CustomTypefaceSpan;
+import com.example.villagets_androidstudio.View.Feed.CreatePostActivity;
+import com.example.villagets_androidstudio.View.Profile.LoginActivity;
+import com.example.villagets_androidstudio.View.Profile.ProfileActivity;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.example.villagets_androidstudio.View_Model.UserViewModel;
 
@@ -127,14 +129,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupTitleSpannable(TextView textView) {
-        String fullText = getString(R.string.villagets); // Assumes "VillagETS"
+        String fullText = getString(R.string.villagets);
         SpannableString spannable = new SpannableString(fullText);
 
         Typeface deltaLight = ResourcesCompat.getFont(this, R.font.delta_light);
         Typeface deltaMedium = ResourcesCompat.getFont(this, R.font.delta_medium);
 
         if (deltaLight != null && deltaMedium != null) {
-            int splitIndex = 6; // "Villag" is 6 characters
+            int splitIndex = 6;
             if (fullText.length() >= splitIndex) {
                 spannable.setSpan(new CustomTypefaceSpan("", deltaLight), 0, splitIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 spannable.setSpan(new CustomTypefaceSpan("", deltaMedium), splitIndex, fullText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

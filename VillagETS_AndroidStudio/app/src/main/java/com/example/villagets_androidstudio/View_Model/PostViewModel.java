@@ -5,9 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.villagets_androidstudio.Model.Dao.PostDao;
-import com.example.villagets_androidstudio.Model.Post;
-
-import org.json.JSONException;
+import com.example.villagets_androidstudio.Model.Entity.Post;
 
 import java.io.IOException;
 import java.util.List;

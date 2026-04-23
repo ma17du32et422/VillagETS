@@ -9,14 +9,14 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/cat_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/cat_launcher_round"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.VillagETS_AndroidStudio">
         <activity
-            android:name=".View.LoginActivity"
+            android:name=".View.Profile.LoginActivity"
             android:exported="true"
             android:screenOrientation="portrait" />
         <activity
@@ -30,28 +30,28 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".View.SignupActivity"
+            android:name=".View.Profile.SignupActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".View.ProfileSettingActivity"
+            android:name=".View.Profile.ProfileSettingActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".View.ProfileActivity"
+            android:name=".View.Profile.ProfileActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".View.MessageActivity"
+            android:name=".View.Message.MessageActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".View.CreatePostActivity"
+            android:name=".View.Feed.CreatePostActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".View.ItemDetailsActivity"
+            android:name=".View.Feed.ItemDetailsActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />

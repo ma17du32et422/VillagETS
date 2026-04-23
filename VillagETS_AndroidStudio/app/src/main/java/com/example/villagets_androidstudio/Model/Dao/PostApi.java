@@ -1,7 +1,7 @@
 package com.example.villagets_androidstudio.Model.Dao;
 
-import com.example.villagets_androidstudio.Model.Comment;
-import com.example.villagets_androidstudio.Model.Post;
+import com.example.villagets_androidstudio.Model.Entity.Comment;
+import com.example.villagets_androidstudio.Model.Entity.Post;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +17,6 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
 
 public interface PostApi {
     @POST("/feed")

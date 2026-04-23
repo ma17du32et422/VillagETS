@@ -1,9 +1,7 @@
 package com.example.villagets_androidstudio.Model.Dao;
 
-import com.example.villagets_androidstudio.Model.Comment;
-import com.example.villagets_androidstudio.Model.Post;
-
-import org.json.JSONException;
+import com.example.villagets_androidstudio.Model.Entity.Comment;
+import com.example.villagets_androidstudio.Model.Entity.Post;
 
 import java.io.File;
 import java.io.IOException;

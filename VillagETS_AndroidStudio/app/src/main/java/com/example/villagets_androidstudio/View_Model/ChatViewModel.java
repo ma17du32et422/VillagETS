@@ -7,13 +7,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.villagets_androidstudio.Model.ChatMessage;
-import com.example.villagets_androidstudio.Model.Conversation;
+import com.example.villagets_androidstudio.Model.Entity.ChatMessage;
+import com.example.villagets_androidstudio.Model.Entity.Conversation;
 import com.example.villagets_androidstudio.Model.Dao.ChatApi;
 import com.example.villagets_androidstudio.Model.Dao.ChatWebSocketClient;
 import com.example.villagets_androidstudio.Model.Dao.PostDao;
 import com.example.villagets_androidstudio.Model.Dao.RetrofitClient;
-import com.example.villagets_androidstudio.Model.SessionManager;
+import com.example.villagets_androidstudio.Model.Dao.SessionManager;
+import com.example.villagets_androidstudio.Model.Entity.User;
 import com.example.villagets_androidstudio.Utils.FileUtils;
 
 import java.io.File;
@@ -53,12 +54,27 @@ public class ChatViewModel extends ViewModel {
 
     // --- API Calls ---
 
-    public void loadConversations() {
+    public void loadConversations(Context context) {
+        User currentUser = User.loadUser(context);
+        String currentUserId = (currentUser != null) ? currentUser.getUserId() : null;
+
         executorService.execute(() -> {
             try {
                 Response<List<Conversation>> response = chatApi.getConversations().execute();
                 if (response.isSuccessful() && response.body() != null) {
-                    conversationsLiveData.postValue(response.body());
+                    List<Conversation> allConversations = response.body();
+                    List<Conversation> filteredConversations = new ArrayList<>();
+
+                    for (Conversation conv : allConversations) {
+                        if (conv.getOtherUser() != null) {
+                            String otherUserId = conv.getOtherUser().getId_utilisateur();
+                            // On n'ajoute la conversation que si l'autre utilisateur n'est pas soi-même
+                            if (currentUserId == null || !currentUserId.equals(otherUserId)) {
+                                filteredConversations.add(conv);
+                            }
+                        }
+                    }
+                    conversationsLiveData.postValue(filteredConversations);
                 } else {
                     errorMessage.postValue("Erreur lors de la récupération des conversations");
                 }
@@ -91,9 +107,23 @@ public class ChatViewModel extends ViewModel {
             public void onMessageReceived(ChatMessage message) {
                 List<ChatMessage> currentMessages = chatHistoryLiveData.getValue();
                 if (currentMessages == null) currentMessages = new ArrayList<>();
-                List<ChatMessage> updatedMessages = new ArrayList<>(currentMessages);
-                updatedMessages.add(message);
-                chatHistoryLiveData.postValue(updatedMessages);
+                
+                // Vérifier si le message existe déjà par son ID pour éviter les doublons
+                boolean alreadyExists = false;
+                if (message.getId() != null) {
+                    for (ChatMessage cm : currentMessages) {
+                        if (message.getId().equals(cm.getId())) {
+                            alreadyExists = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!alreadyExists) {
+                    List<ChatMessage> updatedMessages = new ArrayList<>(currentMessages);
+                    updatedMessages.add(message);
+                    chatHistoryLiveData.postValue(updatedMessages);
+                }
             }
 
             @Override

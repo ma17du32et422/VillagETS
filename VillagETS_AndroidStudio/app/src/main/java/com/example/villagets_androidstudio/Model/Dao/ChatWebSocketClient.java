@@ -2,8 +2,7 @@ package com.example.villagets_androidstudio.Model.Dao;
 
 import android.util.Log;
 
-import com.example.villagets_androidstudio.Model.ChatMessage;
-import com.example.villagets_androidstudio.Model.SessionManager;
+import com.example.villagets_androidstudio.Model.Entity.ChatMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import okhttp3.OkHttpClient;

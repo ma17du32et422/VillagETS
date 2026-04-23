@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">VillagETS_AndroidStudio</string>
+    <string name="app_name">VillagETS</string>
     <string name="login_title">Sign in</string>
     <string name="login_identifier_hint">Email</string>
     <string name="login_password_hint">Password</string>

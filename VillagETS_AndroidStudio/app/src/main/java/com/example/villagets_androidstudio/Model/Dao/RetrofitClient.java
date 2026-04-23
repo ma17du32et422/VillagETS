@@ -1,7 +1,7 @@
 package com.example.villagets_androidstudio.Model.Dao;
 
 import android.content.Context;
-import com.example.villagets_androidstudio.Model.CookieInterceptor;
+
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
