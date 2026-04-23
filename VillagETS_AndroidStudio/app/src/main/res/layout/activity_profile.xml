@@ -31,6 +31,19 @@
                 app:tint="@color/text_primary"
                 android:contentDescription="Settings" />
 
+            <ImageButton
+                android:id="@+id/btnMessageProfile"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Start conversation"
+                android:padding="12dp"
+                android:src="@drawable/msg"
+                android:visibility="gone"
+                app:tint="@color/text_primary" />
+
         </androidx.appcompat.widget.Toolbar>
 
         <LinearLayout

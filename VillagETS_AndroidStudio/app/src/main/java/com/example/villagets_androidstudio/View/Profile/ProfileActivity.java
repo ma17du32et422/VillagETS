@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.example.villagets_androidstudio.Model.Entity.User;
 import com.example.villagets_androidstudio.R;
 import com.example.villagets_androidstudio.View.Feed.PostAdapter;
+import com.example.villagets_androidstudio.View.Message.MessageActivity;
 import com.example.villagets_androidstudio.View_Model.PostViewModel;
 import com.example.villagets_androidstudio.View_Model.UserViewModel;
 import com.google.android.material.imageview.ShapeableImageView;
@@ -26,10 +27,12 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView tvPseudo, tvPostCount, tvFullName, tvUserId;
     private RecyclerView rvPosts;
     private ImageButton btnSettings;
+    private ImageButton btnMessageProfile;
     private PostAdapter postAdapter;
     private PostViewModel postViewModel;
     private UserViewModel userViewModel;
     private String userId;
+    private String profileUserName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,18 +74,36 @@ public class ProfileActivity extends AppCompatActivity {
         tvUserId = findViewById(R.id.tvUserId);
         rvPosts = findViewById(R.id.rvPosts);
         btnSettings = findViewById(R.id.btnSettings);
+        btnMessageProfile = findViewById(R.id.btnMessageProfile);
 
         if (isMe) {
             btnSettings.setVisibility(View.VISIBLE);
+            btnMessageProfile.setVisibility(View.GONE);
             btnSettings.setOnClickListener(v -> {
                 Intent intent = new Intent(ProfileActivity.this, ProfileSettingActivity.class);
                 startActivity(intent);
             });
         } else {
             btnSettings.setVisibility(View.GONE);
+            btnMessageProfile.setVisibility(View.VISIBLE);
+            btnMessageProfile.setOnClickListener(v -> openConversation());
         }
 
         findViewById(R.id.toolbar).setOnClickListener(v -> finish());
+    }
+
+    private void openConversation() {
+        if (userId == null || userId.trim().isEmpty()) {
+            Toast.makeText(this, "Unable to start conversation", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent intent = new Intent(ProfileActivity.this, MessageActivity.class);
+        intent.putExtra("receiverId", userId);
+        if (profileUserName != null && !profileUserName.trim().isEmpty()) {
+            intent.putExtra("userName", profileUserName);
+        }
+        startActivity(intent);
     }
 
     private void setupRecyclerView() {
@@ -97,6 +118,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         userViewModel.getUserLiveData().observe(this, user -> {
             if (user != null) {
+                profileUserName = user.getPseudo();
                 tvPseudo.setText(user.getPseudo());
                 tvFullName.setText(user.getPrenom() + " " + user.getNom());
                 tvUserId.setText("User ID: " + user.getUserId());
