@@ -98,7 +98,7 @@
     height: 20px;
     border: none;
     border-radius: 999px;
-    background-color: var(--color-8);
+    background-color: #e94253;
     color: var(--color-6);
     cursor: pointer;
     display: none;
@@ -111,7 +111,7 @@
 }
 
 .message-delete-button:hover {
-    background-color: #8b0808;
+    background-color: #ee6c6c;
 }
 
 .message-wrapper.outgoing:hover .message-delete-button,

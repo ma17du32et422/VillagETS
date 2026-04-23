@@ -21,7 +21,7 @@
 }
 
 #form-title:focus {
-    border-bottom-color: var(--color-1);
+    border-bottom-color: var(--color-8);
 }
 
 .post-tags-input-wrap {
@@ -61,6 +61,10 @@
 
 #form-price::placeholder {
     color: var(--color-4);
+}
+
+#form-price:focus{
+    border-color: var(--color-8);
 }
 
 #image-drop-zone {
@@ -104,7 +108,7 @@
 }
 
 #form-text:focus {
-    border-color: #E40032;
+    border-color: var(--color-8);
 }
 
 #form-text::placeholder {
