@@ -10,7 +10,7 @@
         android:id="@+id/headerBackground"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/background"
+        android:background="@color/white"
         android:elevation="4dp"
         app:layout_constraintBottom_toBottomOf="@id/toolbarContainer"
         app:layout_constraintTop_toTopOf="parent" />
@@ -49,22 +49,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageButton
-            android:id="@+id/btnDeletePost"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_close"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/text_primary"
-            android:visibility="gone" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ScrollView
+        android:id="@+id/detailsScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -81,54 +69,65 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/surface"
+                app:cardBackgroundColor="@color/white"
                 app:strokeWidth="1dp"
-                app:strokeColor="@color/surface">
+                app:strokeColor="@color/color_3">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <LinearLayout
+                    <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/surface"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="12dp">
+                        android:layout_height="wrap_content">
 
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/ivPosterAvatar"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:scaleType="centerCrop"
-                            app:strokeWidth="1dp"
-                            app:strokeColor="@color/red_primary"
-                            app:shapeAppearanceOverlay="@style/CircleImageAppearance"
-                            android:src="@drawable/profile_placeholder" />
-
-                        <TextView
-                            android:id="@+id/tvPosterName"
-                            android:layout_width="0dp"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:text="Username"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:fontFamily="@font/delta_medium"/>
+                            android:orientation="vertical">
 
-                    </LinearLayout>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@color/background"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:padding="12dp">
 
-                    <ImageView
-                        android:id="@+id/ivItemPhoto"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:scaleType="fitCenter"
-                        android:minHeight="200dp" />
+                                <com.google.android.material.imageview.ShapeableImageView
+                                    android:id="@+id/ivPosterAvatar"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/profile_placeholder"
+                                    app:shapeAppearanceOverlay="@style/CircleImageAppearance"
+                                    app:strokeColor="@color/red_primary"
+                                    app:strokeWidth="1dp" />
+
+                                <TextView
+                                    android:id="@+id/tvPosterName"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="12dp"
+                                    android:layout_weight="1"
+                                    android:fontFamily="@font/delta_medium"
+                                    android:text="Username"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                            <ImageView
+                                android:id="@+id/ivItemPhoto"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:adjustViewBounds="true"
+                                android:minHeight="200dp"
+                                android:scaleType="fitCenter" />
+                        </LinearLayout>
+
+                    </FrameLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -161,7 +160,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
                             android:layout_marginVertical="16dp"
-                            android:background="@color/background" />
+                            android:background="@color/color_3" />
 
                         <TextView
                             android:id="@+id/tvItemDescription"
@@ -187,18 +186,81 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnContactSeller"
+            <LinearLayout
+                android:id="@+id/commentsSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:background="@drawable/rounded_red_header"
-                android:fontFamily="@font/delta_medium"
-                android:text="Begin discussion"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="20dp"
+                android:background="@color/white"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tvCommentsTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/delta_medium"
+                    android:text="Comments"
+                    android:textColor="@color/text_primary"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@color/color_3" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="12dp">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivMyAvatar"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/profile_placeholder"
+                        app:shapeAppearanceOverlay="@style/CircleImageAppearance" />
+
+                    <EditText
+                        android:id="@+id/etComment"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:hint="Write a comment..."
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/btnPostComment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/rounded_gray_header"
+                        android:elevation="1dp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="6dp"
+                        android:text="Post"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvComments"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false" />
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
