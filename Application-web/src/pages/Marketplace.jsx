@@ -3,13 +3,16 @@ import { useAuth } from '../AuthContext';
 import Flux from "../components/Flux";
 import { getBaseUrl } from '../API';
 
-import '../assets/App.css'
+import '../assets/App.css';
+import usePageTitle from "../utils/usePageTitle";
 
 function Marketplace(){
   const { user, loading: authLoading } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  usePageTitle("Marketplace")
   
   useEffect(() => {
     if (authLoading) return;

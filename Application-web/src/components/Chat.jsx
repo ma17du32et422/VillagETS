@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useChat } from '../ChatProvider';
 import { useAuth } from '../AuthContext';
 import { getBaseUrl } from '../API';
+import plusIcon from '../assets/icons/plus.svg';
+import sendIcon from '../assets/icons/like.svg';
 import '../assets/Chat.css';
 
 const MAX_MESSAGES = 10;
@@ -20,6 +22,38 @@ function getAttachmentLabel(url) {
     } catch {
         return 'Attachment';
     }
+}
+
+function formatMessageTimestamp(dateValue) {
+    if (!dateValue) return '';
+
+    const normalizedValue =
+        typeof dateValue === 'string' && !/[zZ]|[+\-]\d{2}:\d{2}$/.test(dateValue)
+            ? `${dateValue}Z`
+            : dateValue;
+
+    const date = new Date(normalizedValue);
+    if (Number.isNaN(date.getTime())) return '';
+
+    const now = new Date();
+    const isSameDay =
+        date.getFullYear() === now.getFullYear() &&
+        date.getMonth() === now.getMonth() &&
+        date.getDate() === now.getDate();
+
+    if (isSameDay) {
+        return new Intl.DateTimeFormat('fr-CA', {
+            hour: '2-digit',
+            minute: '2-digit'
+        }).format(date);
+    }
+
+    return new Intl.DateTimeFormat('fr-CA', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    }).format(date);
 }
 
 const Chat = ({ targetUserId }) => {
@@ -386,6 +420,11 @@ const Chat = ({ targetUserId }) => {
                                     </a>
                                 </div>
                             )}
+                            {m.dateMsg && (
+                                <div className="message-timestamp">
+                                    {formatMessageTimestamp(m.dateMsg)}
+                                </div>
+                            )}
                         </div>
                     </div>
                 ))}
@@ -396,6 +435,8 @@ const Chat = ({ targetUserId }) => {
                 {counterLabel}
             </div>
 
+            {selectedFiles.length > 0 && (
+                <div className="selected-files">
             {selectedFiles.map((file, index) => (
                 <div key={`${file.name}-${file.size}`} className="file-preview-card">
                     {isImageFile(file) ? (
@@ -417,20 +458,35 @@ const Chat = ({ targetUserId }) => {
                         </div>
                     ):(
                         <div className="file-chip-preview">
+                            <div className="file-chip-icon">FILE</div>
+                            <div className="file-chip-meta">
+                                <span className="preview-file-name">{file.name}</span>
+                                <span className="preview-file-size">
+                                    {Math.max(1, Math.round(file.size / 1024))} KB
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                className="preview-remove-btn file-chip-remove"
+                                onClick={() => handleRemoveSelectedFile(index)}
+                                disabled={isBusy}
+                                aria-label={`Remove ${file.name}`}
+                            >
+                                Ã—
+                            </button>
+                        </div>
+                    )}
+                    {isImageFile(file) && (
+                        <div className="preview-file-caption">
+                            {file.name}
                         </div>
                     )}
                 </div>
             ))}
+                </div>
+            )}
 
             <div className="entry-box">
-                <button
-                    type="button"
-                    className="attach-button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={rateLimitInfo.blocked || isBusy}
-                >
-                    FILES
-                </button>
                 <input
                     ref={fileInputRef}
                     type="file"
@@ -439,20 +495,32 @@ const Chat = ({ targetUserId }) => {
                     className="chat-file-input"
                     onChange={handleFileChange}
                 />
-                <input
-                    className="message-input"
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    disabled={isBlocked || isBusy}
-                    placeholder={isBlocked ? 'Limite atteinte...' : 'Envoyer un message'}
-                    onKeyDown={(e) => { if (e.key === 'Enter' && !e.repeat && !isBlocked && !isBusy) handleSend(); }}
-                />
+                <div className="message-input-shell">
+                    <button
+                        type="button"
+                        className="attach-button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={rateLimitInfo.blocked || isBusy}
+                        aria-label="Attach files"
+                    >
+                        <img src={plusIcon} alt="" className="entry-action-icon" />
+                    </button>
+                    <input
+                        className="message-input"
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        disabled={isBlocked || isBusy}
+                        placeholder={isBlocked ? 'Limite atteinte...' : 'Envoyer un message'}
+                        onKeyDown={(e) => { if (e.key === 'Enter' && !e.repeat && !isBlocked && !isBusy) handleSend(); }}
+                    />
+                </div>
                 <button
                     className={`send-button ${isBlocked || isBusy ? 'disabled' : ''}`}
                     onClick={handleSend}
                     disabled={isBlocked || isBusy}
+                    aria-label="Send message"
                 >
-                    {isBlocked ? `${rateLimitInfo.secondsLeft}s` : isBusy ? 'ENVOI...' : 'ENVOYER'}
+                    <img src={sendIcon} alt="" className="entry-action-icon send-icon" />
                 </button>
             </div>
         </div>

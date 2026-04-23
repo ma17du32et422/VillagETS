@@ -6,6 +6,7 @@ import { beginDiscussion } from '../utils/discussion'
 import Post from '../components/subcomponents/Post'
 import '../assets/ProfilePreview.css'
 import '../assets/UserProfilePage.css'
+import usePageTitle from "../utils/usePageTitle.js";
 
 const normalizeUser = (profile, fallbackUserId) => ({
   userId: profile?.userId ?? profile?.id ?? fallbackUserId ?? '',
@@ -34,9 +35,12 @@ function UserProfilePage() {
   const [isDeleting, setIsDeleting] = useState(false)
   const [isWiping, setIsWiping] = useState(false)
   const isOwnProfile = user?.userId === userId
+  const isAdmin = user?.mainAdmin === true
   const canDeleteUser = user?.mainAdmin === true && !isOwnProfile && profile?.deleted !== true
   const canWipeUser = user?.mainAdmin === true && !isOwnProfile
   const fullName = useMemo(() => getFullName(profile), [profile])
+
+  usePageTitle(profile?.pseudo ?? '');
 
   useEffect(() => {
     let active = true
@@ -274,7 +278,7 @@ function UserProfilePage() {
                   </div>
 
                   <div className="user-profile-details">
-                    {profile.userId && <p>User ID: {profile.userId}</p>}
+                    {isAdmin && profile.userId && <p>User ID: {profile.userId}</p>}
                     {profile.deleted && <p>This account has been deleted.</p>}
                   </div>
 

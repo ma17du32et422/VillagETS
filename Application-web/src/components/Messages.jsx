@@ -9,7 +9,7 @@ export default function Messages({ selectedUserId, onSelectUser }) {
   const { lastMessage, lastActivity } = useChat();
   const [users, setUsers] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
-  const [newUserId, setNewUserId] = useState("");
+  const [newUserPseudo, setNewUserPseudo] = useState("");
   const [error, setError] = useState("");
 
   const fetchMyConvos = async () => {
@@ -49,6 +49,14 @@ export default function Messages({ selectedUserId, onSelectUser }) {
     });
   };
 
+  const mapUserSummary = (data) => ({
+    id: data.userId ?? data.id,
+    pseudo: data.pseudo,
+    nom: data.nom,
+    prenom: data.prenom,
+    photoProfil: data.photoProfil
+  });
+
   const fetchUserSummary = async (userId) => {
     const res = await fetch(`${getBaseUrl()}/user/${userId}`, {
       credentials: 'include'
@@ -60,27 +68,61 @@ export default function Messages({ selectedUserId, onSelectUser }) {
     }
 
     const data = await res.json();
-    return {
-      id: data.userId,
-      pseudo: data.pseudo,
-      nom: data.nom,
-      prenom: data.prenom,
-      photoProfil: data.photoProfil
-    };
+    return mapUserSummary(data);
+  };
+
+  const fetchUserSummaryByPseudo = async (pseudo) => {
+    const res = await fetch(`${getBaseUrl()}/user/search?query=${encodeURIComponent(pseudo)}`, {
+      credentials: 'include'
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || 'User not found.');
+    }
+
+    const data = await res.json();
+    const matches = Array.isArray(data) ? data : [];
+    const exactMatch = matches.find((entry) =>
+      typeof entry?.pseudo === 'string' &&
+      entry.pseudo.localeCompare(pseudo, undefined, { sensitivity: 'accent' }) === 0
+    );
+
+    if (!exactMatch) {
+      throw new Error('Username not found.');
+    }
+
+    return mapUserSummary(exactMatch);
+  };
+
+  const fetchUserSummaryByPseudoOrId = async (value) => {
+    try {
+      return await fetchUserSummaryByPseudo(value);
+    } catch (pseudoError) {
+      try {
+        return await fetchUserSummary(value);
+      } catch {
+        throw pseudoError instanceof Error ? pseudoError : new Error('User not found.');
+      }
+    }
   };
 
   const handleAddUser = async () => {
-    const trimmedUserId = newUserId.trim();
-    if (!trimmedUserId) return;
+    const trimmedPseudo = newUserPseudo.trim();
+    if (!trimmedPseudo) return;
 
     setError("");
 
     try {
-      const foundUser = await fetchUserSummary(trimmedUserId);
+      const foundUser = await fetchUserSummaryByPseudoOrId(trimmedPseudo);
+      if (foundUser.id === user?.userId) {
+        throw new Error('You cannot start a discussion with yourself.');
+      }
+
       upsertUser(foundUser);
 
       onSelectUser(foundUser.id);
-      setNewUserId("");
+      setNewUserPseudo("");
       setIsAdding(false);
     } catch (err) {
       console.error('Failed to start discussion:', err);
@@ -168,15 +210,15 @@ export default function Messages({ selectedUserId, onSelectUser }) {
         </div>
       )}
 
-      {/* Manual ID Input */}
+      {/* Manual Username Input */}
       {isAdding && (
         <div className="add-user-section">
           <input
             autoFocus
-            placeholder="Paste UserID..."
+            placeholder="Enter username or user ID..."
             className="user-id-input"
-            value={newUserId}
-            onChange={(e) => setNewUserId(e.target.value)}
+            value={newUserPseudo}
+            onChange={(e) => setNewUserPseudo(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAddUser()}
           />
           <button

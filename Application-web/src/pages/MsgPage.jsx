@@ -3,11 +3,14 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Messages from "../components/Messages";
 import Chat from "../components/Chat";
 import '../assets/MsgPage.css'
+import usePageTitle from "../utils/usePageTitle.js";
 
 function MsgPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [selectedUserId, setSelectedUserId] = useState(searchParams.get('userId'));
+
+  usePageTitle("💬");
 
   useEffect(() => {
     setSelectedUserId(searchParams.get('userId'));

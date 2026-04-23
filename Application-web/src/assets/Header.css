@@ -14,7 +14,7 @@
 #search {
     position: absolute;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-42%);
     width: min(34rem, calc(100vw - 420px));
     max-width: 46%;
     height: 36px;
