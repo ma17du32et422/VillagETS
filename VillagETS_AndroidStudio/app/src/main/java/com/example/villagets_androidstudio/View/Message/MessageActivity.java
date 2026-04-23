@@ -31,8 +31,12 @@ import com.giphy.sdk.ui.GPHContentType;
 import com.giphy.sdk.ui.GPHSettings;
 import com.giphy.sdk.ui.views.GiphyDialogFragment;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class MessageActivity extends AppCompatActivity {
 
@@ -201,13 +205,28 @@ public class MessageActivity extends AppCompatActivity {
 
     private String formatTimestamp(String isoDate) {
         try {
-            if (isoDate.contains("T")) {
-                String timePart = isoDate.split("T")[1];
-                return timePart.substring(0, 5);
-            }
+            // Parser la date ISO en UTC
+            SimpleDateFormat sdfInput = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            sdfInput.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date date = sdfInput.parse(isoDate);
+
+            // Formater la date pour l'heure locale
+            SimpleDateFormat sdfOutput = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            sdfOutput.setTimeZone(TimeZone.getDefault());
+            return sdfOutput.format(date);
         } catch (Exception e) {
-            return isoDate;
+            // Fallback si le format est différent (sans millisecondes ou sans Z)
+            try {
+                SimpleDateFormat sdfInput = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                sdfInput.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date date = sdfInput.parse(isoDate);
+
+                SimpleDateFormat sdfOutput = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                sdfOutput.setTimeZone(TimeZone.getDefault());
+                return sdfOutput.format(date);
+            } catch (Exception e2) {
+                return isoDate;
+            }
         }
-        return isoDate;
     }
 }
