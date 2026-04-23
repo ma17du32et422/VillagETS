@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.villagets_androidstudio.Model.Conversation;
+import com.example.villagets_androidstudio.Model.User;
 import com.example.villagets_androidstudio.R;
 import com.example.villagets_androidstudio.View_Model.ChatViewModel;
 
@@ -58,17 +59,21 @@ public class ConversationFragment extends Fragment {
 
         btnStartNewChat.setOnClickListener(v -> {
             String targetId = etNewConversationId.getText().toString().trim();
-            if (!targetId.isEmpty()) {
+            User currentUser = User.loadUser(getContext());
+            
+            if (targetId.isEmpty()) {
+                Toast.makeText(getContext(), "Veuillez entrer un ID", Toast.LENGTH_SHORT).show();
+            } else if (currentUser != null && targetId.equals(currentUser.getUserId())) {
+                Toast.makeText(getContext(), "Vous ne pouvez pas démarrer une discussion avec vous-même", Toast.LENGTH_SHORT).show();
+            } else {
                 Intent intent = new Intent(getContext(), MessageActivity.class);
                 intent.putExtra("receiverId", targetId);
                 intent.putExtra("userName", "Utilisateur " + targetId);
                 startActivity(intent);
-            } else {
-                Toast.makeText(getContext(), "Veuillez entrer un ID", Toast.LENGTH_SHORT).show();
             }
         });
 
-        chatViewModel.loadConversations();
+        chatViewModel.loadConversations(getContext());
     }
 
     private void setupAdapter(List<Conversation> conversations) {

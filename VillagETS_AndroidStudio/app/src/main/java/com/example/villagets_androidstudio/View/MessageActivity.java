@@ -53,6 +53,10 @@ public class MessageActivity extends AppCompatActivity {
     private final ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
             registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
                 if (uri != null && receiverId != null) {
+                    if (isTargetMe()) {
+                        Toast.makeText(this, "You cannot send images to yourself", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     chatViewModel.sendImage(this, receiverId, uri);
                 }
             });
@@ -65,6 +69,14 @@ public class MessageActivity extends AppCompatActivity {
 
         userName = getIntent().getStringExtra("userName");
         receiverId = getIntent().getStringExtra("receiverId");
+        
+        currentUser = User.loadUser(this);
+
+        if (isTargetMe()) {
+            Toast.makeText(this, "You cannot message yourself", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         TextView tvUserName = findViewById(R.id.chatUserName);
         tvUserName.setText(userName != null ? userName : "Chat");
@@ -98,7 +110,6 @@ public class MessageActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         sessionManager = new SessionManager(this);
-        currentUser = User.loadUser(this);
 
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
 
@@ -132,6 +143,10 @@ public class MessageActivity extends AppCompatActivity {
                 .build()));
 
         btnGiphy.setOnClickListener(v -> {
+            if (isTargetMe()) {
+                Toast.makeText(this, "You cannot send GIFs to yourself", Toast.LENGTH_SHORT).show();
+                return;
+            }
             GiphyDialogFragment giphyDialog = GiphyDialogFragment.Companion.newInstance(new GPHSettings());
             giphyDialog.setGifSelectionListener(new GiphyDialogFragment.GifSelectionListener() {
                 @Override
@@ -155,6 +170,10 @@ public class MessageActivity extends AppCompatActivity {
         });
 
         btnSend.setOnClickListener(v -> {
+            if (isTargetMe()) {
+                Toast.makeText(this, "You cannot message yourself", Toast.LENGTH_SHORT).show();
+                return;
+            }
             String text = etMessageInput.getText().toString().trim();
             if (!text.isEmpty() && receiverId != null) {
                 chatViewModel.sendMessage(receiverId, text);
@@ -170,6 +189,10 @@ public class MessageActivity extends AppCompatActivity {
                 recyclerView.postDelayed(() -> recyclerView.smoothScrollToPosition(messageList.size() - 1), 100);
             }
         });
+    }
+
+    private boolean isTargetMe() {
+        return currentUser != null && receiverId != null && receiverId.equals(currentUser.getUserId());
     }
 
     private String formatTimestamp(String isoDate) {

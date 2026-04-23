@@ -150,7 +150,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     private void showPostOptions(Post post, PostViewHolder holder, boolean isAuthor, String posterId, String posterName) {
         PopupMenu popupMenu = new PopupMenu(holder.itemView.getContext(), holder.btnDetails);
-        popupMenu.getMenu().add(Menu.NONE, 1, 1, isAuthor ? "Delete post" : "Begin discussion");
+        if (isAuthor) {
+            popupMenu.getMenu().add(Menu.NONE, 1, 1, "Delete post");
+        } else {
+            popupMenu.getMenu().add(Menu.NONE, 1, 1, "Begin discussion");
+        }
         popupMenu.getMenu().add(Menu.NONE, 2, 2, "Cancel");
         popupMenu.setOnMenuItemClickListener(item -> handlePostOptionClick(item, post, holder, isAuthor, posterId, posterName));
         popupMenu.show();
@@ -171,6 +175,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private void beginDiscussion(PostViewHolder holder, String posterId, String posterName) {
         if (posterId == null || posterId.trim().isEmpty()) {
             Toast.makeText(holder.itemView.getContext(), "Unable to start discussion", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        User currentUser = User.loadUser(holder.itemView.getContext());
+        if (currentUser != null && posterId.equals(currentUser.getUserId())) {
+            Toast.makeText(holder.itemView.getContext(), "You cannot message yourself", Toast.LENGTH_SHORT).show();
             return;
         }
 
