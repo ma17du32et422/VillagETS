@@ -1,18 +1,14 @@
 package com.example.villagets_androidstudio.View;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -73,8 +69,6 @@ public class ItemDetailsActivity extends AppCompatActivity {
         ImageView ivPhoto = findViewById(R.id.ivItemPhoto);
         TextView tvPosterName = findViewById(R.id.tvPosterName);
         ImageView ivPosterAvatar = findViewById(R.id.ivPosterAvatar);
-        AppCompatButton btnContactSeller = findViewById(R.id.btnContactSeller);
-        ImageButton btnDeletePost = findViewById(R.id.btnDeletePost);
         detailsScrollView = findViewById(R.id.detailsScrollView);
         commentsSection = findViewById(R.id.commentsSection);
         tvCommentsTitle = findViewById(R.id.tvCommentsTitle);
@@ -88,14 +82,6 @@ public class ItemDetailsActivity extends AppCompatActivity {
         tvDescriptionContent.setText(description);
         tvPrice.setText(price);
         tvPosterName.setText(posterName != null ? posterName : "User Name");
-
-        boolean isAuthor = currentUser != null
-                && currentUser.getUserId() != null
-                && currentUser.getUserId().equals(posterId)
-                && postId != null
-                && !postId.trim().isEmpty();
-        btnDeletePost.setVisibility(isAuthor ? View.VISIBLE : View.GONE);
-        btnContactSeller.setVisibility(isAuthor ? View.GONE : View.VISIBLE);
 
         if (posterAvatarUrl != null && !posterAvatarUrl.isEmpty()) {
             String avatarUrl = posterAvatarUrl.replace("localhost", "10.0.2.2");
@@ -127,19 +113,6 @@ public class ItemDetailsActivity extends AppCompatActivity {
         } else {
             ivPhoto.setVisibility(View.GONE);
         }
-
-        btnDeletePost.setOnClickListener(v -> confirmDeletePost(postId));
-
-        btnContactSeller.setOnClickListener(v -> {
-            if (posterId != null) {
-                Intent intent = new Intent(this, MessageActivity.class);
-                intent.putExtra("receiverId", posterId);
-                intent.putExtra("userName", posterName);
-                startActivity(intent);
-            } else {
-                Log.e("ItemDetailsActivity", "posterId is null, cannot start conversation");
-            }
-        });
 
         if (currentUser != null && currentUser.getPhotoProfil() != null && !currentUser.getPhotoProfil().trim().isEmpty()) {
             String myAvatar = currentUser.getPhotoProfil().replace("localhost", "10.0.2.2");
@@ -243,37 +216,4 @@ public class ItemDetailsActivity extends AppCompatActivity {
         return count;
     }
 
-    private void confirmDeletePost(String postId) {
-        new AlertDialog.Builder(this)
-                .setTitle("Delete post")
-                .setMessage("Are you sure you want to delete this post?")
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("Delete", (dialog, which) -> deletePost(postId))
-                .show();
-    }
-
-    private void deletePost(String postId) {
-        if (postId == null || postId.trim().isEmpty()) {
-            Toast.makeText(this, "Unable to delete this post", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        executorService.execute(() -> {
-            try {
-                boolean deleted = PostDao.deletePost(postId);
-                runOnUiThread(() -> {
-                    if (deleted) {
-                        Toast.makeText(this, "Post deleted", Toast.LENGTH_SHORT).show();
-                        finish();
-                    } else {
-                        Toast.makeText(this, "Only the author can delete this post", Toast.LENGTH_LONG).show();
-                    }
-                });
-            } catch (IOException e) {
-                runOnUiThread(() ->
-                        Toast.makeText(this, "Delete failed: " + e.getMessage(), Toast.LENGTH_LONG).show()
-                );
-            }
-        });
-    }
 }

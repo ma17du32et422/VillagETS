@@ -127,36 +127,6 @@
                                 android:scaleType="fitCenter" />
                         </LinearLayout>
 
-                        <ImageButton
-                            android:id="@+id/btnDeletePost"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:layout_gravity="top|end"
-                            android:layout_margin="12dp"
-                            android:background="@drawable/rounded_gray_header"
-                            android:backgroundTint="#EDEDED"
-                            android:padding="10dp"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/ic_close"
-                            android:visibility="gone"
-                            app:tint="@color/red_primary" />
-
-                        <androidx.appcompat.widget.AppCompatButton
-                            android:id="@+id/btnContactSeller"
-                            android:layout_width="wrap_content"
-                            android:layout_height="40dp"
-                            android:layout_gravity="top|end"
-                            android:layout_margin="12dp"
-                            android:background="@drawable/rounded_gray_header"
-                            android:backgroundTint="#EDEDED"
-                            android:fontFamily="@font/delta_medium"
-                            android:paddingHorizontal="14dp"
-                            android:text="Begin discussion"
-                            android:textAllCaps="false"
-                            android:textColor="@color/red_primary"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:visibility="gone" />
                     </FrameLayout>
 
                     <LinearLayout
