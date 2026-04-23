@@ -71,6 +71,7 @@ public class MarketPlaceAdapter extends RecyclerView.Adapter<MarketPlaceAdapter.
                 intent.putExtra("description", post.getContenu());
                 intent.putExtra("price", priceText);
                 intent.putExtra("imageUrl", imageUrl);
+                intent.putExtra("media", post.getMedia());
                 intent.putExtra("posterName", posterName);
                 intent.putExtra("posterAvatarUrl", posterAvatarUrl);
                 intent.putExtra("posterId", posterId);

@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.villagets_androidstudio.Model.Comment;
+import com.example.villagets_androidstudio.Model.Post;
 import com.example.villagets_androidstudio.Model.Dao.PostDao;
 import com.example.villagets_androidstudio.Model.User;
 import com.example.villagets_androidstudio.R;
@@ -30,6 +31,12 @@ import java.util.concurrent.Executors;
 public class ItemDetailsActivity extends AppCompatActivity {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private String postId;
+    private String[] mediaUrls;
+    private int currentMediaIndex = 0;
+    private ImageView ivPhoto;
+    private TextView btnPreviousImage;
+    private TextView btnNextImage;
+    private TextView tvImageCounter;
     private EditText etComment;
     private TextView btnPostComment;
     private TextView tvCommentsTitle;
@@ -65,6 +72,7 @@ public class ItemDetailsActivity extends AppCompatActivity {
         String description = getIntent().getStringExtra("description");
         String price = getIntent().getStringExtra("price");
         String imageUrl = getIntent().getStringExtra("imageUrl");
+        mediaUrls = getIntent().getStringArrayExtra("media");
         String posterName = getIntent().getStringExtra("posterName");
         String posterAvatarUrl = getIntent().getStringExtra("posterAvatarUrl");
         String posterId = getIntent().getStringExtra("posterId");
@@ -73,9 +81,12 @@ public class ItemDetailsActivity extends AppCompatActivity {
         TextView tvTitle = findViewById(R.id.tvItemTitle);
         TextView tvDescriptionContent = findViewById(R.id.tvItemDescriptionContent);
         TextView tvPrice = findViewById(R.id.tvItemPrice);
-        ImageView ivPhoto = findViewById(R.id.ivItemPhoto);
+        ivPhoto = findViewById(R.id.ivItemPhoto);
         TextView tvPosterName = findViewById(R.id.tvPosterName);
         ImageView ivPosterAvatar = findViewById(R.id.ivPosterAvatar);
+        btnPreviousImage = findViewById(R.id.btnPreviousImage);
+        btnNextImage = findViewById(R.id.btnNextImage);
+        tvImageCounter = findViewById(R.id.tvImageCounter);
         detailsScrollView = findViewById(R.id.detailsScrollView);
         commentsSection = findViewById(R.id.commentsSection);
         tvCommentsTitle = findViewById(R.id.tvCommentsTitle);
@@ -108,18 +119,11 @@ public class ItemDetailsActivity extends AppCompatActivity {
         tvPosterName.setOnClickListener(toProfile);
         ivPosterAvatar.setOnClickListener(toProfile);
 
-        if (imageUrl != null && !imageUrl.isEmpty()) {
-            String finalUrl = imageUrl;
-            if (finalUrl.contains("localhost")) {
-                finalUrl = finalUrl.replace("localhost", "10.0.2.2");
-            }
-            
-            Glide.with(this)
-                    .load(finalUrl)
-                    .into(ivPhoto);
-        } else {
-            ivPhoto.setVisibility(View.GONE);
+        if ((mediaUrls == null || mediaUrls.length == 0) && imageUrl != null && !imageUrl.isEmpty()) {
+            mediaUrls = new String[]{imageUrl};
         }
+        setupMediaCarousel();
+        loadPostDetails();
 
         if (currentUser != null && currentUser.getPhotoProfil() != null && !currentUser.getPhotoProfil().trim().isEmpty()) {
             String myAvatar = currentUser.getPhotoProfil().replace("localhost", "10.0.2.2");
@@ -139,6 +143,79 @@ public class ItemDetailsActivity extends AppCompatActivity {
         if (openComments) {
             commentsSection.post(() -> detailsScrollView.smoothScrollTo(0, commentsSection.getTop()));
         }
+    }
+
+    private void loadPostDetails() {
+        if (postId == null || postId.trim().isEmpty()) {
+            return;
+        }
+
+        executorService.execute(() -> {
+            try {
+                Post post = PostDao.getPostById(postId);
+                if (post != null && post.getMedia() != null && post.getMedia().length > 0) {
+                    runOnUiThread(() -> {
+                        mediaUrls = post.getMedia();
+                        currentMediaIndex = 0;
+                        setupMediaCarousel();
+                    });
+                }
+            } catch (IOException e) {
+                runOnUiThread(() -> Toast.makeText(this, "Unable to load all post photos", Toast.LENGTH_SHORT).show());
+            }
+        });
+    }
+
+    private void setupMediaCarousel() {
+        if (mediaUrls == null || mediaUrls.length == 0) {
+            ivPhoto.setVisibility(View.GONE);
+            btnPreviousImage.setVisibility(View.GONE);
+            btnNextImage.setVisibility(View.GONE);
+            tvImageCounter.setVisibility(View.GONE);
+            return;
+        }
+
+        ivPhoto.setVisibility(View.VISIBLE);
+        showMedia(currentMediaIndex);
+
+        btnPreviousImage.setOnClickListener(v -> {
+            if (mediaUrls.length == 0) {
+                return;
+            }
+            currentMediaIndex = (currentMediaIndex - 1 + mediaUrls.length) % mediaUrls.length;
+            showMedia(currentMediaIndex);
+        });
+
+        btnNextImage.setOnClickListener(v -> {
+            if (mediaUrls.length == 0) {
+                return;
+            }
+            currentMediaIndex = (currentMediaIndex + 1) % mediaUrls.length;
+            showMedia(currentMediaIndex);
+        });
+    }
+
+    private void showMedia(int index) {
+        if (mediaUrls == null || mediaUrls.length == 0 || index < 0 || index >= mediaUrls.length) {
+            return;
+        }
+
+        String finalUrl = mediaUrls[index];
+        if (finalUrl == null || finalUrl.trim().isEmpty()) {
+            ivPhoto.setImageDrawable(null);
+            return;
+        }
+
+        finalUrl = finalUrl.replace("localhost", "10.0.2.2");
+        Glide.with(this)
+                .load(finalUrl)
+                .into(ivPhoto);
+
+        boolean hasMultiplePhotos = mediaUrls.length > 1;
+        btnPreviousImage.setVisibility(hasMultiplePhotos ? View.VISIBLE : View.GONE);
+        btnNextImage.setVisibility(hasMultiplePhotos ? View.VISIBLE : View.GONE);
+        tvImageCounter.setVisibility(hasMultiplePhotos ? View.VISIBLE : View.GONE);
+        tvImageCounter.setText((index + 1) + " / " + mediaUrls.length);
     }
 
     private void loadComments() {

@@ -28,10 +28,12 @@ import com.google.android.material.imageview.ShapeableImageView;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,6 +41,7 @@ import java.util.concurrent.Executors;
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
 
     private List<Post> postList = new ArrayList<>();
+    private final Map<String, Integer> mediaIndexByPostId = new HashMap<>();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public PostAdapter() {}
@@ -108,17 +111,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             holder.postTime.setText(formatDate(post.getDatePublication()));
         }
 
-        String imageUrl = (post.getMedia() != null && post.getMedia().length > 0) ? post.getMedia()[0] : null;
-
-        if (imageUrl != null) {
-            holder.image.setVisibility(View.VISIBLE);
-            String displayUrl = imageUrl.replace("localhost", "10.0.2.2");
-            Glide.with(holder.itemView.getContext())
-                    .load(displayUrl)
-                    .into(holder.image);
-        } else {
-            holder.image.setVisibility(View.GONE);
-        }
+        String[] media = post.getMedia();
+        String imageUrl = (media != null && media.length > 0) ? media[0] : null;
+        setupMediaCarousel(post, holder);
 
         final String finalPosterName = posterName;
         final String finalPosterAvatarUrl = posterAvatarUrl;
@@ -132,6 +127,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             intent.putExtra("description", post.getContenu());
             intent.putExtra("price", post.getPrix() != null ? String.format("%.2f$", post.getPrix()) : "");
             intent.putExtra("imageUrl", imageUrl);
+            intent.putExtra("media", post.getMedia());
             intent.putExtra("posterName", finalPosterName);
             intent.putExtra("posterAvatarUrl", finalPosterAvatarUrl);
             intent.putExtra("posterId", finalPosterId);
@@ -182,6 +178,59 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         intent.putExtra("receiverId", posterId);
         intent.putExtra("userName", posterName);
         holder.itemView.getContext().startActivity(intent);
+    }
+
+    private void setupMediaCarousel(Post post, PostViewHolder holder) {
+        String[] media = post.getMedia();
+        if (media == null || media.length == 0) {
+            holder.imageContainer.setVisibility(View.GONE);
+            return;
+        }
+
+        holder.imageContainer.setVisibility(View.VISIBLE);
+        int currentIndex = mediaIndexByPostId.getOrDefault(post.getId(), 0);
+        if (currentIndex >= media.length) {
+            currentIndex = 0;
+            mediaIndexByPostId.put(post.getId(), currentIndex);
+        }
+        showMedia(post, holder, currentIndex);
+
+        holder.btnPreviousImage.setOnClickListener(v -> {
+            int nextIndex = (mediaIndexByPostId.getOrDefault(post.getId(), 0) - 1 + media.length) % media.length;
+            mediaIndexByPostId.put(post.getId(), nextIndex);
+            showMedia(post, holder, nextIndex);
+        });
+
+        holder.btnNextImage.setOnClickListener(v -> {
+            int nextIndex = (mediaIndexByPostId.getOrDefault(post.getId(), 0) + 1) % media.length;
+            mediaIndexByPostId.put(post.getId(), nextIndex);
+            showMedia(post, holder, nextIndex);
+        });
+    }
+
+    private void showMedia(Post post, PostViewHolder holder, int index) {
+        String[] media = post.getMedia();
+        if (media == null || media.length == 0 || index < 0 || index >= media.length) {
+            holder.imageContainer.setVisibility(View.GONE);
+            return;
+        }
+
+        String mediaUrl = media[index];
+        if (mediaUrl == null || mediaUrl.trim().isEmpty()) {
+            holder.image.setImageDrawable(null);
+            return;
+        }
+
+        String displayUrl = mediaUrl.replace("localhost", "10.0.2.2");
+        Glide.with(holder.itemView.getContext())
+                .load(displayUrl)
+                .into(holder.image);
+
+        boolean hasMultiplePhotos = media.length > 1;
+        holder.btnPreviousImage.setVisibility(hasMultiplePhotos ? View.VISIBLE : View.GONE);
+        holder.btnNextImage.setVisibility(hasMultiplePhotos ? View.VISIBLE : View.GONE);
+        holder.imageCounter.setVisibility(hasMultiplePhotos ? View.VISIBLE : View.GONE);
+        holder.imageCounter.setText((index + 1) + " / " + media.length);
     }
 
     private void deletePost(Post post, PostViewHolder holder) {
@@ -272,17 +321,22 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     static class PostViewHolder extends RecyclerView.ViewHolder {
         TextView title, content, userName, postTime, price, likeCount, dislikeCount, commentCount;
+        TextView btnPreviousImage, btnNextImage, imageCounter;
         ImageView image, ivLike, ivDislike;
         ShapeableImageView userAvatar;
         ImageButton btnDetails;
-        View btnLike, btnDislike, btnCommentContainer;
+        View btnLike, btnDislike, btnCommentContainer, imageContainer;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.postTitle);
             content = itemView.findViewById(R.id.postContent);
             price = itemView.findViewById(R.id.postPrice);
+            imageContainer = itemView.findViewById(R.id.postImageContainer);
             image = itemView.findViewById(R.id.postImage);
+            btnPreviousImage = itemView.findViewById(R.id.btnPreviousImage);
+            btnNextImage = itemView.findViewById(R.id.btnNextImage);
+            imageCounter = itemView.findViewById(R.id.tvImageCounter);
             userName = itemView.findViewById(R.id.postUserName);
             postTime = itemView.findViewById(R.id.postTime);
             userAvatar = itemView.findViewById(R.id.postUserAvatar);
