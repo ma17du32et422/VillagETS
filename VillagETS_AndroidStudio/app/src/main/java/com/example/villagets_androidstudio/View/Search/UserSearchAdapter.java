@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -51,8 +52,14 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.Us
         }
 
         holder.itemView.setOnClickListener(v -> {
+            String selectedUserId = user.getUserId();
+            if (selectedUserId == null || selectedUserId.trim().isEmpty()) {
+                Toast.makeText(v.getContext(), "Unable to open this profile", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             Intent intent = new Intent(v.getContext(), ProfileActivity.class);
-            intent.putExtra("userId", user.getUserId());
+            intent.putExtra("userId", selectedUserId);
             v.getContext().startActivity(intent);
         });
     }
