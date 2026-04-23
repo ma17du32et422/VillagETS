@@ -18,10 +18,11 @@
 }
 
 .sidebar-title {
-    font-size: 13px;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    font-weight: bold;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0;
+    text-transform: none;
+    font-weight: 700;
     color: var(--color-5);
 }
 
