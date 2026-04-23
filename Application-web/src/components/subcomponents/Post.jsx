@@ -4,6 +4,9 @@ import Comments from './Comments'
 import { getBaseUrl } from '../../API'
 import { useAuth } from '../../AuthContext'
 import ProfileAvatar from '../ProfileAvatar'
+import likeIcon from '../../assets/icons/like.svg'
+import dislikeIcon from '../../assets/icons/dislike.svg'
+import commentIcon from '../../assets/icons/comment.svg'
 
 const formatPostDate = (dateString) => {
   if (!dateString) return ''
@@ -272,17 +275,20 @@ const toggleReaction = async (type) => {
 
       <div className="reaction-bar">
         <button className={`reaction-button ${liked ? 'active' : ''}`} type="button" onClick={() => toggleReaction('like')}>
-          👍 {likes}
+          <img src={likeIcon} alt="Like" className="reaction-icon" />
+          {likes}
         </button>
         <button className={`reaction-button ${disliked ? 'active' : ''}`} type="button" onClick={() => toggleReaction('dislike')}>
-          👎 {dislikes}
+          <img src={dislikeIcon} alt="Dislike" className="reaction-icon" />
+          {dislikes}
         </button>
         <button
           className="reaction-button"
           type="button"
           onClick={() => setCommentVisible(v => !v)}
         >
-          💬 {commentCount}
+          <img src={commentIcon} alt="Comment" className="reaction-icon" />
+          {commentCount}
         </button>
       </div>
 
