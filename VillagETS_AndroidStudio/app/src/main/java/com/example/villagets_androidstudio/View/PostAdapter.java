@@ -144,28 +144,44 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         boolean isAuthor = currentUser != null
                 && currentUser.getUserId() != null
                 && currentUser.getUserId().equals(finalPosterId);
-        holder.btnDetails.setVisibility(isAuthor ? View.VISIBLE : View.GONE);
-        holder.btnDetails.setOnClickListener(v -> showPostOptions(post, holder));
+        holder.btnDetails.setVisibility(View.VISIBLE);
+        holder.btnDetails.setOnClickListener(v -> showPostOptions(post, holder, isAuthor, finalPosterId, finalPosterName));
 
         holder.btnLike.setOnClickListener(v -> handleReaction(post, "like", holder));
         holder.btnDislike.setOnClickListener(v -> handleReaction(post, "dislike", holder));
         holder.btnCommentContainer.setOnClickListener(openDetails);
     }
 
-    private void showPostOptions(Post post, PostViewHolder holder) {
+    private void showPostOptions(Post post, PostViewHolder holder, boolean isAuthor, String posterId, String posterName) {
         PopupMenu popupMenu = new PopupMenu(holder.itemView.getContext(), holder.btnDetails);
-        popupMenu.getMenu().add(Menu.NONE, 1, 1, "Delete post");
+        popupMenu.getMenu().add(Menu.NONE, 1, 1, isAuthor ? "Delete post" : "Begin discussion");
         popupMenu.getMenu().add(Menu.NONE, 2, 2, "Cancel");
-        popupMenu.setOnMenuItemClickListener(item -> handlePostOptionClick(item, post, holder));
+        popupMenu.setOnMenuItemClickListener(item -> handlePostOptionClick(item, post, holder, isAuthor, posterId, posterName));
         popupMenu.show();
     }
 
-    private boolean handlePostOptionClick(MenuItem item, Post post, PostViewHolder holder) {
+    private boolean handlePostOptionClick(MenuItem item, Post post, PostViewHolder holder, boolean isAuthor, String posterId, String posterName) {
         if (item.getItemId() == 1) {
-            deletePost(post, holder);
+            if (isAuthor) {
+                deletePost(post, holder);
+            } else {
+                beginDiscussion(holder, posterId, posterName);
+            }
             return true;
         }
         return true;
+    }
+
+    private void beginDiscussion(PostViewHolder holder, String posterId, String posterName) {
+        if (posterId == null || posterId.trim().isEmpty()) {
+            Toast.makeText(holder.itemView.getContext(), "Unable to start discussion", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent intent = new Intent(holder.itemView.getContext(), MessageActivity.class);
+        intent.putExtra("receiverId", posterId);
+        intent.putExtra("userName", posterName);
+        holder.itemView.getContext().startActivity(intent);
     }
 
     private void deletePost(Post post, PostViewHolder holder) {
