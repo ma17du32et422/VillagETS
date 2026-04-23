@@ -10,6 +10,7 @@ export default function CreatePost({ onSuccess, onCancel }) {
   const [title, setTitle] = useState("");
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [tags, setTags] = useState("");
   const [textContent, setTextContent] = useState("");
   const [isMarketplaceItem, setIsMarketplaceItem] = useState(false);
   const [price, setPrice] = useState("");
@@ -85,6 +86,7 @@ export default function CreatePost({ onSuccess, onCancel }) {
           media: mediaUrls,
           articleAVendre: isMarketplaceItem,
           prix: isMarketplaceItem ? parsedPrice : null,
+          tags: tags.split(',').map(t => t.trim()).filter(Boolean),
         }),
       });
 
@@ -128,6 +130,16 @@ export default function CreatePost({ onSuccess, onCancel }) {
         disabled={isSubmitting}
         onChange={e => setTitle(e.target.value)}
       />
+
+      <div className="post-tags-input-wrap">
+        <input
+          id="form-tags"
+          placeholder="Tags (comma-separated)"
+          value={tags}
+          disabled={isSubmitting}
+          onChange={e => setTags(e.target.value)}
+        />
+      </div>
 
       <div id="marketplace-fields">
         <label id="marketplace-toggle">
