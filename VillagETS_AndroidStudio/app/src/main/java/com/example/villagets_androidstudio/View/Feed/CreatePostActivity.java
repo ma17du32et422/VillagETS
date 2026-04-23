@@ -25,6 +25,9 @@ import com.example.villagets_androidstudio.R;
 import com.example.villagets_androidstudio.View_Model.PostViewModel;
 import com.example.villagets_androidstudio.View_Model.UserViewModel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CreatePostActivity extends AppCompatActivity {
 
     private EditText etTitle, etContent, etPrice;
@@ -33,18 +36,17 @@ public class CreatePostActivity extends AppCompatActivity {
     private LinearLayout uploadPlaceholder;
     private FrameLayout btnUploadPhotos;
     private ImageView ivPostImagePreview, ivUserAvatar;
-    private TextView tvUserName;
+    private TextView tvUserName, tvUploadLabel, tvSelectedPhotoCount;
     private PostViewModel postViewModel;
     private UserViewModel userViewModel;
-    private Uri selectedImageUri;
+    private final List<Uri> selectedImageUris = new ArrayList<>();
 
     private final ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
-            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
-                if (uri != null) {
-                    selectedImageUri = uri;
-                    ivPostImagePreview.setImageURI(uri);
-                    ivPostImagePreview.setVisibility(View.VISIBLE);
-                    uploadPlaceholder.setVisibility(View.GONE);
+            registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(10), uris -> {
+                if (uris != null && !uris.isEmpty()) {
+                    selectedImageUris.clear();
+                    selectedImageUris.addAll(uris);
+                    updateSelectedMediaPreview();
                 }
             });
 
@@ -67,6 +69,8 @@ public class CreatePostActivity extends AppCompatActivity {
         ivPostImagePreview = findViewById(R.id.ivPostImagePreview);
         ivUserAvatar = findViewById(R.id.userAvatar);
         tvUserName = findViewById(R.id.userName);
+        tvUploadLabel = findViewById(R.id.tvUploadLabel);
+        tvSelectedPhotoCount = findViewById(R.id.tvSelectedPhotoCount);
 
         User currentUser = User.loadUser(this);
         
@@ -154,7 +158,7 @@ public class CreatePostActivity extends AppCompatActivity {
                 newPost.setPrix(0.0);
             }
 
-            postViewModel.creerPost(this, newPost, selectedImageUri);
+            postViewModel.creerPost(this, newPost, new ArrayList<>(selectedImageUris));
         });
 
         postViewModel.getSaveSuccess().observe(this, success -> {
@@ -169,5 +173,25 @@ public class CreatePostActivity extends AppCompatActivity {
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void updateSelectedMediaPreview() {
+        if (selectedImageUris.isEmpty()) {
+            ivPostImagePreview.setVisibility(View.GONE);
+            uploadPlaceholder.setVisibility(View.VISIBLE);
+            tvSelectedPhotoCount.setVisibility(View.GONE);
+            tvUploadLabel.setText("Click or drag to add photos");
+            return;
+        }
+
+        Uri previewUri = selectedImageUris.get(0);
+        ivPostImagePreview.setImageURI(previewUri);
+        ivPostImagePreview.setVisibility(View.VISIBLE);
+        uploadPlaceholder.setVisibility(View.GONE);
+
+        int count = selectedImageUris.size();
+        tvSelectedPhotoCount.setText(count == 1 ? "1 photo" : count + " photos");
+        tvSelectedPhotoCount.setVisibility(View.VISIBLE);
+        tvUploadLabel.setText(count == 1 ? "1 photo selected" : count + " photos selected");
     }
 }

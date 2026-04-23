@@ -6,8 +6,11 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.villagets_androidstudio.Model.Dao.PostDao;
 import com.example.villagets_androidstudio.Model.Entity.Post;
+import com.example.villagets_androidstudio.Utils.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,24 +59,35 @@ public class PostViewModel extends ViewModel {
         });
     }
 
-    public void creerPost(android.content.Context context, Post post, android.net.Uri imageUri) {
+    public void creerPost(android.content.Context context, Post post, List<android.net.Uri> imageUris) {
         executorService.execute(() -> {
             try {
-                if (imageUri != null) {
-                    java.io.File file = com.example.villagets_androidstudio.Utils.FileUtils.getFileFromUri(context, imageUri);
-                    if (file != null) {
-                        String mimeType = context.getContentResolver().getType(imageUri);
-                        if (mimeType == null) mimeType = "image/jpeg";
-                        
-                        String uploadedUrl = PostDao.uploadFile(file, file.getName(), mimeType);
-                        if (uploadedUrl != null) {
-                            post.setMedia(new String[]{uploadedUrl});
-                        } else {
-                            message.postValue("Erreur lors de l'upload de l'image");
+                if (imageUris != null && !imageUris.isEmpty()) {
+                    List<String> uploadedUrls = new ArrayList<>();
+                    for (android.net.Uri imageUri : imageUris) {
+                        File file = FileUtils.getFileFromUri(context, imageUri);
+                        if (file == null) {
+                            message.postValue("Erreur lors de la lecture d'une image");
                             saveSuccess.postValue(false);
                             return;
                         }
+
+                        String mimeType = context.getContentResolver().getType(imageUri);
+                        if (mimeType == null) {
+                            mimeType = "image/jpeg";
+                        }
+
+                        String uploadedUrl = PostDao.uploadFile(file, file.getName(), mimeType);
+                        if (uploadedUrl == null) {
+                            message.postValue("Erreur lors de l'upload des images");
+                            saveSuccess.postValue(false);
+                            return;
+                        }
+
+                        uploadedUrls.add(uploadedUrl);
                     }
+
+                    post.setMedia(uploadedUrls.toArray(new String[0]));
                 }
 
                 Post createdPost = PostDao.createPost(post);
