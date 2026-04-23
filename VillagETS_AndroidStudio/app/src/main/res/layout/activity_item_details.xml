@@ -228,6 +228,20 @@
                             android:textColor="@color/text_primary"
                             android:textSize="16sp" />
 
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btnContactSeller"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:background="@drawable/rounded_gray_header"
+                            android:backgroundTint="@color/red_primary"
+                            android:text="Contacter le vendeur"
+                            android:textAllCaps="false"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
+
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
