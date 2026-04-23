@@ -81,7 +81,7 @@ public class ConversationFragment extends Fragment {
         String[] userNames = new String[size];
         String[] lastMessages = new String[size];
         String[] times = new String[size];
-        Integer[] avatarResIds = new Integer[size];
+        String[] photoUrls = new String[size];
         String[] receiverIds = new String[size];
 
         for (int i = 0; i < size; i++) {
@@ -89,16 +89,17 @@ public class ConversationFragment extends Fragment {
             if (conv.getOtherUser() != null) {
                 userNames[i] = conv.getOtherUser().getPrenom() + " " + conv.getOtherUser().getNom();
                 receiverIds[i] = conv.getOtherUser().getId_utilisateur();
+                photoUrls[i] = conv.getOtherUser().getPhotoProfil();
             } else {
                 userNames[i] = "Inconnu";
                 receiverIds[i] = "";
+                photoUrls[i] = null;
             }
             lastMessages[i] = "";
             times[i] = "";
-            avatarResIds[i] = R.drawable.profile_placeholder;
         }
 
-        adapter = new ConversationAdapter(userNames, lastMessages, times, avatarResIds, receiverIds);
+        adapter = new ConversationAdapter(userNames, lastMessages, times, photoUrls, receiverIds);
         recyclerView.setAdapter(adapter);
     }
 }

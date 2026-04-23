@@ -2,6 +2,7 @@ package com.example.villagets_androidstudio.Model.Entity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "userId", "email", "password", "pseudo", "nom", "prenom", "dateNaissance", "photoProfil" })
 public class User {
+    @JsonAlias({"id", "id_utilisateur"})
     private String userId;
     private String email;
     private String password;

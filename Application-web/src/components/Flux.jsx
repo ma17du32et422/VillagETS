@@ -8,8 +8,8 @@ export default function Flux({ posts: propPosts, loading, error }) {
 
   const handleDelete = (id) => setPosts(p => p.filter(post => post.id !== id));
 
-  if (loading) return <p>Loading posts...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading) return <p className="feed-status-message">Loading posts...</p>;
+  if (error) return <p className="feed-status-message">Error: {error}</p>;
 
   return (
     <div id="feed">
