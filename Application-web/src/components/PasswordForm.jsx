@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getBaseUrl } from '../API';
 
 /** PasswordForm */
@@ -9,6 +9,15 @@ function PasswordForm() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [submitting, setSubmitting] = useState(false);
+
+    useEffect(() => {
+        return () => {
+            setOldPassword('');
+            setNewPassword('');
+            setError('');
+            setSuccess('');
+        };
+    }, []);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -44,9 +53,9 @@ function PasswordForm() {
                 throw new Error(text || 'Failed to update password.');
             }
 
+            setSuccess('Password updated successfully.');
             setOldPassword('');
             setNewPassword('');
-            setSuccess('Password updated successfully.');
         } catch (err) {
             console.error('Password update failed:', err);
             setError(err.message ?? 'Failed to update password.');
@@ -67,6 +76,7 @@ function PasswordForm() {
                     name="oldPassword"
                     value={oldPassword}
                     onChange={(event) => setOldPassword(event.target.value)}
+                    autoComplete="off"
                 />
             </div>
 
@@ -78,6 +88,7 @@ function PasswordForm() {
                     name="newPassword"
                     value={newPassword}
                     onChange={(event) => setNewPassword(event.target.value)}
+                    autoComplete="off"
                 />
             </div>
 

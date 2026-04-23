@@ -1,8 +1,10 @@
 import { useEffect, useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import '../.././assets/Post.css'
 import Comments from './Comments'
 import { getBaseUrl } from '../../API'
 import { useAuth } from '../../AuthContext'
+import { beginDiscussion } from '../../utils/discussion'
 import ProfileAvatar from '../ProfileAvatar'
 import likeIcon from '../../assets/icons/like.svg'
 import dislikeIcon from '../../assets/icons/dislike.svg'
@@ -32,6 +34,7 @@ const formatPostDate = (dateString) => {
 
 export default function Post({ post, onDelete }) {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [likes, setLikes] = useState(post.likes ?? 0)
   const [dislikes, setDislikes] = useState(post.dislikes ?? 0)
   const [commentCount, setCommentCount] = useState(post.commentaires ?? 0)
@@ -44,6 +47,7 @@ export default function Post({ post, onDelete }) {
   const [mediaRatios, setMediaRatios] = useState({})
   const [menuOpen, setMenuOpen] = useState(false)
   const [failedImages, setFailedImages] = useState(new Set())
+  const [contactError, setContactError] = useState('')
   const menuRef = useRef(null)
 
   const rawMedia = post.media ?? []
@@ -122,6 +126,22 @@ export default function Post({ post, onDelete }) {
       if (res.ok) onDelete?.(post.id)
     } catch (err) {
       console.error('Delete failed:', err)
+    }
+  }
+
+  const handleContactSeller = async () => {
+    setContactError('')
+    try {
+      const opened = await beginDiscussion({
+        currentUserId: user?.userId,
+        targetUserId: post.op?.id,
+        navigate,
+      })
+      if (!opened) {
+        setContactError('Failed to open chat with seller.')
+      }
+    } catch (err) {
+      setContactError(err.message ?? 'Failed to contact seller.')
     }
   }
 
@@ -268,6 +288,21 @@ const toggleReaction = async (type) => {
             </>
           ) : (
             <div className="image-unavailable">Media unavailable</div>
+          )}
+        </div>
+      )}
+
+      {isMarketplaceItem && (
+        <div className="marketplace-actions">
+          {contactError && <p className="contact-error">{contactError}</p>}
+          {user?.userId !== post.op?.id && (
+            <button
+              type="button"
+              className="contact-seller-button"
+              onClick={handleContactSeller}
+            >
+              Contact Seller
+            </button>
           )}
         </div>
       )}
