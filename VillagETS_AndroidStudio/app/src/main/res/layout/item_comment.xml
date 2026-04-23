@@ -32,7 +32,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/rounded_gray_header"
-                android:backgroundTint="#F2F2F2"
+                android:backgroundTint="@color/surface"
                 android:orientation="vertical"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="8dp">
@@ -43,7 +43,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/delta_medium"
                     android:text="User"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -53,7 +53,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/delta_light"
                     android:text="Comment text"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_primary"
                     android:textSize="14sp" />
             </LinearLayout>
 
@@ -70,7 +70,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/delta_light"
                     android:text="4/22/2026"
-                    android:textColor="@color/gray_inactive"
+                    android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
                 <TextView
@@ -80,7 +80,7 @@
                     android:layout_marginStart="12dp"
                     android:fontFamily="@font/delta_medium"
                     android:text="Reply"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_primary"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -91,7 +91,7 @@
                     android:layout_marginStart="12dp"
                     android:fontFamily="@font/delta_medium"
                     android:text="▼ 3 replies"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_primary"
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:visibility="gone" />
@@ -103,7 +103,7 @@
                     android:layout_marginStart="12dp"
                     android:fontFamily="@font/delta_medium"
                     android:text="Delete"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_primary"
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:visibility="gone" />
@@ -122,7 +122,7 @@
         <View
             android:layout_width="2dp"
             android:layout_height="match_parent"
-            android:background="#D9D9D9"
+            android:background="@color/color_3"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"/>
 
