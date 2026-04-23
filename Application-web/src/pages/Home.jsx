@@ -4,13 +4,16 @@ import Flux from "../components/Flux";
 import { getBaseUrl } from '../API';
 
 import '../assets/App.css'
+import usePageTitle from "../utils/usePageTitle";
 
 function App(){
   const { user, loading: authLoading } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
+  usePageTitle("Votre fil d'actualités");
+
   useEffect(() => {
     if (authLoading) return;
 

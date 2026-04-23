@@ -3,9 +3,12 @@ import Header from "../components/Header.jsx";
 import SignupForm from "../components/SignupForm.jsx";
 
 /** Styling */
-import '../assets/ProfilePage.css'
+import '../assets/ProfilePage.css';
+import usePageTitle from "../utils/usePageTitle";
+
 
 function Signup(){
+    usePageTitle("Inscription");
     return (
         <>
             <header>

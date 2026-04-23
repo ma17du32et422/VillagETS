@@ -5,8 +5,11 @@ import SignupForm from "../components/SignupForm";
 
 /** Styling */
 import '../assets/ProfilePage.css'
+import usePageTitle from "../utils/usePageTitle";
+
 
 function LoginPage(){
+    usePageTitle("Connexion");
     return (
         <>
             <header>
