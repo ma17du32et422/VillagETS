@@ -97,7 +97,7 @@
                         android:id="@+id/switchMarketplace"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:buttonTint="@color/gray_inactive" />
+                        android:buttonTint="@color/checkbox_tint" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -112,7 +112,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:background="@android:color/transparent"
-                        android:hint="Enter Price$"
+                        android:hint="Enter Price: $"
                         android:inputType="numberDecimal"
                         android:textColor="@color/text_primary"
                         android:textColorHint="@color/text_secondary"
@@ -132,7 +132,7 @@
                 <LinearLayout
                     android:id="@+id/uploadPlaceholder"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="parent"
                     android:gravity="center"
                     android:orientation="horizontal">
 
