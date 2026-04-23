@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -55,8 +56,19 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         if (comment == null) return;
 
         holder.tvUserName.setText(comment.getOp() != null ? comment.getOp().getPseudo() : "User");
-        holder.tvContent.setText(comment.getContenu());
         holder.tvTime.setText(comment.getDateCommentaire());
+
+        String content = comment.getContenu();
+        if (isImageUrl(content)) {
+            holder.tvContent.setVisibility(View.GONE);
+            holder.ivCommentImage.setVisibility(View.VISIBLE);
+            String displayUrl = content.replace("localhost", "10.0.2.2");
+            Glide.with(holder.itemView.getContext()).load(displayUrl).into(holder.ivCommentImage);
+        } else {
+            holder.tvContent.setVisibility(View.VISIBLE);
+            holder.ivCommentImage.setVisibility(View.GONE);
+            holder.tvContent.setText(content);
+        }
 
         if (comment.getOp() != null && comment.getOp().getPhotoProfil() != null) {
             String photoUrl = comment.getOp().getPhotoProfil().replace("localhost", "10.0.2.2");
@@ -89,6 +101,20 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         } else {
             holder.repliesContainer.setVisibility(View.GONE);
         }
+    }
+
+    private static boolean isImageUrl(String text) {
+        if (text == null) return false;
+        return text.startsWith("http") && (
+                text.contains("/upload/") ||
+                text.endsWith(".jpg") ||
+                text.endsWith(".png") ||
+                text.endsWith(".jpeg") ||
+                text.endsWith(".gif") ||
+                text.contains("giphy.com") ||
+                text.contains("10.0.2.2") ||
+                text.contains("localhost")
+        );
     }
 
     private void updateExpandLink(CommentViewHolder holder, Comment comment) {
@@ -140,6 +166,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
     static class CommentViewHolder extends RecyclerView.ViewHolder {
         ShapeableImageView ivAvatar;
+        ImageView ivCommentImage;
         TextView tvUserName, tvContent, tvTime, tvReplyAction, tvExpandReplies, tvDeleteComment;
         RecyclerView rvReplies;
         View repliesContainer;
@@ -147,6 +174,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         public CommentViewHolder(@NonNull View itemView) {
             super(itemView);
             ivAvatar = itemView.findViewById(R.id.ivCommentUserAvatar);
+            ivCommentImage = itemView.findViewById(R.id.ivCommentImage);
             tvUserName = itemView.findViewById(R.id.tvCommentUserName);
             tvContent = itemView.findViewById(R.id.tvCommentContent);
             tvTime = itemView.findViewById(R.id.tvCommentTime);
