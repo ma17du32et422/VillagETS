@@ -118,6 +118,15 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         void bind(Message message) {
             tvUserName.setText(message.getSenderName());
             tvTimestamp.setText(message.getTimestamp());
+            
+            // Chargement de l'avatar de l'expéditeur
+            Glide.with(itemView.getContext())
+                    .load(message.getAvatarUrl())
+                    .placeholder(R.drawable.profile_placeholder)
+                    .error(R.drawable.profile_placeholder)
+                    .circleCrop()
+                    .into(ivAvatar);
+
             String text = message.getText();
             if (isImageUrl(text)) {
                 tvMessageText.setVisibility(View.GONE);

@@ -18,6 +18,7 @@ public class Conversation {
 
         private String nom;
         private String prenom;
+        private String photoProfil;
 
         public OtherUser() {}
 
@@ -34,6 +35,8 @@ public class Conversation {
         public void setNom(String nom) { this.nom = nom; }
         public String getPrenom() { return prenom; }
         public void setPrenom(String prenom) { this.prenom = prenom; }
+        public String getPhotoProfil() { return photoProfil; }
+        public void setPhotoProfil(String photoProfil) { this.photoProfil = photoProfil; }
     }
 
     public Conversation() {}

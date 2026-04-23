@@ -46,6 +46,7 @@ public class MessageActivity extends AppCompatActivity {
     private SessionManager sessionManager;
     private String receiverId;
     private String userName;
+    private String photoUrl;
     private User currentUser;
 
     private final ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
@@ -67,6 +68,7 @@ public class MessageActivity extends AppCompatActivity {
 
         userName = getIntent().getStringExtra("userName");
         receiverId = getIntent().getStringExtra("receiverId");
+        photoUrl = getIntent().getStringExtra("photoUrl");
         
         currentUser = User.loadUser(this);
 
@@ -117,7 +119,11 @@ public class MessageActivity extends AppCompatActivity {
                 boolean isSent = (currentUser != null && cm.getEnvoyeurId() != null && cm.getEnvoyeurId().equals(currentUser.getUserId()));
                 String sender = isSent ? "Moi" : userName;
                 String time = cm.getDateMsg() != null ? formatTimestamp(cm.getDateMsg()) : "";
-                messageList.add(new Message(sender, cm.getContenu(), time, "avatar", isSent));
+                
+                // Utilisation de la photoUrl pour les messages reçus
+                String currentAvatarUrl = isSent ? (currentUser != null ? currentUser.getPhotoProfil() : null) : photoUrl;
+                
+                messageList.add(new Message(sender, cm.getContenu(), time, currentAvatarUrl, isSent));
             }
             adapter.notifyDataSetChanged();
             if (!messageList.isEmpty()) {
