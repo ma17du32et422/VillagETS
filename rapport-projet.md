@@ -35,13 +35,15 @@ Le site est accessible grâce à un tunnel Cloudflare qui permet d'ouvrir son r�
 Pour les technologies de base, nous sommes resté au plan initial.
 
 ### Diagramme d'architecture du projet
-Le diagramme d'architecture doit comprendre :
 
-* Les différents clients utilisés (web, mobile)
-* Le serveur
-* La BD
-    * Les connexions entre les différents éléments précédents
-    * Pour chaque élément précédent, indiquez les technologies qui le soutiennent
+Architecture de l'application et des différents clients:
+
+
+Routes du tunnel Cloudflare
+<img width="1200" height="696" alt="routes" src="https://github.com/user-attachments/assets/d44023ad-5166-4b00-9f64-130943a5f359" />
+
+Base de données SQL Supabase:
+<img width="1460" height="933" alt="schema-tablesSQL" src="https://github.com/user-attachments/assets/4a7b8b3a-ccd5-4a87-bb60-3f1ea0eec7e6" />
 
 ### Revue des tâches des sprints
 Pour chaque sprint, indiqué dans un tableau :
