@@ -18,6 +18,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
 import com.example.villagets_androidstudio.Model.Entity.Post;
 import com.example.villagets_androidstudio.Model.Entity.User;
 import com.example.villagets_androidstudio.R;
@@ -31,7 +32,7 @@ public class CreatePostActivity extends AppCompatActivity {
     private Button btnPost, btnCancel;
     private LinearLayout uploadPlaceholder;
     private FrameLayout btnUploadPhotos;
-    private ImageView ivPostImagePreview;
+    private ImageView ivPostImagePreview, ivUserAvatar;
     private TextView tvUserName;
     private PostViewModel postViewModel;
     private UserViewModel userViewModel;
@@ -64,16 +65,44 @@ public class CreatePostActivity extends AppCompatActivity {
         btnUploadPhotos = findViewById(R.id.btnUploadPhotos);
         uploadPlaceholder = findViewById(R.id.uploadPlaceholder);
         ivPostImagePreview = findViewById(R.id.ivPostImagePreview);
+        ivUserAvatar = findViewById(R.id.userAvatar);
         tvUserName = findViewById(R.id.userName);
 
         User currentUser = User.loadUser(this);
+        
+        // Affichage immédiat des données locales si disponibles
+        if (currentUser != null) {
+            if (currentUser.getPseudo() != null) {
+                tvUserName.setText(currentUser.getPseudo());
+            }
+            if (currentUser.getPhotoProfil() != null) {
+                String photoUrl = currentUser.getPhotoProfil().replace("localhost", "10.0.2.2");
+                Glide.with(this)
+                        .load(photoUrl)
+                        .placeholder(R.drawable.profile_placeholder)
+                        .circleCrop()
+                        .into(ivUserAvatar);
+            }
+        }
+
+        // Rafraîchissement depuis le serveur
         if (currentUser != null && currentUser.getEmail() != null) {
             userViewModel.fetchUser(currentUser.getEmail());
         }
 
         userViewModel.getUserLiveData().observe(this, user -> {
-            if (user != null && user.getPseudo() != null) {
-                tvUserName.setText(user.getPseudo());
+            if (user != null) {
+                if (user.getPseudo() != null) {
+                    tvUserName.setText(user.getPseudo());
+                }
+                if (user.getPhotoProfil() != null) {
+                    String photoUrl = user.getPhotoProfil().replace("localhost", "10.0.2.2");
+                    Glide.with(this)
+                            .load(photoUrl)
+                            .placeholder(R.drawable.profile_placeholder)
+                            .circleCrop()
+                            .into(ivUserAvatar);
+                }
             }
         });
 

@@ -58,11 +58,11 @@
 
                 <ImageView
                     android:id="@+id/ivCommentImage"
-                    android:layout_width="220dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:maxWidth="250dp"
                     android:adjustViewBounds="true"
-                    android:maxHeight="220dp"
-                    android:scaleType="centerCrop"
+                    android:scaleType="fitCenter"
                     android:visibility="gone" />
             </LinearLayout>
 

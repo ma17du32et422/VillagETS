@@ -235,7 +235,7 @@
                             android:layout_marginTop="20dp"
                             android:background="@drawable/rounded_gray_header"
                             android:backgroundTint="@color/red_primary"
-                            android:text="Contacter le vendeur"
+                            android:text="Contact seller"
                             android:textAllCaps="false"
                             android:textColor="@color/white"
                             android:textSize="16sp"

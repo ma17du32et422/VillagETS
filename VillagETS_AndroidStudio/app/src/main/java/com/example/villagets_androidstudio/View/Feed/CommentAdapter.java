@@ -18,8 +18,12 @@ import com.example.villagets_androidstudio.R;
 import com.google.android.material.imageview.ShapeableImageView;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -56,14 +60,21 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         if (comment == null) return;
 
         holder.tvUserName.setText(comment.getOp() != null ? comment.getOp().getPseudo() : "User");
-        holder.tvTime.setText(comment.getDateCommentaire());
+        
+        // Conversion de l'heure en heure locale
+        String timeStr = comment.getDateCommentaire();
+        if (timeStr != null) {
+            holder.tvTime.setText(formatTimestamp(timeStr));
+        }
 
         String content = comment.getContenu();
         if (isImageUrl(content)) {
             holder.tvContent.setVisibility(View.GONE);
             holder.ivCommentImage.setVisibility(View.VISIBLE);
             String displayUrl = content.replace("localhost", "10.0.2.2");
-            Glide.with(holder.itemView.getContext()).load(displayUrl).into(holder.ivCommentImage);
+            Glide.with(holder.itemView.getContext())
+                    .load(displayUrl)
+                    .into(holder.ivCommentImage);
         } else {
             holder.tvContent.setVisibility(View.VISIBLE);
             holder.ivCommentImage.setVisibility(View.GONE);
@@ -72,7 +83,11 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
         if (comment.getOp() != null && comment.getOp().getPhotoProfil() != null) {
             String photoUrl = comment.getOp().getPhotoProfil().replace("localhost", "10.0.2.2");
-            Glide.with(holder.itemView.getContext()).load(photoUrl).placeholder(R.drawable.profile_placeholder).into(holder.ivAvatar);
+            Glide.with(holder.itemView.getContext())
+                    .load(photoUrl)
+                    .placeholder(R.drawable.profile_placeholder)
+                    .circleCrop()
+                    .into(holder.ivAvatar);
         } else {
             holder.ivAvatar.setImageResource(R.drawable.profile_placeholder);
         }
@@ -100,6 +115,32 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             setupRepliesRecyclerView(holder, comment.getReplies());
         } else {
             holder.repliesContainer.setVisibility(View.GONE);
+        }
+    }
+
+    private String formatTimestamp(String isoDate) {
+        try {
+            SimpleDateFormat sdfInput = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            sdfInput.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date date = sdfInput.parse(isoDate);
+
+            // Pour les commentaires, on affiche souvent la date complète ou juste l'heure si c'est aujourd'hui
+            // Ici on garde HH:mm pour rester cohérent avec les messages, ou yyyy-MM-dd HH:mm
+            SimpleDateFormat sdfOutput = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+            sdfOutput.setTimeZone(TimeZone.getDefault());
+            return sdfOutput.format(date);
+        } catch (Exception e) {
+            try {
+                SimpleDateFormat sdfInput = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                sdfInput.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date date = sdfInput.parse(isoDate);
+
+                SimpleDateFormat sdfOutput = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+                sdfOutput.setTimeZone(TimeZone.getDefault());
+                return sdfOutput.format(date);
+            } catch (Exception e2) {
+                return isoDate;
+            }
         }
     }
 

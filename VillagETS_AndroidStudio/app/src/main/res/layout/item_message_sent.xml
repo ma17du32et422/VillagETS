@@ -25,19 +25,27 @@
             android:fontFamily="@font/delta_light"
             android:textColor="@color/white"
             android:textSize="15sp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:text="Sent message" />
 
         <ImageView
             android:id="@+id/messageImage"
-            android:layout_width="200dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:maxWidth="250dp"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/contentBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="messageText,messageImage" />
 
         <TextView
             android:id="@+id/messageTimestamp"
@@ -48,7 +56,7 @@
             android:textColor="#EEEEEE"
             android:textSize="10sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/messageText"
+            app:layout_constraintTop_toBottomOf="@id/contentBarrier"
             android:text="12:00" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
