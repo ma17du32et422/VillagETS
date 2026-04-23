@@ -32,6 +32,7 @@
   border-radius: 20px;
   font-size: 1rem;
   transition: background-color 0.2s ease;
+  color: var(--color-5);
 }
 
 .comment-input:focus {
