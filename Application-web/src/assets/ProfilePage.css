@@ -14,16 +14,17 @@
 #profileMain > section {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     background-color: var(--color-3);
     border: 1px solid var(--color-4);
-    border-radius: 10px;
-    padding: 40px;
+    border-radius: 12px;
+    padding: 36px 40px;
     width: 100%;
-    max-width: 380px;
+    max-width: 420px;
     margin-bottom: 16px;
     color: var(--color-5);
     box-sizing: border-box;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
 }
 
 #profile-posts-container {
@@ -38,43 +39,201 @@
     margin-top: 0;
 }
 
-#profileMain h2, #profileMain h3 {
-    margin-bottom: 30px;
-    font-size: 20px;
+#profileMain h2 {
+    margin: 0 0 28px 0;
+    font-size: 18px;
+    font-weight: 700;
     color: var(--color-5);
-    text-align: center;
+    text-align: left;
+    padding-bottom: 16px;
+    border-bottom: 3px solid #E40032;
+    letter-spacing: -0.2px;
 }
 
-#profileMain input, select {
+#profileMain h3 {
+    margin: 0 0 14px 0;
+    font-size: 10px;
+    font-weight: 700;
+    color: #E40032;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#profileMain p {
+    font-size: 12px;
+    color: var(--color-7);
+    margin: 0 0 8px 0;
+}
+
+#profileMain p strong {
+    color: var(--color-5);
+    font-weight: 700;
+}
+
+#profileMain input[type="text"],
+#profileMain input[type="password"],
+#profileMain input[type="email"],
+#profileMain select {
+    width: 100%;
+    padding: 9px 12px;
     margin-bottom: 10px;
     box-sizing: border-box;
+    border: 1.5px solid var(--color-4);
+    border-radius: 8px;
+    background-color: var(--color-2);
+    color: var(--color-5);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 12px;
+    transition: border-color 0.2s;
+    outline: none;
+}
+
+#profileMain input[type="text"]:focus,
+#profileMain input[type="password"]:focus,
+#profileMain input[type="email"]:focus {
+    border-color: #E40032;
 }
 
 #profileMain label {
     display: flex;
     flex-direction: column;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--color-7);
+    margin-bottom: 5px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
 }
 
 #profileMain form {
     display: flex;
     flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--color-4);
+}
+
+#profileMain button[type="submit"],
+#profileMain button[type="button"] {
+    display: inline-flex;
     align-items: center;
-}
-
-#profileMain button {
-    display: block;
-    margin: 15px auto 15px auto;
-    padding: 10px 20px;
-    width: auto;
-    max-height: 35px;
-    max-width: 180px;
-    background-color: lightgreen;
+    justify-content: center;
+    margin: 10px 0 0 0;
+    padding: 0 20px;
+    width: 100%;
+    max-width: 100%;
+    height: 38px;
+    max-height: none;
+    background-color: #E40032;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: background-color 0.2s, transform 0.1s;
 }
 
-#profileMain #login > *,
-#profileMain #profile-edit > * {
-    margin-bottom: 25px;
+#profileMain button[type="submit"]:hover:not(:disabled),
+#profileMain button[type="button"]:hover:not(:disabled) {
+    background-color: #c4002b;
 }
 
+#profileMain button[type="submit"]:active:not(:disabled),
+#profileMain button[type="button"]:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+#profileMain button:disabled {
+    background-color: var(--color-4);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Bouton Log Out — secondaire */
+#profile-edit > button[type="button"]:last-child {
+    background-color: transparent;
+    color: var(--color-7);
+    border: 1.5px solid var(--color-4);
+    margin-top: 4px;
+}
+
+#profile-edit > button[type="button"]:last-child:hover:not(:disabled) {
+    border-color: #E40032;
+    color: #E40032;
+    background-color: transparent;
+}
+
+/* Messages feedback */
+#profileMain p[style*="red"] {
+    color: #E40032 !important;
+    font-size: 11px;
+    margin: 2px 0 8px 0;
+    font-weight: 700;
+}
+
+#profileMain p[style*="green"] {
+    color: #1a7a3c !important;
+    font-size: 11px;
+    margin: 2px 0 8px 0;
+    font-weight: 700;
+}
+
+/* Section photo de profil */
+#profile-picture {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-4);
+    margin-top: 4px;
+}
+
+#profile-picture img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #E40032;
+}
+
+#profile-picture h3 {
+    text-align: center;
+}
+
+#profile-picture button {
+    width: auto;
+    padding: 0 20px;
+}
+
+#profile-upload-message {
+    font-size: 11px;
+    text-align: center;
+    color: var(--color-7);
+    margin: 0;
+}
+
+#profileMain button[type="submit"]:hover:not(:disabled),
+#profileMain button[type="button"]:hover:not(:disabled) {
+    background-color: #c4002b;
+    transform: scale(1.02);
+}
+
+#profileMain button[type="submit"]:active:not(:disabled),
+#profileMain button[type="button"]:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+/* Log Out hover séparé pour pas overrider le transform */
+#profile-edit > button[type="button"]:last-child:hover:not(:disabled) {
+    border-color: #E40032;
+    color: #E40032;
+    background-color: transparent;
+    transform: scale(1.02);
+}
