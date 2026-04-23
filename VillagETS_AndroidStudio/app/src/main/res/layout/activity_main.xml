@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:fontFamily="@font/delta_medium"
-            android:text="@string/villagets"
+            android:text="@string/app_name"
             android:textColor="@color/red_primary"
             android:textSize="22sp"
             android:textStyle="bold"

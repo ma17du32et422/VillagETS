@@ -42,7 +42,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/delta_medium"
-                    android:text="User"
+                    android:text="@string/user"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -52,7 +52,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/delta_light"
-                    android:text="Comment text"
+                    android:text="@string/comment_text"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp" />
 
@@ -78,7 +78,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/delta_light"
-                    android:text="4/22/2026"
+                    android:text="@string/_4_22_2026"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
@@ -88,7 +88,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     android:fontFamily="@font/delta_medium"
-                    android:text="Reply"
+                    android:text="@string/reply"
                     android:textColor="@color/text_primary"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -99,7 +99,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     android:fontFamily="@font/delta_medium"
-                    android:text="▼ 3 replies"
+                    android:text="@string/_3_replies"
                     android:textColor="@color/text_primary"
                     android:textSize="12sp"
                     android:textStyle="bold"
@@ -111,7 +111,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     android:fontFamily="@font/delta_medium"
-                    android:text="Delete"
+                    android:text="@string/delete"
                     android:textColor="@color/text_primary"
                     android:textSize="12sp"
                     android:textStyle="bold"

@@ -26,7 +26,7 @@
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@id/messageUserAvatar"
         app:layout_constraintTop_toTopOf="parent"
-        android:text="User Name" />
+        android:text="@string/username" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/messageBubble"
@@ -52,7 +52,7 @@
             android:textSize="15sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:text="Message text..." />
+            android:text="@string/message_text" />
 
         <ImageView
             android:id="@+id/messageImage"

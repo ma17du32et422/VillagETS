@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupTitleSpannable(TextView textView) {
-        String fullText = getString(R.string.villagets);
+        String fullText = getString(R.string.app_name);
         SpannableString spannable = new SpannableString(fullText);
 
         Typeface deltaLight = ResourcesCompat.getFont(this, R.font.delta_light);

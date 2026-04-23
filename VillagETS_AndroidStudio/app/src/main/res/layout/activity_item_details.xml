@@ -40,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/delta_medium"
-            android:text="Details"
+            android:text="@string/details"
             android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -112,7 +112,7 @@
                                     android:layout_marginStart="12dp"
                                     android:layout_weight="1"
                                     android:fontFamily="@font/delta_medium"
-                                    android:text="Username"
+                                    android:text="@string/username"
                                     android:textColor="@color/text_primary"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
@@ -186,7 +186,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/delta_medium"
-                            android:text="Title"
+                            android:text="@string/title"
                             android:textColor="@color/text_primary"
                             android:textSize="24sp"
                             android:textStyle="bold" />
@@ -213,7 +213,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/delta_medium"
-                            android:text="Description"
+                            android:text="@string/description"
                             android:textColor="@color/text_primary"
                             android:textSize="18sp"
                             android:textStyle="bold" />
@@ -224,7 +224,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:fontFamily="@font/delta_light"
-                            android:text="Description text goes here..."
+                            android:text="@string/description_text_goes_here"
                             android:textColor="@color/text_primary"
                             android:textSize="16sp" />
 
@@ -235,7 +235,7 @@
                             android:layout_marginTop="20dp"
                             android:background="@drawable/rounded_gray_header"
                             android:backgroundTint="@color/red_primary"
-                            android:text="Contact seller"
+                            android:text="@string/contact_seller"
                             android:textAllCaps="false"
                             android:textColor="@color/white"
                             android:textSize="16sp"
@@ -260,7 +260,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/delta_medium"
-                    android:text="Comments"
+                    android:text="@string/comments"
                     android:textColor="@color/text_primary"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -309,7 +309,7 @@
             android:layout_weight="1"
             android:background="@android:color/transparent"
             android:fontFamily="@font/delta_light"
-            android:hint="Write a comment..."
+            android:hint="@string/write_a_comment"
             android:maxLines="4"
             android:padding="12dp"
             android:textColor="@color/text_primary"

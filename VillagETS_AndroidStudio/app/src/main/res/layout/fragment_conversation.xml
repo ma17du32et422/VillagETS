@@ -18,7 +18,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="ID de l'utilisateur"
+            android:hint="@string/id_de_l_utilisateur"
             app:boxStrokeColor="@color/red_primary"
             app:hintTextColor="@color/red_primary">
 
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:backgroundTint="@color/red_primary"
-            android:text="Chat"
+            android:text="@string/chat"
             android:textColor="@color/white" />
     </LinearLayout>
 

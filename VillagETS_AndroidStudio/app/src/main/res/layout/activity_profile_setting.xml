@@ -17,7 +17,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/delta_medium"
-        android:text="My Profile"
+        android:text="@string/my_profile"
         android:textColor="@color/text_primary"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -82,7 +82,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|end"
-                    android:contentDescription="Modifier l'image"
+                    android:contentDescription="@string/modifier_l_image"
                     app:backgroundTint="@color/red_primary"
                     app:fabSize="mini"
                     app:srcCompat="@drawable/baseline_menu_24"
@@ -107,7 +107,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:fontFamily="@font/delta_medium"
-                        android:text="Username"
+                        android:text="@string/username"
                         android:textColor="@color/text_primary"
                         android:textSize="18sp" />
 
@@ -126,7 +126,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:hint="new username"
+                    android:hint="@string/username"
                     android:visibility="gone"
                     android:textColorHint="@color/text_secondary"
                     app:boxStrokeColor="@color/red_primary"
@@ -148,7 +148,7 @@
                 android:fontFamily="@font/delta_light"
                 android:layout_marginBottom="16dp"
                 android:backgroundTint="@color/red_primary"
-                android:text="Change password"
+                android:text="@string/change_password"
                 android:textColor="@android:color/white" />
 
             <LinearLayout
@@ -163,7 +163,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:hint="current password"
+                    android:hint="@string/current_password"
                     android:textColorHint="@color/text_secondary"
                     app:boxStrokeColor="@color/red_primary"
                     app:hintTextColor="@color/red_primary"
@@ -183,7 +183,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:hint="new password"
+                    android:hint="@string/new_password"
                     android:textColorHint="@color/text_secondary"
                     app:boxStrokeColor="@color/red_primary"
                     app:hintTextColor="@color/red_primary"
@@ -203,7 +203,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:hint="confirm new password"
+                    android:hint="@string/confirm_new_password"
                     android:textColorHint="@color/text_secondary"
                     app:boxStrokeColor="@color/red_primary"
                     app:hintTextColor="@color/red_primary"
@@ -227,7 +227,7 @@
                 android:fontFamily="@font/delta_light"
                 android:layout_marginTop="16dp"
                 android:backgroundTint="@color/red_primary"
-                android:text="Apply changes"
+                android:text="@string/apply_changes"
                 android:textColor="@android:color/white" />
 
             <Button
