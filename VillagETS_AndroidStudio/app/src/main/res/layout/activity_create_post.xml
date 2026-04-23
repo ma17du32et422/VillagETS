@@ -132,7 +132,7 @@
                 <LinearLayout
                     android:id="@+id/uploadPlaceholder"
                     android:layout_width="match_parent"
-                    android:layout_height="parent"
+                    android:layout_height="match_parent"
                     android:gravity="center"
                     android:orientation="horizontal">
 
