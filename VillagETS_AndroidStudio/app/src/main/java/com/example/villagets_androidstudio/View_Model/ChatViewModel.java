@@ -7,14 +7,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.villagets_androidstudio.Model.ChatMessage;
-import com.example.villagets_androidstudio.Model.Conversation;
+import com.example.villagets_androidstudio.Model.Entity.ChatMessage;
+import com.example.villagets_androidstudio.Model.Entity.Conversation;
 import com.example.villagets_androidstudio.Model.Dao.ChatApi;
 import com.example.villagets_androidstudio.Model.Dao.ChatWebSocketClient;
 import com.example.villagets_androidstudio.Model.Dao.PostDao;
 import com.example.villagets_androidstudio.Model.Dao.RetrofitClient;
-import com.example.villagets_androidstudio.Model.SessionManager;
-import com.example.villagets_androidstudio.Model.User;
+import com.example.villagets_androidstudio.Model.Dao.SessionManager;
+import com.example.villagets_androidstudio.Model.Entity.User;
 import com.example.villagets_androidstudio.Utils.FileUtils;
 
 import java.io.File;

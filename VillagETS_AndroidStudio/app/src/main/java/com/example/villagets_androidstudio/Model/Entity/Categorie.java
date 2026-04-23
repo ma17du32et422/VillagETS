@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio.Model;
+package com.example.villagets_androidstudio.Model.Entity;
 
 public class Categorie {
     private int id;

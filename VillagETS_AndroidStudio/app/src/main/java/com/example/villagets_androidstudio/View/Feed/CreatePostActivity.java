@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio.View;
+package com.example.villagets_androidstudio.View.Feed;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,14 +18,11 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.villagets_androidstudio.Model.Post;
-import com.example.villagets_androidstudio.Model.User;
+import com.example.villagets_androidstudio.Model.Entity.Post;
+import com.example.villagets_androidstudio.Model.Entity.User;
 import com.example.villagets_androidstudio.R;
 import com.example.villagets_androidstudio.View_Model.PostViewModel;
 import com.example.villagets_androidstudio.View_Model.UserViewModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CreatePostActivity extends AppCompatActivity {
 

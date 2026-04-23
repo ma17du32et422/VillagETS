@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio.View;
+package com.example.villagets_androidstudio.View.Message;
 
 import android.content.Intent;
 import android.view.LayoutInflater;

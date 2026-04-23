@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio.View;
+package com.example.villagets_androidstudio.View.Message;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,8 +14,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.villagets_androidstudio.Model.Conversation;
-import com.example.villagets_androidstudio.Model.User;
+import com.example.villagets_androidstudio.Model.Entity.Conversation;
+import com.example.villagets_androidstudio.Model.Entity.User;
 import com.example.villagets_androidstudio.R;
 import com.example.villagets_androidstudio.View_Model.ChatViewModel;
 

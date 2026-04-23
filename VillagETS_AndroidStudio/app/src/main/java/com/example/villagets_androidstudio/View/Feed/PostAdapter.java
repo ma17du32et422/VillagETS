@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio.View;
+package com.example.villagets_androidstudio.View.Feed;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -20,9 +20,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.villagets_androidstudio.Model.Dao.PostApi;
 import com.example.villagets_androidstudio.Model.Dao.PostDao;
-import com.example.villagets_androidstudio.Model.Post;
-import com.example.villagets_androidstudio.Model.User;
+import com.example.villagets_androidstudio.Model.Entity.Post;
+import com.example.villagets_androidstudio.Model.Entity.User;
 import com.example.villagets_androidstudio.R;
+import com.example.villagets_androidstudio.View.Message.MessageActivity;
+import com.example.villagets_androidstudio.View.Profile.ProfileActivity;
 import com.google.android.material.imageview.ShapeableImageView;
 
 import java.io.IOException;

@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.villagets_androidstudio.Model.Dao.UserDao;
-import com.example.villagets_androidstudio.Model.User;
+import com.example.villagets_androidstudio.Model.Entity.User;
 
 import java.io.IOException;
 import java.util.List;

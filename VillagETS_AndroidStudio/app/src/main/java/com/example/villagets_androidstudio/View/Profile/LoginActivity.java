@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio.View;
+package com.example.villagets_androidstudio.View.Profile;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.villagets_androidstudio.Model.Dao.RetrofitClient;
 import com.example.villagets_androidstudio.R;
+import com.example.villagets_androidstudio.View.MainActivity;
 import com.example.villagets_androidstudio.View_Model.UserViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 

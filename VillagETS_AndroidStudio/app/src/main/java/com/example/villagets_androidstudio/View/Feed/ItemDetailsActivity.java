@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio.View;
+package com.example.villagets_androidstudio.View.Feed;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,12 +25,14 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
-import com.example.villagets_androidstudio.Model.Comment;
-import com.example.villagets_androidstudio.Model.Post;
+import com.example.villagets_androidstudio.Model.Entity.Comment;
+import com.example.villagets_androidstudio.Model.Entity.Post;
 import com.example.villagets_androidstudio.Model.Dao.PostDao;
-import com.example.villagets_androidstudio.Model.User;
+import com.example.villagets_androidstudio.Model.Entity.User;
 import com.example.villagets_androidstudio.R;
 import com.example.villagets_androidstudio.Utils.FileUtils;
+import com.example.villagets_androidstudio.View.Message.MessageActivity;
+import com.example.villagets_androidstudio.View.Profile.ProfileActivity;
 import com.giphy.sdk.core.models.Media;
 import com.giphy.sdk.ui.GPHContentType;
 import com.giphy.sdk.ui.GPHSettings;

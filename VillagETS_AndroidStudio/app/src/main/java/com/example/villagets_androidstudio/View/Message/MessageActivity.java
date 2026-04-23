@@ -1,6 +1,5 @@
-package com.example.villagets_androidstudio.View;
+package com.example.villagets_androidstudio.View.Message;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -19,13 +18,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.villagets_androidstudio.Model.ChatMessage;
-import com.example.villagets_androidstudio.Model.Message;
-import com.example.villagets_androidstudio.Model.SessionManager;
-import com.example.villagets_androidstudio.Model.User;
+import com.example.villagets_androidstudio.Model.Entity.ChatMessage;
+import com.example.villagets_androidstudio.Model.Entity.Message;
+import com.example.villagets_androidstudio.Model.Dao.SessionManager;
+import com.example.villagets_androidstudio.Model.Entity.User;
 import com.example.villagets_androidstudio.R;
 import com.example.villagets_androidstudio.View_Model.ChatViewModel;
 import com.giphy.sdk.core.models.Media;

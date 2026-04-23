@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio.View;
+package com.example.villagets_androidstudio.View.Search;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.villagets_androidstudio.R;
+import com.example.villagets_androidstudio.View.Feed.PostAdapter;
 import com.example.villagets_androidstudio.View_Model.PostViewModel;
 import com.example.villagets_androidstudio.View_Model.UserViewModel;
 import com.google.android.material.tabs.TabLayout;

@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio.Model;
+package com.example.villagets_androidstudio.Model.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

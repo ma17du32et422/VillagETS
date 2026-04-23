@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio.View;
+package com.example.villagets_androidstudio.View.Feed;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.villagets_androidstudio.Model.Post;
+import com.example.villagets_androidstudio.Model.Entity.Post;
 import com.example.villagets_androidstudio.R;
 
 import java.util.ArrayList;

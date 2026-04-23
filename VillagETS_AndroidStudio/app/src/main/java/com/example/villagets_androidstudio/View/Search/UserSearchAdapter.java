@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio.View;
+package com.example.villagets_androidstudio.View.Search;
 
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -10,8 +10,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.villagets_androidstudio.Model.User;
+import com.example.villagets_androidstudio.Model.Entity.User;
 import com.example.villagets_androidstudio.R;
+import com.example.villagets_androidstudio.View.Profile.ProfileActivity;
 import com.google.android.material.imageview.ShapeableImageView;
 
 import java.util.ArrayList;

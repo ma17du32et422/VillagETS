@@ -1,6 +1,6 @@
 package com.example.villagets_androidstudio.Model.Dao;
 
-import com.example.villagets_androidstudio.Model.User;
+import com.example.villagets_androidstudio.Model.Entity.User;
 
 import java.io.IOException;
 import java.util.HashMap;

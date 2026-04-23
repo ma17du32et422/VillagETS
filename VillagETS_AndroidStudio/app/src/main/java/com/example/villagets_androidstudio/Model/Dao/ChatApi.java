@@ -1,7 +1,7 @@
 package com.example.villagets_androidstudio.Model.Dao;
 
-import com.example.villagets_androidstudio.Model.ChatMessage;
-import com.example.villagets_androidstudio.Model.Conversation;
+import com.example.villagets_androidstudio.Model.Entity.ChatMessage;
+import com.example.villagets_androidstudio.Model.Entity.Conversation;
 
 import java.util.List;
 

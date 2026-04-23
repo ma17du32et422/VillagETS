@@ -6,7 +6,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.style.TypefaceSpan;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -23,10 +22,13 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.example.villagets_androidstudio.Model.Dao.RetrofitClient;
-import com.example.villagets_androidstudio.Model.SessionManager;
-import com.example.villagets_androidstudio.Model.User;
+import com.example.villagets_androidstudio.Model.Dao.SessionManager;
+import com.example.villagets_androidstudio.Model.Entity.User;
 import com.example.villagets_androidstudio.R;
 import com.example.villagets_androidstudio.Utils.CustomTypefaceSpan;
+import com.example.villagets_androidstudio.View.Feed.CreatePostActivity;
+import com.example.villagets_androidstudio.View.Profile.LoginActivity;
+import com.example.villagets_androidstudio.View.Profile.ProfileActivity;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.example.villagets_androidstudio.View_Model.UserViewModel;
 

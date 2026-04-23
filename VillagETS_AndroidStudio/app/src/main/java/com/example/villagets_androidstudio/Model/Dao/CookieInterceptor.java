@@ -1,6 +1,7 @@
-package com.example.villagets_androidstudio.Model;
+package com.example.villagets_androidstudio.Model.Dao;
 
 import android.content.Context;
+
 import java.io.IOException;
 import java.util.List;
 import okhttp3.Interceptor;

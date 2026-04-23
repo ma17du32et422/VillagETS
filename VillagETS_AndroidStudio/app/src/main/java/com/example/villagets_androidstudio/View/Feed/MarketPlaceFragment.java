@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio.View;
+package com.example.villagets_androidstudio.View.Feed;
 
 import android.os.Bundle;
 import android.view.View;

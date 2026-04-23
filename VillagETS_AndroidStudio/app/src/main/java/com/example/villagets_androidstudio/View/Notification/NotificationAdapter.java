@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio.View;
+package com.example.villagets_androidstudio.View.Notification;
 
 import android.view.LayoutInflater;
 import android.view.View;

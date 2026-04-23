@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio.View;
+package com.example.villagets_androidstudio.View.Feed;
 
 import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.villagets_androidstudio.Model.Comment;
+import com.example.villagets_androidstudio.Model.Entity.Comment;
 import com.example.villagets_androidstudio.Model.Dao.PostDao;
 import com.example.villagets_androidstudio.R;
 import com.google.android.material.imageview.ShapeableImageView;

@@ -1,4 +1,4 @@
-package com.example.villagets_androidstudio.Model;
+package com.example.villagets_androidstudio.Model.Entity;
 
 public class Message {
     private String senderName;
