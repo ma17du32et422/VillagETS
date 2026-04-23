@@ -47,7 +47,14 @@ public class ItemDetailsActivity extends AppCompatActivity {
         View toolbarContainer = findViewById(R.id.toolbarContainer);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.detailsMainLayout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
+
             toolbarContainer.setPadding(0, systemBars.top, 0, 0);
+
+            // Appliquer le padding en bas pour le clavier
+            int bottomPadding = Math.max(systemBars.bottom, imeInsets.bottom);
+            v.setPadding(0, 0, 0, bottomPadding);
+
             return insets;
         });
 
@@ -163,6 +170,8 @@ public class ItemDetailsActivity extends AppCompatActivity {
                     postComment(content, parentComment.getId());
                 }
             });
+            // Scroll to comment input when replying
+            commentsSection.post(() -> detailsScrollView.smoothScrollTo(0, commentsSection.getTop()));
         });
         rvComments.setAdapter(adapter);
         adapter.setComments(comments);
