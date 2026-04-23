@@ -34,8 +34,8 @@ function TestSignup() {
           email: form.email,
           password: form.password,
           pseudo: form.username,
-          nom: form.firstName,
-          prenom: form.lastName,
+          nom: form.lastName,
+          prenom: form.firstName,
         }),
       });
       const userData = await res.json();
