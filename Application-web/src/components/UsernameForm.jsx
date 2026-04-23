@@ -4,14 +4,18 @@ import { getBaseUrl } from '../API';
 
 /** Usernameform */
 function UsernameForm({ currentUsername = '', onSuccess }) {
-    const [newUsername, setNewUsername] = useState(currentUsername);
+    const [newUsername, setNewUsername] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
-        setNewUsername(currentUsername);
-    }, [currentUsername]);
+        return () => {
+            setNewUsername('');
+            setError('');
+            setSuccess('');
+        };
+    }, []);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -51,6 +55,7 @@ function UsernameForm({ currentUsername = '', onSuccess }) {
             }
 
             setSuccess('Username updated successfully.');
+            setNewUsername('');
             if (onSuccess) {
                 try {
                     await onSuccess();
@@ -78,6 +83,7 @@ function UsernameForm({ currentUsername = '', onSuccess }) {
                     name="newUsername"
                     value={newUsername}
                     onChange={(event) => setNewUsername(event.target.value)}
+                    autoComplete="off"
                 />
             </div>
 
