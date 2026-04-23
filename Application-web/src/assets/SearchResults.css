@@ -170,6 +170,8 @@
 /** Posts Section */
 .search-posts-section {
   width: 100%;
+  max-width: 52rem;
+  margin: 0 auto;
 }
 
 .search-flux-container {
