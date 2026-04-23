@@ -23,6 +23,7 @@ export default function ProfilePreviewCard({ userId, initialUser, align = 'left'
   const [error, setError] = useState('')
   const [discussionError, setDiscussionError] = useState('')
   const isOwnProfile = user?.userId === userId
+  const isAdmin = user?.mainAdmin === true
   const fullName = useMemo(() => getFullName(profile), [profile])
 
   useEffect(() => {
@@ -102,7 +103,7 @@ export default function ProfilePreviewCard({ userId, initialUser, align = 'left'
 
         <div className="profile-preview-text">
           <p className="profile-preview-name">{profile.pseudo || 'Unknown user'}</p>
-          <p className="profile-preview-subtitle">{fullName || profile.userId || 'VillagETS member'}</p>
+          <p className="profile-preview-subtitle">{fullName || (isAdmin ? profile.userId : '') || 'VillagETS member'}</p>
         </div>
       </div>
 
@@ -112,7 +113,7 @@ export default function ProfilePreviewCard({ userId, initialUser, align = 'left'
       {!loading && !error && (
         <div className="profile-preview-details">
           {fullName && <p>Full name: {fullName}</p>}
-          {profile.userId && <p>User ID: {profile.userId}</p>}
+          {isAdmin && profile.userId && <p>User ID: {profile.userId}</p>}
         </div>
       )}
 

@@ -191,7 +191,8 @@ const toggleReaction = async (type) => {
   }
 
   return (
-    <article className="post">
+    <div className="post-shell">
+      <article className="post">
       <div id="post-header">
         <div id="op-info">
           <ProfileAvatar
@@ -283,7 +284,7 @@ const toggleReaction = async (type) => {
           {dislikes}
         </button>
         <button
-          className="reaction-button"
+          className={`reaction-button ${commentVisible ? 'active' : ''}`}
           type="button"
           onClick={() => setCommentVisible(v => !v)}
         >
@@ -299,6 +300,7 @@ const toggleReaction = async (type) => {
           onCountChange={(delta) => setCommentCount((current) => Math.max(0, current + delta))}
         />
       )}
-    </article>
+      </article>
+    </div>
   )
 }

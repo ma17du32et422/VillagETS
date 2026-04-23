@@ -35,6 +35,7 @@ function UserProfilePage() {
   const [isDeleting, setIsDeleting] = useState(false)
   const [isWiping, setIsWiping] = useState(false)
   const isOwnProfile = user?.userId === userId
+  const isAdmin = user?.mainAdmin === true
   const canDeleteUser = user?.mainAdmin === true && !isOwnProfile && profile?.deleted !== true
   const canWipeUser = user?.mainAdmin === true && !isOwnProfile
   const fullName = useMemo(() => getFullName(profile), [profile])
@@ -277,7 +278,7 @@ function UserProfilePage() {
                   </div>
 
                   <div className="user-profile-details">
-                    {profile.userId && <p>User ID: {profile.userId}</p>}
+                    {isAdmin && profile.userId && <p>User ID: {profile.userId}</p>}
                     {profile.deleted && <p>This account has been deleted.</p>}
                   </div>
 

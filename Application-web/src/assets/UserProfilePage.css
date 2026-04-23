@@ -132,9 +132,13 @@
     gap: 22px;
 }
 
-.user-profile-post-list .post {
+.user-profile-post-list .post-shell {
     width: min(100%, 760px);
     margin: 0;
+}
+
+.user-profile-post-list .post {
+    width: 100%;
 }
 
 .user-profile-empty {

@@ -19,11 +19,11 @@
 .msg-sidebar-container {
     flex: 0 0 280px;
     min-width: 280px;
-    border-right: 2px solid var(--color-4);
     height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
     background-color: var(--color-2);
+    box-sizing: border-box;
+    padding: 16px 12px 16px 16px;
 }
 
 .chat-view-container {
