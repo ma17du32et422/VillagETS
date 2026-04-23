@@ -63,22 +63,6 @@
     color: var(--color-4);
 }
 
-#form-tags {
-    width: 100%;
-    padding: 6px 10px;
-    border: 1px dashed var(--color-4);
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    background: transparent;
-    outline: none;
-    box-sizing: border-box;
-}
-
-#form-tags::placeholder {
-    color: var(--color-4);
-}
-
 #image-drop-zone {
     cursor: pointer;
     min-height: 120px;
