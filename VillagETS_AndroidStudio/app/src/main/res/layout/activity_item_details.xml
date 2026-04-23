@@ -137,7 +137,7 @@
                             android:backgroundTint="#CCFFFFFF"
                             android:gravity="center"
                             android:text="‹"
-                            android:textColor="@color/background"
+                            android:textColor="@color/white"
                             android:textSize="28sp"
                             android:textStyle="bold"
                             android:visibility="gone" />
@@ -152,7 +152,7 @@
                             android:backgroundTint="#CCFFFFFF"
                             android:gravity="center"
                             android:text="›"
-                            android:textColor="@color/background"
+                            android:textColor="@color/white"
                             android:textSize="28sp"
                             android:textStyle="bold"
                             android:visibility="gone" />
@@ -168,7 +168,7 @@
                             android:paddingHorizontal="10dp"
                             android:paddingVertical="4dp"
                             android:text="1 / 1"
-                            android:textColor="@color/background"
+                            android:textColor="@color/white"
                             android:textSize="12sp"
                             android:textStyle="bold"
                             android:visibility="gone" />
