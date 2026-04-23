@@ -17,7 +17,7 @@
 }
 
 .search-results-header h2 {
-  color: #333333;
+  color: var(--color-5);
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   font-size: 24px;
   font-weight: 600;
@@ -38,10 +38,10 @@
   width: 100%;
   transition: min-height 0.3s ease;
   min-height: auto;
-  background-color: #f5f5f5;
+  background-color: var(--color-3);
   padding: 16px;
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-4);
 }
 
 .search-users-section.expanded {
@@ -147,7 +147,7 @@
 }
 
 .search-user-name {
-  color: #333333;
+  color: var(--color-5);
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   font-size: 12px;
   font-weight: 500;
