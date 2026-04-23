@@ -40,6 +40,7 @@ public class CreatePostActivity extends AppCompatActivity {
     private PostViewModel postViewModel;
     private UserViewModel userViewModel;
     private final List<Uri> selectedImageUris = new ArrayList<>();
+    private boolean isPublishing;
 
     private final ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
             registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(10), uris -> {
@@ -127,6 +128,10 @@ public class CreatePostActivity extends AppCompatActivity {
                 .build()));
 
         btnPost.setOnClickListener(v -> {
+            if (isPublishing) {
+                return;
+            }
+
             String title = etTitle.getText().toString().trim();
             String content = etContent.getText().toString().trim();
             boolean isMarketplace = switchMarketplace.isChecked();
@@ -158,21 +163,36 @@ public class CreatePostActivity extends AppCompatActivity {
                 newPost.setPrix(0.0);
             }
 
+            setPublishingState(true);
             postViewModel.creerPost(this, newPost, new ArrayList<>(selectedImageUris));
         });
 
         postViewModel.getSaveSuccess().observe(this, success -> {
-            if (success != null && success) {
+            if (success == null) {
+                return;
+            }
+
+            if (success) {
                 Toast.makeText(this, "Post published successfully!", Toast.LENGTH_SHORT).show();
                 finish();
+            } else {
+                setPublishingState(false);
             }
         });
 
         postViewModel.getMessage().observe(this, msg -> {
             if (msg != null && !msg.isEmpty()) {
+                setPublishingState(false);
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void setPublishingState(boolean publishing) {
+        isPublishing = publishing;
+        btnPost.setEnabled(!publishing);
+        btnPost.setClickable(!publishing);
+        btnPost.setAlpha(publishing ? 0.55f : 1f);
     }
 
     private void updateSelectedMediaPreview() {
