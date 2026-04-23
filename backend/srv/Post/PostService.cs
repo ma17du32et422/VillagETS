@@ -163,7 +163,11 @@ namespace srv.Post
                 {
                     { "p_user_id", rpcUserId },
                     { "p_search_query", string.IsNullOrWhiteSpace(query.SearchString) ? null : query.SearchString },
-                    { "p_is_marketplace", query.IsMarketplace }
+                    { "p_is_marketplace", query.IsMarketplace },
+                    { "p_min_price", query.MinPrice },
+                    { "p_max_price", query.MaxPrice },
+                    { "p_page_index", Math.Max(query.PageIndex, 0) },
+                    { "p_sort_mode", string.IsNullOrWhiteSpace(query.SortMode) ? null : query.SortMode }
                 }));
 
             return (rows ?? []).Select(row => (object)new

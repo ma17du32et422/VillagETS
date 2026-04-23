@@ -326,7 +326,11 @@ Deleted-user example:
 {
   "searchString": "bike",
   "tags": null,
-  "isMarketplace": false
+  "isMarketplace": false,
+  "minPrice": null,
+  "maxPrice": null,
+  "pageIndex": 0,
+  "sortMode": "DESC"
 }
 ```
 

@@ -259,5 +259,9 @@ record LoginRequest(string Email, string Password);
 public record FeedQuery(
     string? SearchString,
     string[]? Tags,
-    bool IsMarketplace
+    bool IsMarketplace,
+    decimal? MinPrice = null,
+    decimal? MaxPrice = null,
+    int PageIndex = 0,
+    string? SortMode = null
 );
