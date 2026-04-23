@@ -53,6 +53,14 @@ public class PostDao {
         return null;
     }
 
+    public static Post getPostById(String postId) throws IOException {
+        Response<Post> response = api.getPostById(postId).execute();
+        if (response.isSuccessful()) {
+            return response.body();
+        }
+        return null;
+    }
+
     public static boolean deletePost(String postId) throws IOException {
         Response<Void> response = api.deletePost(postId).execute();
         return response.isSuccessful();

@@ -32,7 +32,7 @@ public interface PostApi {
     @DELETE("/post/{id}")
     Call<Void> deletePost(@Path("id") String id);
 
-    @GET("/posts/{id}")
+    @GET("/post/{id}")
     Call<Post> getPostById(@Path("id") String id);
 
     @GET("/user/{id}/posts")
