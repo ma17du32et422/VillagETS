@@ -13,7 +13,6 @@ import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -209,13 +208,7 @@ public class MessageActivity extends AppCompatActivity {
             Toast.makeText(this, "Impossible de supprimer ce message", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        new AlertDialog.Builder(this)
-                .setTitle("Delete message")
-                .setMessage("Do you want to delete this message?")
-                .setPositiveButton("Delete", (dialog, which) -> chatViewModel.deleteMessage(message.getId()))
-                .setNegativeButton("Cancel", null)
-                .show();
+        chatViewModel.deleteMessage(message.getId());
     }
 
     private String formatTimestamp(String isoDate) {
