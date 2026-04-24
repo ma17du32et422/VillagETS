@@ -83,7 +83,8 @@ namespace srv.User
 
             app.MapPatch("/user/pseudo", async ([FromBody] UpdatePseudoRequest req, HttpContext ctx) =>
             {
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null) return Results.Unauthorized();
                 var userId = currentUser.Id!;
 
@@ -99,7 +100,8 @@ namespace srv.User
 
             app.MapPatch("/user/password", async ([FromBody] UpdatePasswordRequest req, HttpContext ctx) =>
             {
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null) return Results.Unauthorized();
                 var userId = currentUser.Id!;
 
@@ -115,7 +117,8 @@ namespace srv.User
 
             app.MapPatch("/user/email", async ([FromBody] UpdateEmailRequest req, HttpContext ctx) =>
             {
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null) return Results.Unauthorized();
                 var userId = currentUser.Id!;
 
@@ -131,7 +134,8 @@ namespace srv.User
 
             app.MapPatch("/user/photo", async ([FromBody] UpdatePhotoRequest req, HttpContext ctx) =>
             {
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null) return Results.Unauthorized();
                 var userId = currentUser.Id!;
 
@@ -141,7 +145,8 @@ namespace srv.User
 
             app.MapDelete("/user/{id}", async (string id, HttpContext ctx) =>
             {
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null) return Results.Unauthorized();
 
                 try
@@ -171,7 +176,8 @@ namespace srv.User
 
             app.MapDelete("/user/{id}/wipe", async (string id, HttpContext ctx) =>
             {
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null) return Results.Unauthorized();
 
                 try

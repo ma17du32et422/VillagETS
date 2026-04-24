@@ -29,7 +29,8 @@ namespace srv.Comment
                 [FromBody] CreateCommentBody body,
                 HttpContext ctx) =>
             {
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null) return Results.Unauthorized();
 
                 if (string.IsNullOrWhiteSpace(body.Contenu))
@@ -57,7 +58,8 @@ namespace srv.Comment
 
             app.MapDelete("/comment/{commentId}", async (string commentId, HttpContext ctx) =>
             {
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null) return Results.Unauthorized();
 
                 try

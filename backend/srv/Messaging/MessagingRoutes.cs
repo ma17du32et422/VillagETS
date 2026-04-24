@@ -14,26 +14,30 @@ namespace srv.Messaging
                 if (!ctx.WebSockets.IsWebSocketRequest)
                 {
                     ctx.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    return;
+                    return Results.BadRequest();
                 }
 
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null)
                 {
                     ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    return;
+                    return Results.Unauthorized();
                 }
 
                 using var webSocket = await ctx.WebSockets.AcceptWebSocketAsync();
 
                 // Keep the connection alive and handle incoming/outgoing messages
                 await messagingService.HandleConnectionAsync(currentUser.Id!, webSocket);
+
+                return Results.Ok();
             });
 
             // 2. Get Chat History Endpoint
             app.MapGet("/chat/history/{targetUserId}", async (string targetUserId, HttpContext ctx) =>
             {
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null) return Results.Unauthorized();
 
                 var history = await messagingService.GetHistoryAsync(currentUser.Id!, targetUserId);
@@ -43,7 +47,8 @@ namespace srv.Messaging
 
             app.MapGet("/chat/conversations", async (HttpContext ctx) =>
             {
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null) return Results.Unauthorized();
 
                 var conversations = await messagingService.GetAllConversationsAsync(currentUser.Id!);
@@ -52,7 +57,8 @@ namespace srv.Messaging
 
             app.MapDelete("/chat/message/{messageId}", async (string messageId, HttpContext ctx) =>
             {
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null) return Results.Unauthorized();
 
                 try
