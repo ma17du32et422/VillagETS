@@ -110,7 +110,7 @@ public class MessageActivity extends AppCompatActivity {
         });
 
         messageList = new ArrayList<>();
-        adapter = new MessageAdapter(messageList);
+        adapter = new MessageAdapter(messageList, this::confirmDeleteMessage);
         recyclerView.setAdapter(adapter);
 
         sessionManager = new SessionManager(this);
@@ -127,7 +127,7 @@ public class MessageActivity extends AppCompatActivity {
                 // Utilisation de la photoUrl pour les messages reçus
                 String currentAvatarUrl = isSent ? (currentUser != null ? currentUser.getPhotoProfil() : null) : photoUrl;
                 
-                messageList.add(new Message(sender, cm.getContenu(), time, currentAvatarUrl, isSent));
+                messageList.add(new Message(cm.getId(), sender, cm.getContenu(), time, currentAvatarUrl, isSent));
             }
             adapter.notifyDataSetChanged();
             if (!messageList.isEmpty()) {
@@ -201,6 +201,14 @@ public class MessageActivity extends AppCompatActivity {
 
     private boolean isTargetMe() {
         return currentUser != null && receiverId != null && receiverId.equals(currentUser.getUserId());
+    }
+
+    private void confirmDeleteMessage(Message message) {
+        if (message == null || message.getId() == null) {
+            Toast.makeText(this, "Impossible de supprimer ce message", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        chatViewModel.deleteMessage(message.getId());
     }
 
     private String formatTimestamp(String isoDate) {

@@ -3,7 +3,9 @@ package com.example.villagets_androidstudio.Model.Dao;
 import android.util.Log;
 
 import com.example.villagets_androidstudio.Model.Entity.ChatMessage;
+import com.example.villagets_androidstudio.Model.Entity.MessageDeletedEventDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -20,6 +22,7 @@ public class ChatWebSocketClient {
 
     public interface ChatMessageListener {
         void onMessageReceived(ChatMessage message);
+        void onMessageDeleted(MessageDeletedEventDTO deletedEvent);
         void onError(String error);
     }
 
@@ -40,7 +43,16 @@ public class ChatWebSocketClient {
             @Override
             public void onMessage(WebSocket webSocket, String text) {
                 try {
-                    ChatMessage message = objectMapper.readValue(text, ChatMessage.class);
+                    JsonNode payload = objectMapper.readTree(text);
+                    String type = payload.path("type").asText(null);
+
+                    if ("message_deleted".equals(type)) {
+                        MessageDeletedEventDTO deletedEvent = objectMapper.treeToValue(payload, MessageDeletedEventDTO.class);
+                        if (listener != null) listener.onMessageDeleted(deletedEvent);
+                        return;
+                    }
+
+                    ChatMessage message = objectMapper.treeToValue(payload, ChatMessage.class);
                     if (listener != null) listener.onMessageReceived(message);
                 } catch (Exception e) {
                     Log.e("WebSocket", "Error parsing message", e);

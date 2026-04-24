@@ -3,6 +3,7 @@ package com.example.villagets_androidstudio.View.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -18,10 +19,17 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private static final int VIEW_TYPE_SENT = 1;
     private static final int VIEW_TYPE_RECEIVED = 2;
 
-    private List<Message> messageList;
+    public interface OnMessageActionListener {
+        void onDeleteMessage(Message message);
+    }
 
-    public MessageAdapter(List<Message> messageList) {
+    private final List<Message> messageList;
+    private final OnMessageActionListener actionListener;
+    private String selectedMessageId;
+
+    public MessageAdapter(List<Message> messageList, OnMessageActionListener actionListener) {
         this.messageList = messageList;
+        this.actionListener = actionListener;
     }
 
     @Override
@@ -74,15 +82,38 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         );
     }
 
-    static class SentMessageViewHolder extends RecyclerView.ViewHolder {
+    private void toggleDeleteBubble(String messageId) {
+        if (messageId == null) {
+            return;
+        }
+
+        if (messageId.equals(selectedMessageId)) {
+            selectedMessageId = null;
+        } else {
+            selectedMessageId = messageId;
+        }
+        notifyDataSetChanged();
+    }
+
+    private void clearDeleteBubble() {
+        if (selectedMessageId == null) {
+            return;
+        }
+        selectedMessageId = null;
+        notifyDataSetChanged();
+    }
+
+    class SentMessageViewHolder extends RecyclerView.ViewHolder {
         TextView tvMessageText, tvTimestamp;
         ImageView ivMessageImage;
+        ImageButton btnDeleteMessage;
 
         public SentMessageViewHolder(@NonNull View itemView) {
             super(itemView);
             tvMessageText = itemView.findViewById(R.id.messageText);
             tvTimestamp = itemView.findViewById(R.id.messageTimestamp);
             ivMessageImage = itemView.findViewById(R.id.messageImage);
+            btnDeleteMessage = itemView.findViewById(R.id.btnDeleteMessage);
         }
 
         void bind(Message message) {
@@ -98,10 +129,28 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 ivMessageImage.setVisibility(View.GONE);
                 tvMessageText.setText(text);
             }
+
+            boolean showDeleteBubble = message.getId() != null && message.getId().equals(selectedMessageId);
+            btnDeleteMessage.setVisibility(showDeleteBubble ? View.VISIBLE : View.GONE);
+
+            itemView.setOnLongClickListener(v -> {
+                if (actionListener == null || message.getId() == null) {
+                    return false;
+                }
+                toggleDeleteBubble(message.getId());
+                return true;
+            });
+
+            itemView.setOnClickListener(v -> clearDeleteBubble());
+
+            btnDeleteMessage.setOnClickListener(v -> {
+                clearDeleteBubble();
+                actionListener.onDeleteMessage(message);
+            });
         }
     }
 
-    static class ReceivedMessageViewHolder extends RecyclerView.ViewHolder {
+    class ReceivedMessageViewHolder extends RecyclerView.ViewHolder {
         ShapeableImageView ivAvatar;
         TextView tvUserName, tvMessageText, tvTimestamp;
         ImageView ivMessageImage;
@@ -138,6 +187,12 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 ivMessageImage.setVisibility(View.GONE);
                 tvMessageText.setText(text);
             }
+
+            itemView.setOnClickListener(v -> clearDeleteBubble());
+            itemView.setOnLongClickListener(v -> {
+                clearDeleteBubble();
+                return false;
+            });
         }
     }
 }
