@@ -8,6 +8,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 
+// okay lowkey im so olost i need to comment this entire class before i forget what the heck is going on in 3 months when i look at it again
 namespace srv.Messaging
 {
     public class MessagingService

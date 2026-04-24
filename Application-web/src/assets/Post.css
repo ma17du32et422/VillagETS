@@ -34,6 +34,7 @@
     background-color: var(--color-2);
     border-radius: 16px;
     transition: background-color 0.2s ease;
+
 }
 
 .post:hover {

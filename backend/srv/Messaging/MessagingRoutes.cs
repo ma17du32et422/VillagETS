@@ -14,23 +14,25 @@ namespace srv.Messaging
                 if (!ctx.WebSockets.IsWebSocketRequest)
                 {
                     ctx.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    return Results.BadRequest();
+                    return;
                 }
 
                 var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
-                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
+                if (isDeleted)
+                {
+                    ctx.Response.StatusCode = StatusCodes.Status410Gone;
+                    return;
+                }
                 if (currentUser == null)
                 {
                     ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    return Results.Unauthorized();
+                    return;
                 }
 
                 using var webSocket = await ctx.WebSockets.AcceptWebSocketAsync();
 
                 // Keep the connection alive and handle incoming/outgoing messages
                 await messagingService.HandleConnectionAsync(currentUser.Id!, webSocket);
-
-                return Results.Ok();
             });
 
             // 2. Get Chat History Endpoint

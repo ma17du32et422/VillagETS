@@ -23,9 +23,10 @@ const bool EnablePerformanceLogging = true;
 const bool EnableTracing = false;
 const long MaxUploadBytes = 10 * 1024 * 1024;
 
-//autorise les uploads a partir du site web
+
 var builder = WebApplication.CreateBuilder(args);
 var isDevelopment = builder.Environment.IsDevelopment();
+
 var allowedUploadContentTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 {
     "image/jpeg",

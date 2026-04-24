@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const GIPHY_API_KEY = import.meta.env.VITE_GIPHY_API_KEY;
 
@@ -36,8 +36,10 @@ export default function GiphyPicker({ onSelect, onClose }) {
             isMounted.current = true;
             return;
         }
+
         clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(() => fetchGifs(query), 400);
+
         return () => clearTimeout(debounceRef.current);
     }, [query]);
 
@@ -48,10 +50,12 @@ export default function GiphyPicker({ onSelect, onClose }) {
                     autoFocus
                     placeholder="Rechercher un GIF..."
                     value={query}
-                    onChange={(e) => setQuery(e.target.value)}
+                    onChange={(event) => setQuery(event.target.value)}
                     className="giphy-search"
                 />
-                <button onClick={onClose} className="giphy-close">×</button>
+                <button type="button" onClick={onClose} className="giphy-close">
+                    &times;
+                </button>
             </div>
 
             <div className="giphy-grid">
