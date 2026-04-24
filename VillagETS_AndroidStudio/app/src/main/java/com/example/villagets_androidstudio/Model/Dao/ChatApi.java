@@ -17,6 +17,6 @@ public interface ChatApi {
     @GET("/chat/conversations")
     Call<List<Conversation>> getConversations();
 
-    @DELETE("/chat/message/{messageId}")
-    Call<Void> deleteMessage(@Path("messageId") String messageId);
+    @DELETE("/chat/message/{idmessage}")
+    Call<Void> deleteMessage(@Path("idmessage") String messageId);
 }

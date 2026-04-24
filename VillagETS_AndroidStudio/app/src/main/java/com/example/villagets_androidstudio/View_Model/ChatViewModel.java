@@ -36,6 +36,7 @@ public class ChatViewModel extends ViewModel {
     private final ChatWebSocketClient webSocketClient;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private volatile String activeChatUserId;
+    private volatile String activeConversationId;
 
     public ChatViewModel() {
         this.chatApi = RetrofitClient.getInstance().create(ChatApi.class);
@@ -88,11 +89,14 @@ public class ChatViewModel extends ViewModel {
 
     public void loadChatHistory(String targetUserId) {
         activeChatUserId = targetUserId;
+        activeConversationId = null;
         executorService.execute(() -> {
             try {
                 Response<List<ChatMessage>> response = chatApi.getChatHistory(targetUserId).execute();
                 if (response.isSuccessful() && response.body() != null) {
-                    chatHistoryLiveData.postValue(response.body());
+                    List<ChatMessage> chatHistory = response.body();
+                    activeConversationId = extractConversationId(chatHistory);
+                    chatHistoryLiveData.postValue(chatHistory);
                 } else {
                     errorMessage.postValue("Erreur lors de la récupération de l'historique");
                 }
@@ -110,6 +114,10 @@ public class ChatViewModel extends ViewModel {
             public void onMessageReceived(ChatMessage message) {
                 if (!belongsToActiveConversation(message)) {
                     return;
+                }
+
+                if (activeConversationId == null && message.getConversationId() != null) {
+                    activeConversationId = message.getConversationId();
                 }
 
                 List<ChatMessage> currentMessages = chatHistoryLiveData.getValue();
@@ -135,7 +143,7 @@ public class ChatViewModel extends ViewModel {
 
             @Override
             public void onMessageDeleted(MessageDeletedEventDTO deletedEvent) {
-                if (deletedEvent == null || deletedEvent.getId() == null) {
+                if (deletedEvent == null || deletedEvent.getId() == null || !shouldApplyDeletionEvent(deletedEvent)) {
                     return;
                 }
                 removeMessageById(deletedEvent.getId());
@@ -200,6 +208,45 @@ public class ChatViewModel extends ViewModel {
 
         return activeChatUserId.equals(message.getEnvoyeurId())
                 || activeChatUserId.equals(message.getReceveurId());
+    }
+
+    private boolean shouldApplyDeletionEvent(MessageDeletedEventDTO deletedEvent) {
+        if (deletedEvent == null || deletedEvent.getId() == null) {
+            return false;
+        }
+
+        if (activeConversationId != null && activeConversationId.equals(deletedEvent.getConversationId())) {
+            return true;
+        }
+
+        List<ChatMessage> currentMessages = chatHistoryLiveData.getValue();
+        if (currentMessages == null || currentMessages.isEmpty()) {
+            return false;
+        }
+
+        for (ChatMessage currentMessage : currentMessages) {
+            if (deletedEvent.getId().equals(currentMessage.getId())) {
+                return true;
+            }
+        }
+
+        return activeChatUserId != null
+                && (activeChatUserId.equals(deletedEvent.getEnvoyeurId())
+                || activeChatUserId.equals(deletedEvent.getReceveurId()));
+    }
+
+    private String extractConversationId(List<ChatMessage> messages) {
+        if (messages == null) {
+            return null;
+        }
+
+        for (ChatMessage message : messages) {
+            if (message != null && message.getConversationId() != null && !message.getConversationId().trim().isEmpty()) {
+                return message.getConversationId();
+            }
+        }
+
+        return null;
     }
 
     private void removeMessageById(String messageId) {
