@@ -13,6 +13,7 @@ import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -110,7 +111,7 @@ public class MessageActivity extends AppCompatActivity {
         });
 
         messageList = new ArrayList<>();
-        adapter = new MessageAdapter(messageList);
+        adapter = new MessageAdapter(messageList, this::confirmDeleteMessage);
         recyclerView.setAdapter(adapter);
 
         sessionManager = new SessionManager(this);
@@ -127,7 +128,7 @@ public class MessageActivity extends AppCompatActivity {
                 // Utilisation de la photoUrl pour les messages reçus
                 String currentAvatarUrl = isSent ? (currentUser != null ? currentUser.getPhotoProfil() : null) : photoUrl;
                 
-                messageList.add(new Message(sender, cm.getContenu(), time, currentAvatarUrl, isSent));
+                messageList.add(new Message(cm.getId(), sender, cm.getContenu(), time, currentAvatarUrl, isSent));
             }
             adapter.notifyDataSetChanged();
             if (!messageList.isEmpty()) {
@@ -201,6 +202,20 @@ public class MessageActivity extends AppCompatActivity {
 
     private boolean isTargetMe() {
         return currentUser != null && receiverId != null && receiverId.equals(currentUser.getUserId());
+    }
+
+    private void confirmDeleteMessage(Message message) {
+        if (message == null || message.getId() == null) {
+            Toast.makeText(this, "Impossible de supprimer ce message", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Delete message")
+                .setMessage("Do you want to delete this message?")
+                .setPositiveButton("Delete", (dialog, which) -> chatViewModel.deleteMessage(message.getId()))
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private String formatTimestamp(String isoDate) {

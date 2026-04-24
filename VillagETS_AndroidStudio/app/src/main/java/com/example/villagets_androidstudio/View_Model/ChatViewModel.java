@@ -11,6 +11,7 @@ import com.example.villagets_androidstudio.Model.Entity.ChatMessage;
 import com.example.villagets_androidstudio.Model.Entity.Conversation;
 import com.example.villagets_androidstudio.Model.Dao.ChatApi;
 import com.example.villagets_androidstudio.Model.Dao.ChatWebSocketClient;
+import com.example.villagets_androidstudio.Model.Entity.MessageDeletedEventDTO;
 import com.example.villagets_androidstudio.Model.Dao.PostDao;
 import com.example.villagets_androidstudio.Model.Dao.RetrofitClient;
 import com.example.villagets_androidstudio.Model.Dao.SessionManager;
@@ -34,6 +35,7 @@ public class ChatViewModel extends ViewModel {
     private final ChatApi chatApi;
     private final ChatWebSocketClient webSocketClient;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private volatile String activeChatUserId;
 
     public ChatViewModel() {
         this.chatApi = RetrofitClient.getInstance().create(ChatApi.class);
@@ -85,6 +87,7 @@ public class ChatViewModel extends ViewModel {
     }
 
     public void loadChatHistory(String targetUserId) {
+        activeChatUserId = targetUserId;
         executorService.execute(() -> {
             try {
                 Response<List<ChatMessage>> response = chatApi.getChatHistory(targetUserId).execute();
@@ -105,6 +108,10 @@ public class ChatViewModel extends ViewModel {
         webSocketClient.connect(sessionManager, new ChatWebSocketClient.ChatMessageListener() {
             @Override
             public void onMessageReceived(ChatMessage message) {
+                if (!belongsToActiveConversation(message)) {
+                    return;
+                }
+
                 List<ChatMessage> currentMessages = chatHistoryLiveData.getValue();
                 if (currentMessages == null) currentMessages = new ArrayList<>();
                 
@@ -127,6 +134,14 @@ public class ChatViewModel extends ViewModel {
             }
 
             @Override
+            public void onMessageDeleted(MessageDeletedEventDTO deletedEvent) {
+                if (deletedEvent == null || deletedEvent.getId() == null) {
+                    return;
+                }
+                removeMessageById(deletedEvent.getId());
+            }
+
+            @Override
             public void onError(String error) {
                 errorMessage.postValue("Erreur WebSocket : " + error);
             }
@@ -135,6 +150,25 @@ public class ChatViewModel extends ViewModel {
 
     public void sendMessage(String receiverId, String contenu) {
         webSocketClient.sendMessage(receiverId, contenu);
+    }
+
+    public void deleteMessage(String messageId) {
+        executorService.execute(() -> {
+            try {
+                Response<Void> response = chatApi.deleteMessage(messageId).execute();
+                if (response.isSuccessful()) {
+                    removeMessageById(messageId);
+                } else if (response.code() == 403) {
+                    errorMessage.postValue("Vous ne pouvez supprimer que vos propres messages");
+                } else if (response.code() == 404) {
+                    errorMessage.postValue("Message introuvable");
+                } else {
+                    errorMessage.postValue("Erreur lors de la suppression du message");
+                }
+            } catch (IOException e) {
+                errorMessage.postValue("Erreur réseau : " + e.getMessage());
+            }
+        });
     }
 
     public void sendImage(Context context, String receiverId, Uri imageUri) {
@@ -157,6 +191,41 @@ public class ChatViewModel extends ViewModel {
                 errorMessage.postValue("Erreur lors de l'envoi de l'image : " + e.getMessage());
             }
         });
+    }
+
+    private boolean belongsToActiveConversation(ChatMessage message) {
+        if (message == null || activeChatUserId == null) {
+            return true;
+        }
+
+        return activeChatUserId.equals(message.getEnvoyeurId())
+                || activeChatUserId.equals(message.getReceveurId());
+    }
+
+    private void removeMessageById(String messageId) {
+        if (messageId == null) {
+            return;
+        }
+
+        List<ChatMessage> currentMessages = chatHistoryLiveData.getValue();
+        if (currentMessages == null || currentMessages.isEmpty()) {
+            return;
+        }
+
+        List<ChatMessage> updatedMessages = new ArrayList<>();
+        boolean removed = false;
+
+        for (ChatMessage currentMessage : currentMessages) {
+            if (!messageId.equals(currentMessage.getId())) {
+                updatedMessages.add(currentMessage);
+            } else {
+                removed = true;
+            }
+        }
+
+        if (removed) {
+            chatHistoryLiveData.postValue(updatedMessages);
+        }
     }
 
     @Override

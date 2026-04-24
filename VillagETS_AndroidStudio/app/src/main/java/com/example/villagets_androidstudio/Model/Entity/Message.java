@@ -1,18 +1,24 @@
 package com.example.villagets_androidstudio.Model.Entity;
 
 public class Message {
+    private String id;
     private String senderName;
     private String text;
     private String timestamp;
     private String avatarUrl;
     private boolean isSent;
 
-    public Message(String senderName, String text, String timestamp, String avatarUrl, boolean isSent) {
+    public Message(String id, String senderName, String text, String timestamp, String avatarUrl, boolean isSent) {
+        this.id = id;
         this.senderName = senderName;
         this.text = text;
         this.timestamp = timestamp;
         this.avatarUrl = avatarUrl;
         this.isSent = isSent;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getSenderName() {
