@@ -37,8 +37,8 @@
     <string name="confirm_new_password">confirmer le mot de passe</string>
     <string name="apply_changes">Appliquer</string>
     <string name="id_de_l_utilisateur">ID de l\'utilisateur</string>
-    <string name="POST_CAPS">POSTS</string>
-    <string name="users_CAPS">PSEUDO</string>
+    <string name="POST_CAPS">PUBLICATIONS</string>
+    <string name="users_CAPS">UTILISATEURS</string>
     <string name="user">Pseudo</string>
     <string name="comment_text">texte commentaire</string>
     <string name="reply">Répondre</string>
