@@ -1,6 +1,7 @@
 import { getBaseUrl } from '../API'
 
 export const DEFAULT_FEED_SORT_MODE = 'DESC'
+export const FEED_PAGE_SIZE = 20
 
 export const FEED_SORT_OPTIONS = [
   { value: 'DESC', label: 'Newest' },
@@ -96,4 +97,10 @@ export function clampPrice(value, min, max) {
 export function roundPriceBound(value) {
   if (!Number.isFinite(value) || value <= 0) return 100
   return Math.ceil(value / 100) * 100
+}
+
+export function mergeFeedPosts(existingPosts, incomingPosts) {
+  return Array.from(
+    new Map([...existingPosts, ...incomingPosts].map(post => [post.id, post])).values()
+  )
 }
