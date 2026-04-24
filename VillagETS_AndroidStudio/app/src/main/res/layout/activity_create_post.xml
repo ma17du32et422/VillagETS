@@ -200,11 +200,11 @@
                     android:id="@+id/btnPost"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/rounded_gray_header"
+                    android:background="@drawable/rounded_red_header"
                     android:minWidth="60dp"
                     android:text="Post"
                     android:textAllCaps="false"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/white"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
