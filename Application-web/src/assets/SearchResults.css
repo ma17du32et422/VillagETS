@@ -26,7 +26,7 @@
 
 /** Search Section Title */
 .search-section-title {
-  color: #333333;
+  color: var(--color-5);
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   font-size: 18px;
   font-weight: 500;
@@ -170,8 +170,20 @@
 /** Posts Section */
 .search-posts-section {
   width: 100%;
-  max-width: 52rem;
+}
+
+.search-posts-shell {
+  width: 100%;
+  max-width: 54rem;
   margin: 0 auto;
+  padding: 0 34px 40px;
+}
+
+.search-posts-panel {
+  width: 100%;
+  padding: 16px 2rem 12px;
+  background-color: var(--color-2);
+  border-radius: 0 0 25px 25px;
 }
 
 .search-flux-container {
@@ -191,9 +203,9 @@
 }
 
 .search-error {
-  color: #d32f2f;
-  background-color: rgba(211, 47, 47, 0.1);
-  border-left: 4px solid #d32f2f;
+  color: var(--color-8);
+  background-color: var(--color-3);
+  border-left: 4px solid var(--color-8);
   padding-left: 16px;
   border-radius: 4px;
 }
@@ -227,9 +239,9 @@
 }
 
 .search-error {
-  color: #d32f2f;
-  background-color: rgba(211, 47, 47, 0.1);
-  border-left: 4px solid #d32f2f;
+  color: var(--color-8);
+  background-color: var(--color-3);
+  border-left: 4px solid var(--color-8);
   padding-left: 16px;
   border-radius: 4px;
 }
@@ -239,4 +251,19 @@
   background-color: var(--color-3);
   padding: 32px 24px;
   border-radius: 8px;
+}
+
+@media (max-width: 900px) {
+  .search-posts-shell {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+
+  .search-posts-panel {
+    padding-top: 14px;
+    box-shadow:
+      0 18px 20px -18px var(--color-t-1),
+      18px 0 22px -20px var(--color-t-1),
+      -18px 0 22px -20px var(--color-t-1);
+  }
 }

@@ -1,6 +1,7 @@
 .feed-controls-shell {
   position: relative;
   margin-bottom: 18px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .feed-controls-top-row {
@@ -9,7 +10,7 @@
   align-items: center;
   gap: 16px;
   padding: 0 0 12px;
-  border-bottom: 1px solid color-mix(in srgb, var(--color-4) 78%, transparent 22%);
+  border-bottom: 1px solid var(--color-4);
 }
 
 .feed-sort-dropdown {
@@ -26,6 +27,7 @@
   gap: 8px;
   padding: 6px 2px;
   cursor: pointer;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .feed-sort-trigger.open,
@@ -51,7 +53,7 @@
   padding: 6px;
   border-radius: 14px;
   border: 1px solid var(--color-4);
-  background: color-mix(in srgb, var(--color-2) 97%, white 3%);
+  background: var(--color-2);
   box-shadow: 0 16px 30px rgba(0, 0, 0, 0.16);
   z-index: 40;
 }
@@ -69,6 +71,7 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .feed-sort-option:hover,
@@ -109,13 +112,14 @@
 .marketplace-price-field input {
   width: 100%;
   border-radius: 6px;
-  border: 1px solid color-mix(in srgb, var(--color-5) 30%, var(--color-4) 70%);
+  border: 1px solid var(--color-4);
   background: var(--color-2);
   color: var(--color-5);
   font-size: 14px;
   font-weight: 500;
   padding: 10px 12px;
   outline: none;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .marketplace-price-field input::placeholder {

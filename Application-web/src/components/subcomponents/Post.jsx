@@ -32,7 +32,7 @@ const formatPostDate = (dateString) => {
   }
 }
 
-export default function Post({ post, onDelete }) {
+export default function Post({ post, onDelete, mediaMode = 'full' }) {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [likes, setLikes] = useState(post.likes ?? 0)
@@ -49,6 +49,8 @@ export default function Post({ post, onDelete }) {
   const [failedImages, setFailedImages] = useState(new Set())
   const [contactError, setContactError] = useState('')
   const menuRef = useRef(null)
+  const mediaContainerRef = useRef(null)
+  const [shouldRenderMedia, setShouldRenderMedia] = useState(false)
 
   const rawMedia = post.media ?? []
   const media = rawMedia.filter(url => url && typeof url === 'string' && url.trim().length > 0)
@@ -58,6 +60,7 @@ export default function Post({ post, onDelete }) {
   const tags = post.tags ?? []
   const canDelete = user?.userId === post.op?.id || user?.mainAdmin === true
   const isMarketplaceItem = post.articleAVendre === true
+  const isFeedMediaMode = mediaMode === 'feed'
   const parsedPrice = post.prix == null ? null : Number(post.prix)
   const displayPrice = parsedPrice != null && !Number.isNaN(parsedPrice)
     ? new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(parsedPrice)
@@ -82,6 +85,28 @@ export default function Post({ post, onDelete }) {
       setMediaIndex(0)
     }
   }, [validMedia.length])
+
+  useEffect(() => {
+    const node = mediaContainerRef.current
+    if (!node || media.length === 0 || shouldRenderMedia) return
+
+    const scrollRoot = node.closest('.home-flux-container') ?? node.closest('.post-page-main')
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setShouldRenderMedia(true)
+          observer.disconnect()
+        }
+      },
+      {
+        root: scrollRoot,
+        rootMargin: isFeedMediaMode ? '0px 0px 120px 0px' : '0px 0px 500px 0px',
+      }
+    )
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [isFeedMediaMode, media.length, shouldRenderMedia])
 
   const handleImageError = (url) => {
     setFailedImages(prev => new Set(prev).add(url))
@@ -255,22 +280,36 @@ const toggleReaction = async (type) => {
       )}
 
       {media.length > 0 && (
-        <div id="image-container">
+        <div id="image-container" ref={mediaContainerRef} className={isFeedMediaMode ? 'image-container-feed' : ''}>
           {validMedia.length > 1 && mediaIndex > 0 && (
             <button className="media-arrow media-arrow-left" type="button" onClick={() => setMediaIndex(i => i - 1)}>‹</button>
           )}
-          {validMedia.length > 0 ? (
+          {validMedia.length > 0 && shouldRenderMedia ? (
             <>
+              {!isFeedMediaMode && (
+                <div
+                  className="image-backdrop"
+                  aria-hidden="true"
+                  style={{ backgroundImage: `url("${currentMediaUrl}")` }}
+                />
+              )}
+              {isFeedMediaMode && (
+                <div
+                  className="image-feed-backdrop"
+                  aria-hidden="true"
+                />
+              )}
               <div
-                className="image-backdrop"
-                aria-hidden="true"
-                style={{ backgroundImage: `url("${currentMediaUrl}")` }}
-              />
-              <div className="image-foreground" style={getForegroundStyle(currentMediaRatio)}>
+                className={`image-foreground ${isFeedMediaMode ? 'image-foreground-feed' : ''}`.trim()}
+                style={getForegroundStyle(currentMediaRatio)}
+              >
                 <img 
                   id="image" 
                   src={currentMediaUrl} 
                   alt={`Post visual ${mediaIndex + 1}`}
+                  loading="lazy"
+                  decoding="async"
+                  fetchPriority="low"
                   onLoad={(event) => handleImageLoad(currentMediaUrl, event)}
                   onError={() => handleImageError(currentMediaUrl)}
                 />
@@ -286,6 +325,8 @@ const toggleReaction = async (type) => {
                 </div>
               )}
             </>
+          ) : validMedia.length > 0 ? (
+            <div className="image-unavailable image-deferred-placeholder" />
           ) : (
             <div className="image-unavailable">Media unavailable</div>
           )}

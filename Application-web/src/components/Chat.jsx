@@ -8,7 +8,6 @@ import '../assets/Chat.css';
 
 const MAX_MESSAGES = 10;
 const WINDOW_MS = 60 * 1000;
-const MESSAGE_FILE_ACCEPT = '.jpg,.jpeg,.png,.webp,.gif,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip';
 const imageAttachmentPattern = /\.(png|jpe?g|gif|webp)(?:$|[?#])/i;
 
 function isImageAttachment(url) {
@@ -491,7 +490,6 @@ const Chat = ({ targetUserId }) => {
                     ref={fileInputRef}
                     type="file"
                     multiple
-                    accept={MESSAGE_FILE_ACCEPT}
                     className="chat-file-input"
                     onChange={handleFileChange}
                 />

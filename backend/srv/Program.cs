@@ -40,32 +40,22 @@ var allowedUploadExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCa
     ".webp",
     ".gif"
 };
-var allowedMessageUploadContentTypes = new HashSet<string>(allowedUploadContentTypes, StringComparer.OrdinalIgnoreCase)
+var blockedMessageUploadContentTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 {
-    "application/pdf",
-    "text/plain",
-    "text/csv",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "application/vnd.ms-powerpoint",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    "application/zip",
-    "application/x-zip-compressed"
+    "text/html",
+    "application/xhtml+xml",
+    "image/svg+xml",
+    "text/javascript",
+    "application/javascript"
 };
-var allowedMessageUploadExtensions = new HashSet<string>(allowedUploadExtensions, StringComparer.OrdinalIgnoreCase)
+var blockedMessageUploadExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 {
-    ".pdf",
-    ".txt",
-    ".csv",
-    ".doc",
-    ".docx",
-    ".xls",
-    ".xlsx",
-    ".ppt",
-    ".pptx",
-    ".zip"
+    ".html",
+    ".htm",
+    ".xhtml",
+    ".svg",
+    ".js",
+    ".mjs"
 };
 
 builder.Services.AddCors(options =>
@@ -104,8 +94,9 @@ var uploadOptions = new UploadOptions
     MaxUploadBytes = MaxUploadBytes,
     AllowedUploadContentTypes = allowedUploadContentTypes,
     AllowedUploadExtensions = allowedUploadExtensions,
-    AllowedMessageUploadContentTypes = allowedMessageUploadContentTypes,
-    AllowedMessageUploadExtensions = allowedMessageUploadExtensions
+    AllowAnyMessageUpload = true,
+    BlockedMessageUploadContentTypes = blockedMessageUploadContentTypes,
+    BlockedMessageUploadExtensions = blockedMessageUploadExtensions
 };
 
 builder.Services.AddSingleton(uploadOptions);

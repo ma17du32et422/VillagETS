@@ -8,8 +8,9 @@ namespace srv.Upload
         public required long MaxUploadBytes { get; init; }
         public required HashSet<string> AllowedUploadContentTypes { get; init; }
         public required HashSet<string> AllowedUploadExtensions { get; init; }
-        public required HashSet<string> AllowedMessageUploadContentTypes { get; init; }
-        public required HashSet<string> AllowedMessageUploadExtensions { get; init; }
+        public required bool AllowAnyMessageUpload { get; init; }
+        public required HashSet<string> BlockedMessageUploadContentTypes { get; init; }
+        public required HashSet<string> BlockedMessageUploadExtensions { get; init; }
     }
 
     public class UploadService
@@ -55,15 +56,21 @@ namespace srv.Upload
 
                 var extension = Path.GetExtension(file.FileName);
                 var allowMessageFiles = string.Equals(uploadScope, "message", StringComparison.OrdinalIgnoreCase);
-                var allowedExtensions = allowMessageFiles ? _options.AllowedMessageUploadExtensions : _options.AllowedUploadExtensions;
-                var allowedContentTypes = allowMessageFiles ? _options.AllowedMessageUploadContentTypes : _options.AllowedUploadContentTypes;
 
-                if (!allowedExtensions.Contains(extension) || !allowedContentTypes.Contains(file.ContentType))
+                if (allowMessageFiles && _options.AllowAnyMessageUpload)
                 {
-                    var error = allowMessageFiles
-                        ? "Ce type de fichier n'est pas autorise pour les messages."
-                        : "Seuls les fichiers image JPG, PNG, WEBP et GIF sont acceptes.";
-                    return JsonError(StatusCodes.Status400BadRequest, error);
+                    var normalizedExtension = string.IsNullOrWhiteSpace(extension) ? string.Empty : extension;
+                    var normalizedContentType = string.IsNullOrWhiteSpace(file.ContentType) ? "application/octet-stream" : file.ContentType;
+
+                    if (_options.BlockedMessageUploadExtensions.Contains(normalizedExtension)
+                        || _options.BlockedMessageUploadContentTypes.Contains(normalizedContentType))
+                    {
+                        return JsonError(StatusCodes.Status400BadRequest, "Ce type de fichier n'est pas autorise pour les messages.");
+                    }
+                }
+                else if (!_options.AllowedUploadExtensions.Contains(extension) || !_options.AllowedUploadContentTypes.Contains(file.ContentType))
+                {
+                    return JsonError(StatusCodes.Status400BadRequest, "Seuls les fichiers image JPG, PNG, WEBP et GIF sont acceptes.");
                 }
 
                 var nom = Path.GetFileName(string.IsNullOrWhiteSpace(form["nom"]) ? file.FileName : form["nom"].ToString());

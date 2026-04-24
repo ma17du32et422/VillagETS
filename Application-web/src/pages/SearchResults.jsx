@@ -193,18 +193,22 @@ export default function SearchResults() {
 
         {/* Posts Section */}
         <section className="search-posts-section">
-          <h3 className="search-section-title">Posts</h3>
-          <FeedControls sortMode={sortMode} onSortChange={setSortMode} />
-          {postsLoading && <p className="search-loading">Loading posts...</p>}
-          {postsError && <p className="search-error">Error: {postsError}</p>}
-          {!postsLoading && posts.length === 0 && <p className="search-no-results">No posts found</p>}
-        
-        {!postsLoading && posts.length > 0 && (
-          <div className="search-flux-container">
-            <Flux posts={posts} loading={false} error={null} onDelete={handlePostDeleted} />
+          <div className="search-posts-shell">
+            <h3 className="search-section-title">Posts</h3>
+            <div className="search-posts-panel">
+              <FeedControls sortMode={sortMode} onSortChange={setSortMode} />
+              {postsLoading && <p className="search-loading">Loading posts...</p>}
+              {postsError && <p className="search-error">Error: {postsError}</p>}
+              {!postsLoading && posts.length === 0 && <p className="search-no-results">No posts found</p>}
+
+              {!postsLoading && posts.length > 0 && (
+                <div className="search-flux-container">
+                  <Flux posts={posts} loading={false} error={null} onDelete={handlePostDeleted} />
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </section>
+        </section>
     </main>
   );
 }
