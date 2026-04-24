@@ -53,4 +53,11 @@
 
     <string name="signup_username_hint">Username</string>
 
+    <string name="min_price_hint">Min $</string>
+    <string name="max_price_hint">Max $</string>
+    <string name="apply_filters">Apply</string>
+    <string name="sort_newest">Newest</string>
+    <string name="sort_oldest">Oldest</string>
+    <string name="sort_top">Top Liked</string>
+
 </resources>
