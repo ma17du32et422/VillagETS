@@ -191,7 +191,7 @@ export default function CreatePost({ onSuccess, onCancel }) {
           </div>
         ) : (
           <div id="drop-placeholder">
-            <span>📷 Click or drag to add photos</span>
+            <span>Click or drag to add photos</span>
           </div>
         )}
         <input

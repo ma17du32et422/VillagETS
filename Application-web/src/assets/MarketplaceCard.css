@@ -35,8 +35,8 @@
 
 .marketplace-card:hover {
   transform: translateY(-3px);
-  border: 1px solid var(--color-8);
-  box-shadow: 0 1px 16px var(--color-8);
+
+  box-shadow: 0 1px 12px var(--color-8);
 }
 
 .marketplace-card-media {
