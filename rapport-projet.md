@@ -42,17 +42,20 @@ Pour faciliter la maintenance du serveur nous utilisé Open telemetry et pour en
 
 Pour les technologies de base, nous sommes resté au plan initial.
 
+
 ### Diagramme d'architecture du projet
 
-CHARLES LESAGE
 Architecture de l'application et des différents clients:
+<img width="2098" height="1316" alt="image" src="https://github.com/user-attachments/assets/c812de66-19c7-45c2-8eed-5eed804fda9f" />
 
 
 Routes du tunnel Cloudflare
 <img width="1200" height="696" alt="routes" src="https://github.com/user-attachments/assets/d44023ad-5166-4b00-9f64-130943a5f359" />
 
+
 Base de données SQL Supabase:
 <img width="1460" height="933" alt="schema-tablesSQL" src="https://github.com/user-attachments/assets/4a7b8b3a-ccd5-4a87-bb60-3f1ea0eec7e6" />
+
 
 ### Revue des tâches des sprints
 
