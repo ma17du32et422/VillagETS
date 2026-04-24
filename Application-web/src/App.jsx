@@ -9,6 +9,7 @@ import Signup from './pages/Signup'
 import CreatePost from './pages/CreatePost'
 import SearchResults from './pages/SearchResults'
 import Marketplace from './pages/Marketplace'
+import PostPage from './pages/PostPage'
 import { useEffect, useState } from 'react'
 import WebsiteLayout from './components/WebsiteLayout'
 
@@ -64,6 +65,7 @@ function App(){
         <Route path="/" element={<Home />} />
         <Route path="/MsgPage" element={<MsgPage />} />
         <Route path="/Marketplace" element={<Marketplace />} />
+        <Route path="/post/:postId" element={<PostPage />} />
         <Route path="/Create" element={<CreatePost/>}/>
         <Route path="/Search" element={<SearchResults />} />
         <Route path="/SettingsPage" element={<ProfilePage />} />

@@ -33,17 +33,21 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
+    private static final String PAYLOAD_REACTION = "payload_reaction";
 
     private List<Post> postList = new ArrayList<>();
     private final Map<String, Integer> mediaIndexByPostId = new HashMap<>();
+    private final Set<String> reactionRequestsInFlight = new HashSet<>();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public PostAdapter() {}
@@ -68,11 +72,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         holder.title.setText(post.getTitre());
         holder.content.setText(post.getContenu());
-        holder.likeCount.setText(String.valueOf(post.getLikes()));
-        holder.dislikeCount.setText(String.valueOf(post.getDislikes()));
         holder.commentCount.setText(String.valueOf(post.getCommentCount()));
-        
-        updateReactionUI(holder, post.getUserReaction());
+        bindReactionState(holder, post);
 
         if (post.getPrix() != null && post.getPrix() > 0) {
             holder.price.setVisibility(View.VISIBLE);
@@ -145,9 +146,21 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         holder.btnDetails.setVisibility(View.VISIBLE);
         holder.btnDetails.setOnClickListener(v -> showPostOptions(post, holder, isAuthor, finalPosterId, finalPosterName));
 
-        holder.btnLike.setOnClickListener(v -> handleReaction(post, "like", holder));
-        holder.btnDislike.setOnClickListener(v -> handleReaction(post, "dislike", holder));
+        holder.btnLike.setOnClickListener(v -> handleReaction(post, 1, holder));
+        holder.btnDislike.setOnClickListener(v -> handleReaction(post, -1, holder));
         holder.btnCommentContainer.setOnClickListener(openDetails);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull PostViewHolder holder, int position, @NonNull List<Object> payloads) {
+        if (!payloads.isEmpty()) {
+            Post post = postList.get(position);
+            if (post != null && payloads.contains(PAYLOAD_REACTION)) {
+                bindReactionState(holder, post);
+                return;
+            }
+        }
+        super.onBindViewHolder(holder, position, payloads);
     }
 
     private void showPostOptions(Post post, PostViewHolder holder, boolean isAuthor, String posterId, String posterName) {
@@ -296,34 +309,126 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         return dateStr;
     }
 
-    private void handleReaction(Post post, String type, PostViewHolder holder) {
+    private void handleReaction(Post post, int tappedReaction, PostViewHolder holder) {
+        String postId = post.getId();
+        if (postId == null || postId.trim().isEmpty()) {
+            Toast.makeText(holder.itemView.getContext(), "Unable to update reaction", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        synchronized (reactionRequestsInFlight) {
+            if (reactionRequestsInFlight.contains(postId)) {
+                return;
+            }
+            reactionRequestsInFlight.add(postId);
+        }
+
+        int oldLikes = post.getLikes();
+        int oldDislikes = post.getDislikes();
+        int oldReaction = post.getUserReactionValue();
+
+        int newReaction = computeNewReaction(oldReaction, tappedReaction);
+        applyOptimisticReaction(post, oldReaction, newReaction);
+        bindReactionState(holder, post);
+
+        String requestType = tappedReaction > 0 ? "like" : "dislike";
         executorService.execute(() -> {
             try {
-                PostApi.ReactionResponse response = PostDao.toggleReaction(post.getId(), type);
-                if (response != null) {
-                    post.setLikes(response.likes);
-                    post.setDislikes(response.dislikes);
-                    post.setUserReaction(response.userReaction);
-                    
-                    holder.itemView.post(() -> {
-                        holder.likeCount.setText(String.valueOf(post.getLikes()));
-                        holder.dislikeCount.setText(String.valueOf(post.getDislikes()));
-                        updateReactionUI(holder, post.getUserReaction());
-                    });
-                }
+                PostApi.ReactionResponse response = PostDao.toggleReaction(postId, requestType);
+                holder.itemView.post(() -> {
+                    synchronized (reactionRequestsInFlight) {
+                        reactionRequestsInFlight.remove(postId);
+                    }
+
+                    if (response != null) {
+                        post.setLikes(response.likes);
+                        post.setDislikes(response.dislikes);
+                        post.setUserReaction(response.userReaction);
+                    } else {
+                        rollbackReaction(post, oldLikes, oldDislikes, oldReaction);
+                        Toast.makeText(holder.itemView.getContext(), "Unable to update reaction", Toast.LENGTH_SHORT).show();
+                    }
+
+                    notifyReactionChanged(post);
+                });
             } catch (IOException e) {
-                e.printStackTrace();
+                holder.itemView.post(() -> {
+                    synchronized (reactionRequestsInFlight) {
+                        reactionRequestsInFlight.remove(postId);
+                    }
+
+                    rollbackReaction(post, oldLikes, oldDislikes, oldReaction);
+                    notifyReactionChanged(post);
+                    Toast.makeText(holder.itemView.getContext(), "Reaction update failed", Toast.LENGTH_SHORT).show();
+                });
             }
         });
     }
 
-    private void updateReactionUI(PostViewHolder holder, String reaction) {
+    private void bindReactionState(PostViewHolder holder, Post post) {
+        holder.likeCount.setText(String.valueOf(post.getLikes()));
+        holder.dislikeCount.setText(String.valueOf(post.getDislikes()));
+        updateReactionUI(holder, post.getUserReactionValue());
+    }
+
+    private int computeNewReaction(int oldReaction, int tappedReaction) {
+        if (oldReaction == tappedReaction) {
+            return 0;
+        }
+        return tappedReaction;
+    }
+
+    private void applyOptimisticReaction(Post post, int oldReaction, int newReaction) {
+        int likes = post.getLikes();
+        int dislikes = post.getDislikes();
+
+        if (oldReaction == 1) {
+            likes = Math.max(0, likes - 1);
+        } else if (oldReaction == -1) {
+            dislikes = Math.max(0, dislikes - 1);
+        }
+
+        if (newReaction == 1) {
+            likes += 1;
+        } else if (newReaction == -1) {
+            dislikes += 1;
+        }
+
+        post.setLikes(likes);
+        post.setDislikes(dislikes);
+        post.setUserReactionValue(newReaction);
+    }
+
+    private void rollbackReaction(Post post, int oldLikes, int oldDislikes, int oldReaction) {
+        post.setLikes(oldLikes);
+        post.setDislikes(oldDislikes);
+        post.setUserReactionValue(oldReaction);
+    }
+
+    private void notifyPostChanged(Post post) {
+        int position = postList.indexOf(post);
+        if (position != RecyclerView.NO_POSITION) {
+            notifyItemChanged(position);
+        } else {
+            notifyDataSetChanged();
+        }
+    }
+
+    private void notifyReactionChanged(Post post) {
+        int position = postList.indexOf(post);
+        if (position != RecyclerView.NO_POSITION) {
+            notifyItemChanged(position, PAYLOAD_REACTION);
+        } else {
+            notifyDataSetChanged();
+        }
+    }
+
+    private void updateReactionUI(PostViewHolder holder, int reactionValue) {
         int activeColor = holder.itemView.getContext().getResources().getColor(R.color.red_primary);
-        // Utilisation de text_primary au lieu de black pour supporter le mode sombre
         int inactiveColor = holder.itemView.getContext().getResources().getColor(R.color.text_primary);
         
-        holder.ivLike.setColorFilter("like".equals(reaction) ? activeColor : inactiveColor);
-        holder.ivDislike.setColorFilter("dislike".equals(reaction) ? activeColor : inactiveColor);
+        holder.ivLike.setColorFilter(reactionValue == 1 ? activeColor : inactiveColor);
+        holder.ivDislike.setColorFilter(reactionValue == -1 ? activeColor : inactiveColor);
     }
 
     @Override

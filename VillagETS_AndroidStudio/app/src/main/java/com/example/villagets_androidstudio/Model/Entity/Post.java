@@ -81,4 +81,24 @@ public class Post {
 
     public String getUserReaction() { return userReaction; }
     public void setUserReaction(String userReaction) { this.userReaction = userReaction; }
+
+    public int getUserReactionValue() {
+        if ("like".equals(userReaction)) {
+            return 1;
+        }
+        if ("dislike".equals(userReaction)) {
+            return -1;
+        }
+        return 0;
+    }
+
+    public void setUserReactionValue(int reactionValue) {
+        if (reactionValue > 0) {
+            userReaction = "like";
+        } else if (reactionValue < 0) {
+            userReaction = "dislike";
+        } else {
+            userReaction = null;
+        }
+    }
 }
