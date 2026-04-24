@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useChat } from '../ChatProvider';
 import { useAuth } from '../AuthContext';
 import { getBaseUrl } from '../API';
+import GiphyPicker from './subcomponents/Giphy';
 import plusIcon from '../assets/icons/plus.svg';
 import sendIcon from '../assets/icons/like.svg';
 import '../assets/Chat.css';
@@ -66,6 +67,7 @@ const Chat = ({ targetUserId }) => {
     const [isSending, setIsSending] = useState(false);
     const [targetPseudo, setTargetPseudo] = useState('');
     const [rateLimitInfo, setRateLimitInfo] = useState({ blocked: false, remaining: MAX_MESSAGES, secondsLeft: 0 });
+    const [showGiphy, setShowGiphy] = useState(false);
     const scrollRef = useRef();
     const fileInputRef = useRef(null);
     const timestampsRef = useRef([]);
@@ -297,6 +299,20 @@ const Chat = ({ targetUserId }) => {
         });
     }, [isBusy]);
 
+    const handleGifSelect = useCallback((gifUrl) => {
+        if (!checkRateLimit()) return;
+
+        const sent = sendMessage(targetUserId, gifUrl, []);
+        if (!sent) {
+            refundRateLimitSlot();
+            setError('Chat connection is unavailable.');
+            return;
+        }
+
+        setShowGiphy(false);
+        setError('');
+    }, [checkRateLimit, sendMessage, targetUserId, refundRateLimitSlot]);
+
     const handleSend = useCallback(async () => {
         const trimmedText = text.trim();
         const hasFiles = selectedFiles.length > 0;
@@ -434,54 +450,61 @@ const Chat = ({ targetUserId }) => {
                 {counterLabel}
             </div>
 
+            {showGiphy && (
+                <GiphyPicker
+                    onSelect={handleGifSelect}
+                    onClose={() => setShowGiphy(false)}
+                />
+            )}
+
             {selectedFiles.length > 0 && (
                 <div className="selected-files">
-            {selectedFiles.map((file, index) => (
-                <div key={`${file.name}-${file.size}`} className="file-preview-card">
-                    {isImageFile(file) ? (
-                        <div className="image-preview-wrapper">
-                            <img 
-                                src={createFilePreview(file)} 
-                                alt={file.name}
-                                className="preview-image"
-                            />
-                            <button
-                                type="button"
-                                className="preview-remove-btn"
-                                onClick={() => handleRemoveSelectedFile(index)}
-                                disabled={isBusy}
-                                aria-label={`Remove ${file.name}`}
-                            >
-                                ×
-                            </button>
+                    {selectedFiles.map((file, index) => (
+                        <div key={`${file.name}-${file.size}`} className="file-preview-card">
+                            {isImageFile(file) ? (
+                                <div className="image-preview-wrapper">
+                                    <img
+                                        src={createFilePreview(file)}
+                                        alt={file.name}
+                                        className="preview-image"
+                                    />
+                                    <button
+                                        type="button"
+                                        className="preview-remove-btn"
+                                        onClick={() => handleRemoveSelectedFile(index)}
+                                        disabled={isBusy}
+                                        aria-label={`Remove ${file.name}`}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="file-chip-preview">
+                                    <div className="file-chip-icon">FILE</div>
+                                    <div className="file-chip-meta">
+                                        <span className="preview-file-name">{file.name}</span>
+                                        <span className="preview-file-size">
+                                            {Math.max(1, Math.round(file.size / 1024))} KB
+                                        </span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="preview-remove-btn file-chip-remove"
+                                        onClick={() => handleRemoveSelectedFile(index)}
+                                        disabled={isBusy}
+                                        aria-label={`Remove ${file.name}`}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            )}
+                            {isImageFile(file) && (
+                                <div className="preview-file-caption">
+                                    {file.name}
+                                </div>
+                            )}
                         </div>
-                    ):(
-                        <div className="file-chip-preview">
-                            <div className="file-chip-icon">FILE</div>
-                            <div className="file-chip-meta">
-                                <span className="preview-file-name">{file.name}</span>
-                                <span className="preview-file-size">
-                                    {Math.max(1, Math.round(file.size / 1024))} KB
-                                </span>
-                            </div>
-                            <button
-                                type="button"
-                                className="preview-remove-btn file-chip-remove"
-                                onClick={() => handleRemoveSelectedFile(index)}
-                                disabled={isBusy}
-                                aria-label={`Remove ${file.name}`}
-                            >
-                                Ã—
-                            </button>
-                        </div>
-                    )}
-                    {isImageFile(file) && (
-                        <div className="preview-file-caption">
-                            {file.name}
-                        </div>
-                    )}
-                </div>
-            ))}
+                    ))}
                 </div>
             )}
 
@@ -502,6 +525,15 @@ const Chat = ({ targetUserId }) => {
                         aria-label="Attach files"
                     >
                         <img src={plusIcon} alt="" className="entry-action-icon" />
+                    </button>
+                    <button
+                        type="button"
+                        className={`gif-button ${showGiphy ? 'active' : ''}`}
+                        onClick={() => setShowGiphy(!showGiphy)}
+                        disabled={isBlocked || isBusy}
+                        aria-label="Send GIF"
+                    >
+                        GIF
                     </button>
                     <input
                         className="message-input"

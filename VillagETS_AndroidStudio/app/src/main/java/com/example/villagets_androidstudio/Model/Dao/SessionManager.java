@@ -2,14 +2,18 @@ package com.example.villagets_androidstudio.Model.Dao;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import com.bumptech.glide.Glide;
+import java.io.File;
 
 public class SessionManager {
     private static final String PREF_NAME = "VillagETSSession";
     private static final String KEY_TOKEN = "jwt_token";
     private SharedPreferences prefs;
     private SharedPreferences.Editor editor;
+    private Context context;
 
     public SessionManager(Context context) {
+        this.context = context.getApplicationContext();
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         editor = prefs.edit();
     }
@@ -47,10 +51,58 @@ public class SessionManager {
     }
 
     /**
-     * Supprime le token (déconnexion).
+     * Supprime toutes les données de session et vide le cache (déconnexion complète).
      */
     public void logout() {
-        editor.remove(KEY_TOKEN);
-        editor.apply();
+        // 1. Effacer toutes les SharedPreferences connues
+        editor.clear().commit();
+        
+        SharedPreferences userPrefs = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        userPrefs.edit().clear().commit();
+
+        // 2. Vider le cache de l'application (fichiers temporaires)
+        clearCache();
+
+        // 3. Vider le cache Glide (images)
+        try {
+            Glide.get(context).clearMemory();
+            new Thread(() -> Glide.get(context).clearDiskCache()).start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        // Note: L'activité appelante doit se charger de rediriger vers le Login
+        // et de nettoyer la pile d'activités.
+    }
+
+    private void clearCache() {
+        try {
+            File dir = context.getCacheDir();
+            deleteDir(dir);
+            
+            File internalFiles = context.getFilesDir();
+            deleteDir(internalFiles);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            if (children != null) {
+                for (String child : children) {
+                    boolean success = deleteDir(new File(dir, child));
+                    if (!success) {
+                        return false;
+                    }
+                }
+            }
+            return dir.delete();
+        } else if (dir != null && dir.isFile()) {
+            return dir.delete();
+        } else {
+            return false;
+        }
     }
 }
