@@ -6,6 +6,7 @@ import com.example.villagets_androidstudio.Model.Entity.Conversation;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 
@@ -15,4 +16,7 @@ public interface ChatApi {
 
     @GET("/chat/conversations")
     Call<List<Conversation>> getConversations();
+
+    @DELETE("/chat/message/{messageId}")
+    Call<Void> deleteMessage(@Path("messageId") String messageId);
 }

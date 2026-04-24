@@ -59,10 +59,14 @@ Base de données SQL Supabase:
 
 ### Revue des tâches des sprints
 
-THEO 
-Pour chaque sprint, indiqué dans un tableau :
-* Le nombre de tâches de chaque taille complété par chaque membre
-* Le nombre de tâches assignées en tout dans l'équipe.
+Sprint 1:
+<img width="1431" height="798" alt="image" src="https://github.com/user-attachments/assets/c7e1704b-5901-400b-9650-cbdbce72c873" />
+
+Sprint 2:
+<img width="1422" height="1555" alt="image" src="https://github.com/user-attachments/assets/2d7822c3-3aa2-4d38-b9f9-86443db43e22" />
+
+Sprint 3:
+<img width="1433" height="1690" alt="image" src="https://github.com/user-attachments/assets/6d34dc1c-7e0b-4c1c-91ab-0b4521cca91f" />
 
 ### Rétrospective des procédés du projet
 Nous aurions pu mieux utiliser les outils fournis par GitHub pour mieux gérer les branches et les potentiels merge conflicts. De plus, nous aurions pu mieux gérer notre temps, car nous avons respecté les échéanciers des sprints dans leur entièreté. Les tâches se sont empilées, mais elles ont été complétées avant la remise finale.

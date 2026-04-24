@@ -57,5 +57,6 @@
     <string name="sort_newest">Récents</string>
     <string name="sort_oldest">Ancients</string>
     <string name="sort_top">Plus populaires</string>
+    <string name="error_user_gone">Utilisateur inexistant ou supprimé</string>
 
 </resources>
