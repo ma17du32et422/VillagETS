@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.villagets_androidstudio.R;
 import com.example.villagets_androidstudio.View_Model.PostViewModel;
@@ -22,7 +23,7 @@ public class MarketPlaceFragment extends Fragment {
     private RecyclerView recyclerView;
     private MarketPlaceAdapter adapter;
     private PostViewModel viewModel;
-    
+    private SwipeRefreshLayout swipeRefreshLayout;
     private EditText etMinPrice;
     private EditText etMaxPrice;
     private Button btnApplyFilters;
@@ -36,6 +37,7 @@ public class MarketPlaceFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshMarketplace);
         recyclerView = view.findViewById(R.id.recyclerViewMarketplace);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
@@ -50,23 +52,33 @@ public class MarketPlaceFragment extends Fragment {
         viewModel = new ViewModelProvider(this).get(PostViewModel.class);
 
         viewModel.getPostsLiveData().observe(getViewLifecycleOwner(), posts -> {
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
             if (posts != null) {
                 adapter.setPosts(posts);
             }
         });
 
         viewModel.getMessage().observe(getViewLifecycleOwner(), msg -> {
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
             if (msg != null) {
                 Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
             }
         });
 
+        swipeRefreshLayout.setColorSchemeResources(R.color.red_primary);
+        swipeRefreshLayout.setOnRefreshListener(this::refreshMarketplace);
+
         btnApplyFilters.setOnClickListener(v -> applyFilters());
-        
         chipGroupSort.setOnCheckedStateChangeListener((group, checkedIds) -> applyFilters());
     }
 
     private void applyFilters() {
+        if (viewModel == null) return;
+
         String minStr = etMinPrice.getText().toString().trim();
         String maxStr = etMaxPrice.getText().toString().trim();
         
@@ -78,6 +90,9 @@ public class MarketPlaceFragment extends Fragment {
             if (!maxStr.isEmpty()) maxPrice = Double.parseDouble(maxStr);
         } catch (NumberFormatException e) {
             Toast.makeText(getContext(), "Format de prix invalide", Toast.LENGTH_SHORT).show();
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
             return;
         }
 
@@ -89,14 +104,25 @@ public class MarketPlaceFragment extends Fragment {
             sortMode = "TOP";
         }
 
+        if (swipeRefreshLayout != null && !swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setRefreshing(true);
+        }
         viewModel.rechercherPosts(null, null, true, minPrice, maxPrice, 0, sortMode);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (viewModel != null) {
-            applyFilters();
+        refreshMarketplace();
+    }
+
+    private void refreshMarketplace() {
+        if (viewModel == null) {
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+            return;
         }
+        applyFilters();
     }
 }
