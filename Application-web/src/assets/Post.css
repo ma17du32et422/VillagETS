@@ -7,6 +7,7 @@
     padding-bottom: 25px;
     content-visibility: auto;
     contain-intrinsic-size: 860px;
+    overflow: visible;
     border-bottom: 2px solid var(--color-1);
     
 }
@@ -419,4 +420,8 @@
 
 .comment-post {
     background-color: var(--color-8);
+}
+
+.feed-item {
+    overflow: visible;
 }

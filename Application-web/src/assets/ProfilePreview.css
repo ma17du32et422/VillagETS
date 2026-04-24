@@ -3,6 +3,11 @@
   display: inline-flex;
 }
 
+.profile-preview-portal {
+  position: fixed;
+  z-index: 2000;
+}
+
 .profile-avatar-trigger {
   padding: 0;
   border: none;
@@ -18,9 +23,7 @@
 }
 
 .profile-preview-card {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
+  position: relative;
   width: 260px;
   padding: 14px;
   border: 1px solid var(--color-4);
@@ -28,13 +31,8 @@
   background-color: var(--color-2);
   color: var(--color-5);
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.16);
-  z-index: 40;
+  z-index: 1000;
   box-sizing: border-box;
-}
-
-.profile-preview-card.align-right {
-  left: auto;
-  right: 0;
 }
 
 .profile-preview-top {
