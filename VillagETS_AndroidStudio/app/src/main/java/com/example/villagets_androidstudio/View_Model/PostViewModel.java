@@ -19,7 +19,12 @@ public class PostViewModel extends ViewModel {
     private final MutableLiveData<List<Post>> postsLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> message = new MutableLiveData<>();
     private final MutableLiveData<Boolean> saveSuccess = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    private int currentPage = 0;
+    private boolean isLastPage = false;
+    private boolean isMarketplaceMode = false;
 
     public LiveData<List<Post>> getPostsLiveData() {
         return postsLiveData;
@@ -33,21 +38,60 @@ public class PostViewModel extends ViewModel {
         return saveSuccess;
     }
 
+    public LiveData<Boolean> getIsLoading() {
+        return isLoading;
+    }
+
     public void chargerPosts(boolean isMarketplace) {
-        rechercherPosts(null, null, isMarketplace, null, null, 0, "DESC");
+        this.isMarketplaceMode = isMarketplace;
+        currentPage = 0;
+        isLastPage = false;
+        rechercherPosts(null, null, isMarketplace, null, null, currentPage, "DESC", false);
+    }
+
+    public void chargerPageSuivante() {
+        if (Boolean.TRUE.equals(isLoading.getValue()) || isLastPage) {
+            return;
+        }
+        currentPage++;
+        rechercherPosts(null, null, isMarketplaceMode, null, null, currentPage, "DESC", true);
     }
 
     public void rechercherPosts(String searchString, List<String> tags, boolean isMarketplace) {
-        rechercherPosts(searchString, tags, isMarketplace, null, null, 0, "DESC");
+        this.isMarketplaceMode = isMarketplace;
+        currentPage = 0;
+        isLastPage = false;
+        rechercherPosts(searchString, tags, isMarketplace, null, null, 0, "DESC", false);
     }
 
-    public void rechercherPosts(String searchString, List<String> tags, boolean isMarketplace, Double minPrice, Double maxPrice, int pageIndex, String sortMode) {
+    public void rechercherPosts(String searchString, List<String> tags, boolean isMarketplace, Double minPrice, Double maxPrice, int pageIndex, String sortMode, boolean isNextPage) {
+        isLoading.postValue(true);
         executorService.execute(() -> {
             try {
-                List<Post> posts = PostDao.getFeed(searchString, tags, isMarketplace, minPrice, maxPrice, pageIndex, sortMode);
-                postsLiveData.postValue(posts);
+                List<Post> newPosts = PostDao.getFeed(searchString, tags, isMarketplace, minPrice, maxPrice, pageIndex, sortMode);
+                
+                if (newPosts == null || newPosts.isEmpty()) {
+                    isLastPage = true;
+                    if (!isNextPage) {
+                        postsLiveData.postValue(new ArrayList<>());
+                    }
+                } else {
+                    if (isNextPage) {
+                        List<Post> currentPosts = postsLiveData.getValue();
+                        List<Post> updatedList = new ArrayList<>();
+                        if (currentPosts != null) {
+                            updatedList.addAll(currentPosts);
+                        }
+                        updatedList.addAll(newPosts);
+                        postsLiveData.postValue(updatedList);
+                    } else {
+                        postsLiveData.postValue(newPosts);
+                    }
+                }
             } catch (IOException e) {
                 message.postValue("Erreur lors du chargement des posts : " + e.getMessage());
+            } finally {
+                isLoading.postValue(false);
             }
         });
     }

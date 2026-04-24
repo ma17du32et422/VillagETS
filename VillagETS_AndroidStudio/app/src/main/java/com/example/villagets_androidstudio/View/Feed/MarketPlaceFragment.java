@@ -107,7 +107,7 @@ public class MarketPlaceFragment extends Fragment {
         if (swipeRefreshLayout != null && !swipeRefreshLayout.isRefreshing()) {
             swipeRefreshLayout.setRefreshing(true);
         }
-        viewModel.rechercherPosts(null, null, true, minPrice, maxPrice, 0, sortMode);
+        viewModel.rechercherPosts(null, null, true, minPrice, maxPrice, 0, sortMode, false);
     }
 
     @Override

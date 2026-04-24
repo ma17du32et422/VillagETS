@@ -30,7 +30,8 @@ public class FeedFragment extends Fragment {
 
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshFeed);
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
         
         adapter = new PostAdapter();
         recyclerView.setAdapter(adapter);
@@ -57,6 +58,25 @@ public class FeedFragment extends Fragment {
             }
         });
 
+        // Gestion de la pagination (Infinite Scroll)
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if (dy > 0) { // On scroll vers le bas
+                    int visibleItemCount = layoutManager.getChildCount();
+                    int totalItemCount = layoutManager.getItemCount();
+                    int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                            && firstVisibleItemPosition >= 0) {
+                        viewModel.chargerPageSuivante();
+                    }
+                }
+            }
+        });
+
         swipeRefreshLayout.setColorSchemeResources(R.color.red_primary);
         swipeRefreshLayout.setOnRefreshListener(this::refreshFeed);
 
@@ -67,7 +87,6 @@ public class FeedFragment extends Fragment {
     public void onResume() {
         super.onResume();
         // Recharger les posts à chaque fois que le fragment devient visible
-        // (Utile après un login ou un retour sur l'app)
         refreshFeed();
     }
 
