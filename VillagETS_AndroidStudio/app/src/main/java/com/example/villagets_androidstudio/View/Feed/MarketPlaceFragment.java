@@ -28,6 +28,7 @@ public class MarketPlaceFragment extends Fragment {
     private EditText etMaxPrice;
     private Button btnApplyFilters;
     private ChipGroup chipGroupSort;
+    private GridLayoutManager layoutManager;
 
     public MarketPlaceFragment() {
         super(R.layout.fragment_marketplace);
@@ -39,7 +40,8 @@ public class MarketPlaceFragment extends Fragment {
 
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshMarketplace);
         recyclerView = view.findViewById(R.id.recyclerViewMarketplace);
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        layoutManager = new GridLayoutManager(getContext(), 2);
+        recyclerView.setLayoutManager(layoutManager);
 
         adapter = new MarketPlaceAdapter();
         recyclerView.setAdapter(adapter);
@@ -66,6 +68,25 @@ public class MarketPlaceFragment extends Fragment {
             }
             if (msg != null) {
                 Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Gestion de la pagination (Infinite Scroll)
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if (dy > 0) { // On scroll vers le bas
+                    int visibleItemCount = layoutManager.getChildCount();
+                    int totalItemCount = layoutManager.getItemCount();
+                    int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                            && firstVisibleItemPosition >= 0) {
+                        viewModel.chargerPageSuivante();
+                    }
+                }
             }
         });
 
@@ -107,6 +128,7 @@ public class MarketPlaceFragment extends Fragment {
         if (swipeRefreshLayout != null && !swipeRefreshLayout.isRefreshing()) {
             swipeRefreshLayout.setRefreshing(true);
         }
+        
         viewModel.rechercherPosts(null, null, true, minPrice, maxPrice, 0, sortMode, false);
     }
 

@@ -30,6 +30,7 @@ public class SearchFragment extends Fragment {
     private TextInputEditText etSearch;
     private TabLayout tabLayout;
     private RecyclerView recyclerView;
+    private LinearLayoutManager layoutManager;
 
     public SearchFragment() {
     }
@@ -51,7 +52,8 @@ public class SearchFragment extends Fragment {
         postAdapter = new PostAdapter();
         userAdapter = new UserSearchAdapter();
         
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
         // Par défaut on affiche l'adaptateur de posts
         recyclerView.setAdapter(postAdapter);
 
@@ -67,6 +69,27 @@ public class SearchFragment extends Fragment {
         userViewModel.getSearchResultsLiveData().observe(getViewLifecycleOwner(), users -> {
             if (tabLayout.getSelectedTabPosition() == 1) {
                 userAdapter.setUsers(users);
+            }
+        });
+
+        // Gestion de la pagination (Infinite Scroll) pour les Posts
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                // On ne gère le scroll infini que pour les posts (onglet 0)
+                // car l'API User ne semble pas encore supporter la pagination
+                if (dy > 0 && tabLayout.getSelectedTabPosition() == 0) {
+                    int visibleItemCount = layoutManager.getChildCount();
+                    int totalItemCount = layoutManager.getItemCount();
+                    int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                            && firstVisibleItemPosition >= 0) {
+                        postViewModel.chargerPageSuivante();
+                    }
+                }
             }
         });
 
@@ -107,7 +130,7 @@ public class SearchFragment extends Fragment {
 
     private void performSearch(String query) {
         if (tabLayout.getSelectedTabPosition() == 0) {
-            postViewModel.rechercherPosts(query, null, false);
+            postViewModel.rechercherPosts(query, null, false, null, null, 0, "DESC", false);
         } else {
             userViewModel.searchUsers(query);
         }

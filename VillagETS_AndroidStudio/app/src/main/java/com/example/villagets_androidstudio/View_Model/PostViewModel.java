@@ -24,7 +24,14 @@ public class PostViewModel extends ViewModel {
 
     private int currentPage = 0;
     private boolean isLastPage = false;
-    private boolean isMarketplaceMode = false;
+    
+    // On garde en mémoire les derniers paramètres de recherche pour la pagination
+    private String lastSearchString = null;
+    private List<String> lastTags = null;
+    private boolean lastIsMarketplace = false;
+    private Double lastMinPrice = null;
+    private Double lastMaxPrice = null;
+    private String lastSortMode = "DESC";
 
     public LiveData<List<Post>> getPostsLiveData() {
         return postsLiveData;
@@ -43,10 +50,7 @@ public class PostViewModel extends ViewModel {
     }
 
     public void chargerPosts(boolean isMarketplace) {
-        this.isMarketplaceMode = isMarketplace;
-        currentPage = 0;
-        isLastPage = false;
-        rechercherPosts(null, null, isMarketplace, null, null, currentPage, "DESC", false);
+        rechercherPosts(null, null, isMarketplace, null, null, 0, "DESC", false);
     }
 
     public void chargerPageSuivante() {
@@ -54,17 +58,26 @@ public class PostViewModel extends ViewModel {
             return;
         }
         currentPage++;
-        rechercherPosts(null, null, isMarketplaceMode, null, null, currentPage, "DESC", true);
+        rechercherPosts(lastSearchString, lastTags, lastIsMarketplace, lastMinPrice, lastMaxPrice, currentPage, lastSortMode, true);
     }
 
     public void rechercherPosts(String searchString, List<String> tags, boolean isMarketplace) {
-        this.isMarketplaceMode = isMarketplace;
-        currentPage = 0;
-        isLastPage = false;
         rechercherPosts(searchString, tags, isMarketplace, null, null, 0, "DESC", false);
     }
 
     public void rechercherPosts(String searchString, List<String> tags, boolean isMarketplace, Double minPrice, Double maxPrice, int pageIndex, String sortMode, boolean isNextPage) {
+        if (!isNextPage) {
+            currentPage = 0;
+            isLastPage = false;
+            // On sauvegarde les paramètres pour les appels suivants (pagination)
+            lastSearchString = searchString;
+            lastTags = tags;
+            lastIsMarketplace = isMarketplace;
+            lastMinPrice = minPrice;
+            lastMaxPrice = maxPrice;
+            lastSortMode = sortMode;
+        }
+
         isLoading.postValue(true);
         executorService.execute(() -> {
             try {
