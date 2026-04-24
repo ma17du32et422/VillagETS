@@ -10,7 +10,8 @@ namespace srv.Reaction
         {
             app.MapPost("/post/{id}/react", async (int id, [FromBody] ReactRequest req, HttpContext ctx) =>
             {
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null) return Results.Unauthorized();
 
                 if (req.Type != "like" && req.Type != "dislike")
@@ -23,7 +24,8 @@ namespace srv.Reaction
 
             app.MapGet("/post/{id}/react", async (int id, HttpContext ctx) =>
             {
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null) return Results.Unauthorized();
 
                 var reaction = await reactionService.GetUserReaction(currentUser.Id!, id);

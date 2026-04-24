@@ -20,7 +20,8 @@ namespace srv.Post
 
             app.MapPost("/post", async ([FromBody] PostCreateRequest publication, HttpContext ctx) =>
             {
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null) return Results.Unauthorized();
 
                 try
@@ -48,7 +49,8 @@ namespace srv.Post
 
             app.MapDelete("/post/{id}", async (int id, HttpContext ctx) =>
             {
-                var currentUser = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
                 if (currentUser == null) return Results.Unauthorized();
 
                 try

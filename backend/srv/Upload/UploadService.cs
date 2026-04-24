@@ -1,4 +1,5 @@
 using sql;
+using villagets.Auth;
 
 namespace srv.Upload
 {
@@ -33,7 +34,8 @@ namespace srv.Upload
             string? filePath = null;
             try
             {
-                var currentUser = await villagets.Auth.AuthHelper.GetAuthenticatedUserAsync(ctx);
+                var (currentUser, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+                if (isDeleted) return JsonError(StatusCodes.Status410Gone, "User was deleted");
                 if (currentUser == null)
                     return JsonError(StatusCodes.Status401Unauthorized, "Unauthorized.");
 

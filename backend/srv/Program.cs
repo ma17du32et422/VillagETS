@@ -17,6 +17,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using villagets.Auth;
 
 const bool EnablePerformanceLogging = true;
 const bool EnableTracing = false;
@@ -222,7 +223,8 @@ if (isDevelopment)
 
 app.MapGet("/me", async (HttpContext ctx) =>
 {
-    var user = await villagets.Auth.AuthHelper.GetAuthenticatedUserAsync(ctx);
+    var (user, isDeleted) = await AuthHelper.GetAuthenticatedUserAsync(ctx);
+    if (isDeleted) return Results.Problem("Utilisateur supprimé.", null, statusCode: 410);
     if (user == null)
         return Results.Unauthorized();
 

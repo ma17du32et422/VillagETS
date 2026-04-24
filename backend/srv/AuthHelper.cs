@@ -70,12 +70,12 @@ public static class AuthHelper
         return ValidateToken(token);
     }
 
-    public static async Task<Utilisateur?> GetAuthenticatedUserAsync(HttpContext ctx)
+    public static async Task<(Utilisateur?, bool)> GetAuthenticatedUserAsync(HttpContext ctx)
     {
         var principal = GetClaimsFromContext(ctx);
         var userId = principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrWhiteSpace(userId))
-            return null;
+            return (null, false);
 
         var supabase = srv.SupabaseService.GetClient();
         var result = await supabase
@@ -84,12 +84,12 @@ public static class AuthHelper
             .Get();
 
         var user = result.Model;
-        return user == null || user.DeletedAt.HasValue ? null : user;
+        return user == null || user.DeletedAt.HasValue ? (null, true) : (user, false);
     }
 
     public static async Task<string?> GetAuthenticatedUserIdIfActiveAsync(HttpContext ctx)
     {
-        var user = await GetAuthenticatedUserAsync(ctx);
-        return user?.Id;
+        var (user, isDeleted) = await GetAuthenticatedUserAsync(ctx);
+        return isDeleted ? null : user?.Id;
     }
 }
