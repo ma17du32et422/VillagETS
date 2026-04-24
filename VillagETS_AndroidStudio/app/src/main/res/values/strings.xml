@@ -59,5 +59,6 @@
     <string name="sort_newest">Newest</string>
     <string name="sort_oldest">Oldest</string>
     <string name="sort_top">Top Liked</string>
+    <string name="error_user_gone">User does not exist or has been deleted</string>
 
 </resources>
