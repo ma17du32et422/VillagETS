@@ -8,6 +8,7 @@
     content-visibility: auto;
     contain-intrinsic-size: 860px;
     border-bottom: 2px solid var(--color-1);
+    
 }
 
 .post-shell::after {
@@ -21,8 +22,7 @@
 }
 
 .post-shell:last-child {
-    margin-bottom: 0;
-    padding-bottom: 0;
+
 }
 
 .post-shell:last-child::after {

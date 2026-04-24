@@ -139,7 +139,7 @@
     min-width: 0;
     align-items: center;
     background-color: var(--color-2);
-    border-top: 1px solid color-mix(in srgb, var(--color-4) 35%, transparent);
+    border-top: 1px solid var(--color-1);
     box-sizing: border-box;
 }
 
@@ -159,7 +159,7 @@
 }
 
 .message-input-shell:focus-within {
-    border-color: color-mix(in srgb, var(--color-8) 55%, transparent);
+    border-color: var(--color-8);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-8) 20%, transparent);
 }
 
@@ -180,7 +180,7 @@
 }
 
 .attach-button:hover {
-    background-color: color-mix(in srgb, var(--color-4) 18%, transparent);
+    background-color: var(--color-4);
 }
 
 .attach-button:disabled {
