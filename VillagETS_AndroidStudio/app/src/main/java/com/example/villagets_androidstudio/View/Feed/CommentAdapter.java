@@ -58,6 +58,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
         Comment comment = comments.get(position);
         if (comment == null) return;
+        boolean isReply = isReply(comment);
 
         holder.tvUserName.setText(comment.getOp() != null ? comment.getOp().getPseudo() : "User");
         
@@ -92,25 +93,29 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             holder.ivAvatar.setImageResource(R.drawable.profile_placeholder);
         }
 
-        updateExpandLink(holder, comment);
+        updateExpandLink(holder, comment, isReply);
 
         holder.tvExpandReplies.setOnClickListener(v -> {
+            if (isReply) {
+                return;
+            }
             if (comment.isExpanded()) {
                 comment.setExpanded(false);
                 holder.repliesContainer.setVisibility(View.GONE);
-                updateExpandLink(holder, comment);
+                updateExpandLink(holder, comment, false);
             } else {
                 loadReplies(comment, holder);
             }
         });
 
+        holder.tvReplyAction.setVisibility(isReply ? View.GONE : View.VISIBLE);
         holder.tvReplyAction.setOnClickListener(v -> {
-            if (replyClickListener != null) {
+            if (!isReply && replyClickListener != null) {
                 replyClickListener.onReplyClick(comment);
             }
         });
 
-        if (comment.isExpanded() && comment.getReplies() != null) {
+        if (!isReply && comment.isExpanded() && comment.getReplies() != null) {
             holder.repliesContainer.setVisibility(View.VISIBLE);
             setupRepliesRecyclerView(holder, comment.getReplies());
         } else {
@@ -158,8 +163,8 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         );
     }
 
-    private void updateExpandLink(CommentViewHolder holder, Comment comment) {
-        if (comment.getReplyCount() > 0 || (comment.getReplies() != null && !comment.getReplies().isEmpty())) {
+    private void updateExpandLink(CommentViewHolder holder, Comment comment, boolean isReply) {
+        if (!isReply && (comment.getReplyCount() > 0 || (comment.getReplies() != null && !comment.getReplies().isEmpty()))) {
             holder.tvExpandReplies.setVisibility(View.VISIBLE);
             if (comment.isExpanded()) {
                 holder.tvExpandReplies.setText("▲ Hide replies");
@@ -176,6 +181,12 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         }
     }
 
+    private boolean isReply(Comment comment) {
+        return comment != null
+                && comment.getParentCommentaireId() != null
+                && !comment.getParentCommentaireId().trim().isEmpty();
+    }
+
     private void loadReplies(Comment comment, CommentViewHolder holder) {
         executorService.execute(() -> {
             try {
@@ -184,7 +195,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                     comment.setReplies(replies);
                     comment.setExpanded(true);
                     holder.repliesContainer.setVisibility(View.VISIBLE);
-                    updateExpandLink(holder, comment);
+                    updateExpandLink(holder, comment, isReply(comment));
                     setupRepliesRecyclerView(holder, replies);
                 });
             } catch (IOException e) {

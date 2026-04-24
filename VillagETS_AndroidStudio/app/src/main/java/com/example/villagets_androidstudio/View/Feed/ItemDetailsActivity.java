@@ -305,6 +305,10 @@ public class ItemDetailsActivity extends AppCompatActivity {
 
     private void setupCommentsRecyclerView(List<Comment> comments) {
         CommentAdapter adapter = new CommentAdapter(parentComment -> {
+            if (isReply(parentComment)) {
+                Toast.makeText(this, "You cannot reply to a reply", Toast.LENGTH_SHORT).show();
+                return;
+            }
             etComment.setHint("Replying to " + (parentComment.getOp() != null ? parentComment.getOp().getPseudo() : "User") + "...");
             replyParentCommentId = parentComment.getId();
             inputContainer.post(() -> detailsScrollView.smoothScrollTo(0, commentsSection.getTop()));
@@ -415,5 +419,11 @@ public class ItemDetailsActivity extends AppCompatActivity {
             }
         }
         return count;
+    }
+
+    private boolean isReply(Comment comment) {
+        return comment != null
+                && comment.getParentCommentaireId() != null
+                && !comment.getParentCommentaireId().trim().isEmpty();
     }
 }
