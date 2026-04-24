@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.villagets_androidstudio.Model.Entity.Conversation;
 import com.example.villagets_androidstudio.Model.Entity.User;
@@ -28,6 +29,7 @@ public class ConversationFragment extends Fragment {
     private ConversationAdapter adapter;
     private EditText etNewConversationId;
     private Button btnStartNewChat;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public ConversationFragment() {
         super(R.layout.fragment_conversation);
@@ -37,6 +39,7 @@ public class ConversationFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshConversations);
         recyclerView = view.findViewById(R.id.recyclerViewConversations);
         etNewConversationId = view.findViewById(R.id.etNewConversationId);
         btnStartNewChat = view.findViewById(R.id.btnStartNewChat);
@@ -46,16 +49,25 @@ public class ConversationFragment extends Fragment {
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
 
         chatViewModel.getConversationsLiveData().observe(getViewLifecycleOwner(), conversations -> {
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
             if (conversations != null) {
                 setupAdapter(conversations);
             }
         });
 
         chatViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
             if (error != null) {
                 Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
             }
         });
+
+        swipeRefreshLayout.setColorSchemeResources(R.color.red_primary);
+        swipeRefreshLayout.setOnRefreshListener(this::refreshConversations);
 
         btnStartNewChat.setOnClickListener(v -> {
             String targetId = etNewConversationId.getText().toString().trim();
@@ -73,6 +85,26 @@ public class ConversationFragment extends Fragment {
             }
         });
 
+        refreshConversations();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshConversations();
+    }
+
+    private void refreshConversations() {
+        if (chatViewModel == null || getContext() == null) {
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+            return;
+        }
+
+        if (swipeRefreshLayout != null && !swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setRefreshing(true);
+        }
         chatViewModel.loadConversations(getContext());
     }
 

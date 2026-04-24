@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.viewpager2)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(libs.swiperefreshlayout)
 
     // Jackson JSON
     implementation(libs.jackson.databind)
