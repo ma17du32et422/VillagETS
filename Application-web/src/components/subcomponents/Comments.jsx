@@ -93,7 +93,7 @@ export default function Comments({ postId, initialCount, onCountChange }) {
             disabled={isSubmitting}
             onChange={e => setCommentText(e.target.value)}
           />
-          <button className="reaction-button" type="submit" disabled={isSubmitting}>
+          <button className="reaction-button comment-post" type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Posting...' : 'Post'}
           </button>
         </form>

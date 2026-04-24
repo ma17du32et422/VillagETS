@@ -204,7 +204,7 @@ export default function CommentItem({ comment, postId, onDeleted, onCountChange,
               onChange={e => setReplyText(e.target.value)}
               autoFocus
             />
-            <button className="reaction-button" type="submit" disabled={isSubmittingReply}>
+            <button className="reaction-button comment-post" type="submit" disabled={isSubmittingReply}>
               {isSubmittingReply ? 'Sending...' : 'Send'}
             </button>
             <button

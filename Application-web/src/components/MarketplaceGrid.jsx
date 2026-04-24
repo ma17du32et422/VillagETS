@@ -37,7 +37,6 @@ export default function MarketplaceGrid({ posts, loading, error, onLoadMore, has
         {posts.map((post, index) => (
           <Fragment key={post.id}>
             <div className="marketplace-grid-item">
-              <span className="feed-debug-badge">#{index + 1}</span>
               <MarketplaceCard post={post} />
             </div>
           </Fragment>
