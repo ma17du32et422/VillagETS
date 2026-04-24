@@ -20,12 +20,16 @@ public class HttpJsonService {
     }
 
     // --- Post Methods ---
-    public List<Post> getFeed(String searchString, String[] tags, boolean isMarketplace) throws IOException {
+    public List<Post> getFeed(String searchString, List<String> tags, boolean isMarketplace, Double minPrice, Double maxPrice, int pageIndex, String sortMode) throws IOException {
         // Préparation du corps de la requête POST pour /feed
         Map<String, Object> body = new HashMap<>();
         body.put("searchString", searchString);
         body.put("tags", tags);
         body.put("isMarketplace", isMarketplace);
+        body.put("minPrice", minPrice);
+        body.put("maxPrice", maxPrice);
+        body.put("pageIndex", pageIndex);
+        body.put("sortMode", sortMode != null ? sortMode : "DESC");
 
         Response<List<Post>> response = postApi.getFeed(body).execute();
         if (response.isSuccessful() && response.body() != null) {

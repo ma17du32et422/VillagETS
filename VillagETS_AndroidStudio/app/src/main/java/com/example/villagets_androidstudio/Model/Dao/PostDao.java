@@ -19,14 +19,18 @@ public class PostDao {
     private static final PostApi api = RetrofitClient.getInstance().create(PostApi.class);
 
     public static List<Post> getAllPosts(boolean isMarketplace) throws IOException {
-        return getFeed(null, null, isMarketplace);
+        return getFeed(null, null, isMarketplace, null, null, 0, "DESC");
     }
 
-    public static List<Post> getFeed(String searchString, List<String> tags, boolean isMarketplace) throws IOException {
+    public static List<Post> getFeed(String searchString, List<String> tags, boolean isMarketplace, Double minPrice, Double maxPrice, int pageIndex, String sortMode) throws IOException {
         Map<String, Object> body = new HashMap<>();
         body.put("searchString", searchString);
         body.put("tags", tags);
         body.put("isMarketplace", isMarketplace);
+        body.put("minPrice", minPrice);
+        body.put("maxPrice", maxPrice);
+        body.put("pageIndex", pageIndex);
+        body.put("sortMode", sortMode != null ? sortMode : "DESC");
 
         Response<List<Post>> response = api.getFeed(body).execute();
         if (response.isSuccessful() && response.body() != null) {

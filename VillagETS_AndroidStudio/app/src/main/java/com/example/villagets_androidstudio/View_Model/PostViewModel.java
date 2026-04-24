@@ -34,13 +34,17 @@ public class PostViewModel extends ViewModel {
     }
 
     public void chargerPosts(boolean isMarketplace) {
-        rechercherPosts(null, null, isMarketplace);
+        rechercherPosts(null, null, isMarketplace, null, null, 0, "DESC");
     }
 
     public void rechercherPosts(String searchString, List<String> tags, boolean isMarketplace) {
+        rechercherPosts(searchString, tags, isMarketplace, null, null, 0, "DESC");
+    }
+
+    public void rechercherPosts(String searchString, List<String> tags, boolean isMarketplace, Double minPrice, Double maxPrice, int pageIndex, String sortMode) {
         executorService.execute(() -> {
             try {
-                List<Post> posts = PostDao.getFeed(searchString, tags, isMarketplace);
+                List<Post> posts = PostDao.getFeed(searchString, tags, isMarketplace, minPrice, maxPrice, pageIndex, sortMode);
                 postsLiveData.postValue(posts);
             } catch (IOException e) {
                 message.postValue("Erreur lors du chargement des posts : " + e.getMessage());
