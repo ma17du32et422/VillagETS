@@ -40,7 +40,6 @@ export default function Flux({ posts: propPosts, loading, error, onLoadMore, has
       {posts.map((post, index) => (
         <Fragment key={post.id}>
           <div className="feed-item">
-            <span className="feed-debug-badge">#{index + 1}</span>
             <Post post={post} onDelete={handleDelete} mediaMode="feed" />
           </div>
         </Fragment>

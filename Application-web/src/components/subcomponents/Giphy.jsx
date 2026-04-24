@@ -28,12 +28,6 @@ export default function GiphyPicker({ onSelect, onClose }) {
     };
 
     useEffect(() => {
-        console.log('API KEY:', GIPHY_API_KEY);
-        console.log('gifs après fetch:', gifs);
-        fetchGifs('');
-    }, []);
-
-    useEffect(() => {
         fetchGifs('');
     }, []);
 

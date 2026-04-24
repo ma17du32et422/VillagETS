@@ -336,7 +336,7 @@
 }
 
 .reaction-button {
-    background-color: var(--color-2);
+    background-color: var(--color-);
     border: 1px solid var(--color-4);
     border-radius: 8px;
     padding: 8px 12px;
@@ -415,3 +415,6 @@
 }
 
 
+.comment-post {
+    background-color: var(--color-8);
+}
