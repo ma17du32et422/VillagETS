@@ -1,9 +1,16 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { getBaseUrl } from '../API';
 import Flux from '../components/Flux';
+import FeedControls from '../components/FeedControls';
 import ProfileAvatar from '../components/ProfileAvatar';
 import '../assets/SearchResults.css';
+import {
+  DEFAULT_FEED_SORT_MODE,
+  mapFeedPost,
+  requestFeed,
+  sortFeedPosts,
+} from '../utils/feed';
 
 export default function SearchResults() {
   const [searchParams] = useSearchParams();
@@ -16,9 +23,14 @@ export default function SearchResults() {
   const [usersError, setUsersError] = useState(null);
   const [postsError, setPostsError] = useState(null);
   const [openProfileUserId, setOpenProfileUserId] = useState(null);
+  const [sortMode, setSortMode] = useState(DEFAULT_FEED_SORT_MODE);
 
   useEffect(() => {
     if (!query.trim()) {
+      setUsers([]);
+      setPosts([]);
+      setUsersError(null);
+      setPostsError(null);
       setUsersLoading(false);
       setPostsLoading(false);
       return;
@@ -52,38 +64,12 @@ export default function SearchResults() {
     const fetchSearchPosts = async () => {
       try {
         setPostsLoading(true);
-        const res = await fetch(`${getBaseUrl()}/feed`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            searchString: query,
-            tags: null,
-            isMarketplace: false,
-          }),
+        return await requestFeed({
+          searchString: query,
+          isMarketplace: false,
+          pageIndex: 0,
+          sortMode,
         });
-
-        if (!res.ok) {
-          throw new Error('Failed to fetch posts');
-        }
-
-        const data = await res.json();
-        return data.map((post) => ({
-          id: post.id,
-          title: post.titre ?? '',
-          contents: post.contenu ?? '',
-          op: post.op ?? { id: null, pseudo: 'Unknown', photoProfil: null },
-          datetime: post.datePublication ?? '',
-          media: post.media ?? [],
-          tags: post.tags ?? [],
-          prix: post.prix ?? null,
-          articleAVendre: post.articleAVendre ?? false,
-          likes: post.likes ?? 0,
-          dislikes: post.dislikes ?? 0,
-          commentaires: post.commentaires ?? 0,
-          userReaction: post.userReaction ?? null,
-          comments: [],
-        })) || [];
       } catch (err) {
         console.error('Error fetching posts:', err);
         setPostsError(err.message || 'Failed to fetch posts');
@@ -127,20 +113,7 @@ export default function SearchResults() {
         const userPosts = userPostsArrays.flat();
         
         return userPosts.map((post) => ({
-          id: post.id,
-          title: post.titre ?? '',
-          contents: post.contenu ?? '',
-          op: post.op ?? { id: null, pseudo: 'Unknown', photoProfil: null },
-          datetime: post.datePublication ?? '',
-          media: post.media ?? [],
-          tags: post.tags ?? [],
-          prix: post.prix ?? null,
-          articleAVendre: post.articleAVendre ?? false,
-          likes: post.likes ?? 0,
-          dislikes: post.dislikes ?? 0,
-          commentaires: post.commentaires ?? 0,
-          userReaction: post.userReaction ?? null,
-          comments: [],
+          ...mapFeedPost(post),
         }));
       } catch (err) {
         console.error('Error fetching user posts:', err);
@@ -164,7 +137,7 @@ export default function SearchResults() {
         new Map(allPosts.map((post) => [post.id, post])).values()
       );
 
-      setPosts(uniquePosts);
+      setPosts(sortFeedPosts(uniquePosts, sortMode));
       if (uniquePosts.length > 0) {
         setPostsError(null);
       }
@@ -172,7 +145,7 @@ export default function SearchResults() {
     };
 
     runFetches();
-  }, [query]);
+  }, [query, sortMode]);
 
   const handlePostDeleted = (id) => {
     setPosts(p => p.filter(post => post.id !== id));
@@ -218,12 +191,13 @@ export default function SearchResults() {
         )}
       </section>
 
-      {/* Posts Section */}
-      <section className="search-posts-section">
-        <h3 className="search-section-title">Posts</h3>
-        {postsLoading && <p className="search-loading">Loading posts...</p>}
-        {postsError && <p className="search-error">Error: {postsError}</p>}
-        {!postsLoading && posts.length === 0 && <p className="search-no-results">No posts found</p>}
+        {/* Posts Section */}
+        <section className="search-posts-section">
+          <h3 className="search-section-title">Posts</h3>
+          <FeedControls sortMode={sortMode} onSortChange={setSortMode} />
+          {postsLoading && <p className="search-loading">Loading posts...</p>}
+          {postsError && <p className="search-error">Error: {postsError}</p>}
+          {!postsLoading && posts.length === 0 && <p className="search-no-results">No posts found</p>}
         
         {!postsLoading && posts.length > 0 && (
           <div className="search-flux-container">

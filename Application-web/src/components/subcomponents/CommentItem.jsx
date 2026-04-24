@@ -19,7 +19,7 @@ function getAttachmentLabel(url) {
   }
 }
 
-export default function CommentItem({ comment, postId, onDeleted, onCountChange }) {
+export default function CommentItem({ comment, postId, onDeleted, onCountChange, depth = 0 }) {
   const { user } = useAuth()
   const [repliesVisible, setRepliesVisible] = useState(false)
   const [replies, setReplies] = useState([])
@@ -31,6 +31,8 @@ export default function CommentItem({ comment, postId, onDeleted, onCountChange 
   const [isSubmittingReply, setIsSubmittingReply] = useState(false)
 
   const canDelete = user?.userId === comment.op?.id || user?.mainAdmin === true
+  const canReply = user && depth === 0
+  const canShowReplies = depth === 0 && nbReponses > 0
 
   const toggleReplies = async () => {
     if (!repliesLoaded) {
@@ -157,7 +159,7 @@ export default function CommentItem({ comment, postId, onDeleted, onCountChange 
           <span className="comment-date">
             {comment.dateCommentaire ? new Date(comment.dateCommentaire).toLocaleDateString() : ''}
           </span>
-          {user && (
+          {canReply && (
             <button
               className="comment-action-btn"
               type="button"
@@ -175,7 +177,7 @@ export default function CommentItem({ comment, postId, onDeleted, onCountChange 
               Delete
             </button>
           )}
-          {nbReponses > 0 && (
+          {canShowReplies && (
             <button
               className="comment-action-btn replies-toggle"
               type="button"
@@ -191,7 +193,7 @@ export default function CommentItem({ comment, postId, onDeleted, onCountChange 
           )}
         </div>
 
-        {replyFormVisible && (
+        {canReply && replyFormVisible && (
           <form className="reply-form" onSubmit={submitReply}>
             <input
               className="comment-input"
@@ -216,7 +218,7 @@ export default function CommentItem({ comment, postId, onDeleted, onCountChange 
           </form>
         )}
 
-        {repliesVisible && replies.length > 0 && (
+        {canShowReplies && repliesVisible && replies.length > 0 && (
           <div className="replies-list">
             {replies.map(reply => (
               <CommentItem
@@ -225,6 +227,7 @@ export default function CommentItem({ comment, postId, onDeleted, onCountChange 
                 postId={postId}
                 onDeleted={handleReplyDeleted}
                 onCountChange={onCountChange}
+                depth={depth + 1}
               />
             ))}
           </div>

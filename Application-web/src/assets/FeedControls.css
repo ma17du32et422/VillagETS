@@ -1,0 +1,159 @@
+.feed-controls-shell {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.feed-controls-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-4) 78%, transparent 22%);
+}
+
+.feed-sort-dropdown {
+  position: relative;
+  z-index: 30;
+}
+
+.feed-sort-trigger {
+  border: none;
+  background: transparent;
+  color: var(--color-6);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 2px;
+  cursor: pointer;
+}
+
+.feed-sort-trigger.open,
+.feed-sort-trigger:hover {
+  color: var(--color-5);
+}
+
+.feed-sort-value {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.feed-sort-caret {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.feed-sort-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 180px;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid var(--color-4);
+  background: color-mix(in srgb, var(--color-2) 97%, white 3%);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.16);
+  z-index: 40;
+}
+
+.feed-sort-option {
+  width: 100%;
+  border: none;
+  background: none;
+  color: var(--color-5);
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.feed-sort-option:hover,
+.feed-sort-option.active {
+  background: var(--color-3);
+}
+
+.marketplace-price-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex: 1 1 auto;
+}
+
+.marketplace-price-inline {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.marketplace-price-label {
+  color: var(--color-6);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.marketplace-price-field {
+  width: 128px;
+}
+
+.marketplace-price-separator {
+  color: var(--color-6);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.marketplace-price-field input {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--color-5) 30%, var(--color-4) 70%);
+  background: var(--color-2);
+  color: var(--color-5);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 12px;
+  outline: none;
+}
+
+.marketplace-price-field input::placeholder {
+  color: var(--color-6);
+}
+
+.marketplace-price-field input:focus {
+  border-color: #1877f2;
+  box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.12);
+}
+
+.marketplace-price-field input.invalid {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.12);
+}
+
+@media (max-width: 700px) {
+  .feed-controls-top-row {
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  .feed-sort-trigger {
+    width: auto;
+    min-width: 0;
+  }
+
+  .marketplace-price-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .marketplace-price-inline {
+    align-items: stretch;
+  }
+
+  .marketplace-price-field {
+    width: auto;
+    flex: 1 1 0;
+  }
+}

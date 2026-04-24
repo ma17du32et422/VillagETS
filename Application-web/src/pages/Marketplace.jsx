@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../AuthContext';
 import Flux from "../components/Flux";
-import { getBaseUrl } from '../API';
+import FeedControls from '../components/FeedControls';
+import {
+  DEFAULT_FEED_SORT_MODE,
+  requestFeed,
+  sortFeedPosts,
+} from '../utils/feed';
 
 import '../assets/App.css';
 import usePageTitle from "../utils/usePageTitle";
@@ -11,6 +16,8 @@ function Marketplace(){
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sortMode, setSortMode] = useState(DEFAULT_FEED_SORT_MODE);
+  const [priceFilter, setPriceFilter] = useState({ min: null, max: null });
 
   usePageTitle("Marketplace")
   
@@ -18,42 +25,18 @@ function Marketplace(){
     if (authLoading) return;
 
     const fetchPosts = async () => {
+      setLoading(true);
       try {
-        const res = await fetch(`${getBaseUrl()}/feed`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            searchString: null,
-            tags: null,
-            isMarketplace: true,
-          }),
+        const data = await requestFeed({
+          isMarketplace: true,
+          minPrice: priceFilter.min,
+          maxPrice: priceFilter.max,
+          pageIndex: 0,
+          sortMode,
         });
 
-        if (!res.ok) {
-          throw new Error('Failed to fetch posts');
-        }
-
-        const data = await res.json();
-        // Filter to only show posts with a price
         const marketplacePosts = data.filter(post => post.prix != null);
-        
-        setPosts(marketplacePosts.map((post) => ({
-          id: post.id,
-          title: post.titre ?? '',
-          contents: post.contenu ?? '',
-          op: post.op ?? { id: null, pseudo: 'Unknown', photoProfil: null },
-          datetime: post.datePublication ?? '',
-          media: post.media ?? [],
-          tags: post.tags ?? [],
-          prix: post.prix ?? null,
-          articleAVendre: post.articleAVendre ?? false,
-          likes: post.likes ?? 0,
-          dislikes: post.dislikes ?? 0,
-          commentaires: post.commentaires ?? 0,
-          userReaction: post.userReaction ?? null,
-          comments: [],
-        })));
+        setPosts(sortFeedPosts(marketplacePosts, sortMode));
         setError(null);
       } catch (err) {
         console.error('Error fetching posts:', err);
@@ -64,7 +47,14 @@ function Marketplace(){
     };
 
     fetchPosts();
-  }, [authLoading, user]);
+  }, [authLoading, priceFilter, sortMode, user]);
+
+  const handlePriceChange = (nextRange) => {
+    setPriceFilter({
+      min: nextRange.min,
+      max: nextRange.max,
+    });
+  };
 
   const handlePostCreated = (newPost) => {
     if (newPost.prix != null) {
@@ -75,7 +65,18 @@ function Marketplace(){
   return(
     <main className="home-main">
       <section className="home-flux-container">
-        <div className="home-flux"><Flux posts={posts} loading={loading} error={error} /></div>
+        <div className="home-flux">
+          <FeedControls
+            sortMode={sortMode}
+            onSortChange={setSortMode}
+            marketplacePriceFilter={{
+              minValue: priceFilter.min,
+              maxValue: priceFilter.max,
+              onChange: handlePriceChange,
+            }}
+          />
+          <Flux posts={posts} loading={loading} error={error} />
+        </div>
       </section>
     </main>
   );

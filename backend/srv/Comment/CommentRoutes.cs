@@ -35,17 +35,24 @@ namespace srv.Comment
                 if (string.IsNullOrWhiteSpace(body.Contenu))
                     return Results.BadRequest("Le contenu du commentaire est requis.");
 
-                var (comment, user) = await commentService.Create(
-                    publicationId,
-                    currentUser.Id!,
-                    body.Contenu,
-                    body.ParentCommentaireId
-                );
+                try
+                {
+                    var (comment, user) = await commentService.Create(
+                        publicationId,
+                        currentUser.Id!,
+                        body.Contenu,
+                        body.ParentCommentaireId
+                    );
 
-                if (comment is null)
-                    return Results.NotFound("Publication ou commentaire parent introuvable.");
+                    if (comment is null)
+                        return Results.NotFound("Publication ou commentaire parent introuvable.");
 
-                return Results.Ok(comment.ToJson(user));
+                    return Results.Ok(comment.ToJson(user));
+                }
+                catch (InvalidOperationException)
+                {
+                    return Results.BadRequest("Replies to replies are not allowed.");
+                }
             });
 
             app.MapDelete("/comment/{commentId}", async (string commentId, HttpContext ctx) =>

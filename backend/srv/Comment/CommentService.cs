@@ -53,6 +53,10 @@ namespace srv.Comment
                 if (!Guid.TryParse(parentCommentId, out var parsedParentCommentId))
                     throw new ArgumentException("Invalid parent comment id.", nameof(parentCommentId));
 
+                var parentComment = await GetById(parentCommentId);
+                if (parentComment?.ParentCommentaire != null)
+                    throw new InvalidOperationException("Replies to replies are not allowed.");
+
                 rpcParentCommentId = parsedParentCommentId;
             }
 
@@ -86,6 +90,17 @@ namespace srv.Comment
                 _logger.LogWarning(ex, "Comment creation failed for publication {PublicationId}", publicationId);
                 return (null, null);
             }
+        }
+
+        private async Task<sql.Commentaire?> GetById(string commentId)
+        {
+            var result = await PerfLogger.TimeAsync(_logger, "CommentService.GetById comment", () => _supabase
+                .From<sql.Commentaire>()
+                .Where(c => c.Id == commentId)
+                .Limit(1)
+                .Get());
+
+            return result.Models.FirstOrDefault();
         }
 
         public async Task<int> Delete(string commentId, string userId)
